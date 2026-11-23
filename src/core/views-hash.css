@@ -1,0 +1,23 @@
+/* VIEWS-HASH v2 START:css */
+/* =========================================================================
+   VIEWS-HASH v2 — طبقة عرض خاصة بموضوع جداول التجزئة (M01–M06)
+   تُضمَّن بعد CORE ولا تعدّله. أي تغيير هنا = views-hash v2.
+   ========================================================================= */
+.mc{display:grid;grid-template-columns:1fr;gap:var(--s2);margin:var(--s2) 0}
+.mc form{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+.mc .out{font-family:ui-monospace,Consolas,monospace;direction:ltr;text-align:left;font-size:.92em;
+  background:var(--surface);border-radius:8px;padding:10px 12px;line-height:1.9;white-space:pre-wrap}
+.mc .out b{color:var(--accent-ink)}
+.mc .row-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.m4{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:var(--s2);margin-top:var(--s2)}
+.m4 .cell{border:1px solid var(--hair);border-radius:var(--r);padding:10px 12px;background:var(--body)}
+.m4 .cell h4{margin:0 0 4px;font-size:.86em;color:var(--ink2);font-weight:650}
+.m4 .cell .v{font-family:ui-monospace,Consolas,monospace;direction:ltr;font-size:1.05em;color:var(--accent-ink)}
+.m4 .cell .f{font-family:ui-monospace,Consolas,monospace;direction:ltr;font-size:.76em;color:var(--ink2);display:block;margin-top:2px}
+.spread{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.spread .b{width:26px;height:26px;border-radius:6px;border:1px solid var(--hair2);display:grid;place-items:center;
+  font-family:ui-monospace,monospace;font-size:.72em;color:var(--ink2);background:var(--body)}
+.spread .b.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.spread .b.many{background:var(--warn-bg);border-color:var(--warn);color:var(--warn);font-weight:700}
+.bday{margin-top:var(--s1);font-size:.9em}
+/* VIEWS-HASH v2 END:css */

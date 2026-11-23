@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+node_modules/
+.DS_Store
+*.zip
+
+# Temporary state, editor, and test artifacts
+.state/
+*.state
+*.state.json
+*.tmp
+*.temp
+*.swp
+*.swo
+.pytest_cache/
+playwright-report/
+test-results/
+coverage/
+_site/

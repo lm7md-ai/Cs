@@ -1,0 +1,57 @@
+
+=== M03 CONTROL TABLE ===
+PASS | 01 زر الوضع: light→dark + يُحفظ                    | want=True | got=True | light→dark ls="dark"
+PASS | 02 العودة إلى light                                | want=light | got=light | 
+PASS | 03 A+ يكبّر حجم الخط                               | want=True | got=True | 17.2px→18.2px
+PASS | 04 A− يصغّر حجم الخط                               | want=True | got=True | 18.2px→16.2px
+PASS | 05 الأنيميشنات مركّبة                              | want=True | got=True | ['chain', 'rehash']
+PASS | 06 خطوات chain=8                                   | want=8 | got=8 | 
+PASS | 07 خطوات rehash=8                                  | want=8 | got=8 | 
+PASS | 08 شريط خطوات chain = 8                            | want=8 | got=8 | 
+PASS | 09 وضع التوقّع يفعّل data-predict                  | want=1 | got=1 | 
+PASS | 10 chain@8: ch-cv = 5 · 12 · 33                    | want=5 · 12 · 33 | got=5 · 12 · 33 | 
+PASS | 11 chain@8: watch chain                            | want=5 · 12 · 33 | got=5 · 12 · 33 | 
+PASS | 12 chain@8: watch length = 3                       | want=3 | got=3 | 
+PASS | 13 chain@8: مؤشر الخطوة Step 8 of 8                | want=Step 8 of 8 | got=Step 8 of 8 | 
+PASS | 14 chain إعادة إلى 0: ch-cv = —                    | want=— | got=— | 
+PASS | 15 زر التالي يتقدّم خطوة                           | want=Step 2 of 8 | got=Step 2 of 8 | 
+PASS | 16 زر السابق يرجع خطوة                             | want=Step 1 of 8 | got=Step 1 of 8 | 
+PASS | 17 زر Start يشغّل من البداية                       | want=True | got=True | Step 1 of 8
+PASS | 18 زر الإعادة يعيد إلى 0                           | want=Step 0 of 8 | got=Step 0 of 8 | 
+PASS | 18b بعد أول تنقّل: التسمية Step 1 of 8 (سلوك CORE) | want=Step 1 of 8 | got=Step 1 of 8 | 
+PASS | 19 rehash@8: M = 11                                | want=11 | got=11 | 
+PASS | 20 rehash@8: λ = 0.36                              | want=0.36 | got=0.36 | 
+PASS | 21 rehash: آخر خانة s = 9                          | want=9 | got=9 | 
+PASS | 22 الجدول الجديد = 11 خانة                         | want=11 | got=11 | 
+PASS | 23 الجدول الجديد في سطر واحد (1280)                | want=1 | got=1 | 
+PASS | 24 PA 3.4.1: ثلاثة أسئلة                           | want=3 | got=3 | 
+PASS | 25 PA: الإجابات الصحيحة تُقبل (3/3)                | want=True | got=True | 
+PASS | 26 PA: علامة الإنجاز على المكوّن                   | want=1 | got=1 | 
+PASS | 27 المقياس: λ = 9 / 5 = 1.80                       | want=λ = 9 / 5 = 1.80 | got=λ = 9 / 5 = 1.80 | 
+PASS | 28 المقياس: تحذير تجاوز 0.75                       | want=True | got=True | λ تجاوز 0.75 ← السلاسل تطول. زر «أعِد ال
+PASS | 29 زر إعادة التجزئة: M = 11                        | want=11 | got=11 | 
+PASS | 30 المقياس: λ بعد التوسيع = 0.82                   | want=λ = 9 / 11 = 0.82 | got=λ = 9 / 11 = 0.82 | 
+PASS | 31 تصفير المقياس                                   | want=λ = 4 / 5 = 0.80 | got=λ = 4 / 5 = 0.80 | 
+PASS | 32 تحدي 3.5.1: إجابة صحيحة تُقبل                   | want=True | got=True | جدول سلسلة M = 12 وعتبة التوسيع 0.75. ما أكبر عدد مفاتيح يبق
+PASS | 33 تحدي: زر Next يُفعّل بعد الاجتياز               | want=False | got=False | 
+PASS | 34 تحدي: Next ينقل إلى المستوى 2                   | want=True | got=True | 
+PASS | 35 تحدي: إعادة إلى المستوى 1                       | want=1 | got=1 | 
+PASS | 36 الاختبار: 10 أسئلة                              | want=10 | got=10 | 
+PASS | 37 الاختبار: كل الإجابات صحيحة = 10 / 10           | want=10 / 10 | got=10 / 10 | 
+PASS | 38 الاختبار: تغذية راجعة على كل سؤال               | want=10 | got=10 | 
+PASS | 39 إعادة الاختبار تصفّر النتيجة                    | want=True | got=True | 
+PASS | 40 الاختبارات الذاتية: 7 صفوف                      | want=7 | got=7 | 
+PASS | 41 الاختبارات الذاتية: 7/7 مطابق                   | want=7 | got=7 | 
+PASS | 42 الاختبارات الذاتية: ملخّص 7/7                   | want=True | got=True | النتيجة: 7/7
+PASS | 43 قائمة التحقّق: 5 بنود                           | want=5 | got=5 | 
+PASS | 44 قائمة التحقّق: العدّاد 5 من 5                   | want=أنجزت 5 من 5 | got=أنجزت 5 من 5 | 
+PASS | 45 قائمة التحقّق: محفوظة في localStorage           | want=5 | got=5 | 
+PASS | 46 أزرار النسخ في كتل الكود: 2                     | want=2 | got=2 | 
+PASS | 47 زر النسخ يبدّل الحالة إلى done                  | want=True | got=True | 
+PASS | 48 عنصر الطيّ (تفاصيل الحل) موجود ويُفتح           | want=True | got=True | 
+PASS | 49 جميع روابط الفهرس تشير إلى أقسام موجودة         | want=0 | got=0 | 
+PASS | 50 لا فيض أفقي 1280                                | want=0 | got=0 | 
+PASS | 51 لا فيض أفقي 390                                 | want=0 | got=0 | 
+PASS | 52 لا أخطاء JS                                     | want=0 | got=0 | []
+
+53/53 passed

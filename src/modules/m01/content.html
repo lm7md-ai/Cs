@@ -1,0 +1,315 @@
+<div class="topbar">
+  <div class="who">
+    <span class="tagm">CS2015</span>
+    <span class="mid">جداول التجزئة · Hash Tables</span>
+    <span class="sm muted">M01</span>
+  </div>
+  <div class="tools">
+    <button class="iconbtn only" id="fsMinus" type="button" aria-label="تصغير الخط">A&minus;</button>
+    <button class="iconbtn only" id="fsPlus" type="button" aria-label="تكبير الخط">A+</button>
+    <button class="iconbtn only" id="themeBtn" type="button" aria-label="تبديل الوضع"></button>
+    <a class="iconbtn only" href="#s116" aria-label="إلى الاختبار"><svg class="ic"><use href="#i-target"/></svg></a>
+  </div>
+</div>
+<div class="thumbra"><i id="scrollProg"></i></div>
+
+<div class="shell">
+<nav class="rail" aria-label="فهرس الوحدة">
+  <h2>الفهرس</h2>
+  <ol>
+    <li><a href="#s11"><span class="n">1.1</span>لماذا التجزئة</a></li>
+    <li><a href="#s12"><span class="n">1.2</span>الخريطة Map</a></li>
+    <li><a href="#s13"><span class="n">1.3</span>الفكرة</a></li>
+    <li><a href="#s14"><span class="n">1.4</span>حساب باليد</a></li>
+    <li><a href="#s15"><span class="n">1.5</span>تحدٍّ</a></li>
+    <li><a href="#s16"><span class="n">1.6</span>اختبار</a></li>
+  </ol>
+  <div class="prog">
+    <div class="sm muted" style="display:flex;justify-content:space-between;gap:8px"><span>إنجاز الأنشطة</span><span id="railProgTxt">0%</span></div>
+    <div class="bar" style="margin-top:6px"><i id="introProg"></i></div>
+  </div>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="kick">
+    <span class="tagm">Module 01 · Slides 1–6 of 33</span>
+    <span class="slidep">CS2015 · Hash Tables — Dr. Areej Alsini · Dr. Saeed Altalhi</span>
+  </div>
+  <h1>جداول التجزئة: من البحث الخطّي إلى <span class="mono" dir="ltr">O(1)</span></h1>
+  <p class="lede">الشريحة تقول «ابحث عن المفتاح في خانة واحدة». تغطي هذه الوحدة الشرائح 1–6: الفكرة، الخريطة، القاعدة، والمثال المحسوب. أما دالة التجزئة بشقيها والتصادمات فموضعها الوحدة التالية (الشرائح 7–11).</p>
+  <div class="metaline">
+    <span>6 شرائح (1–6)</span><span>6 أقسام</span><span>1 Participation</span><span>1 Challenge</span><span>8 أسئلة اختبار</span>
+  </div>
+  <div class="progcard">
+    <span>تقدّمك في أنشطة الوحدة:</span>
+    <div class="bar"><i id="introProg2"></i></div>
+    <span class="mono" id="introProgTxt">0%</span>
+  </div>
+</header>
+
+<div data-slide="1" class="sm muted" style="border-bottom:1px solid var(--hair);padding-bottom:var(--s2);margin-bottom:var(--s3)">
+  <b>الشريحة 1 — صفحة العنوان:</b> Hash Tables · Hash functions · Collisions: chaining and open addressing · O(1) search and insert — Dr. Areej Alsini · Dr. Saeed Altalhi · Adapted from Goodrich, Tamassia &amp; Goldwasser (2013), ch. 10 — Maps, Hash Tables, and Skip Lists; Knuth (1998), §6.4.
+</div>
+
+<!-- ================= 1.1 ================= -->
+<section class="sec reveal" id="s11">
+  <div class="num"><b>1.1</b><span>لماذا</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 2</span></div>
+    <h2>البحث عن شيء في O(1) — في المتوسط</h2>
+    <div data-slide="2">
+      <div class="quote">
+        <span class="term">Where we are</span>
+        <p>“So far, finding a value meant looking through the data: list / linked list — check items one by one, O(n); sorted list + binary search — O(log n), but inserting is O(n). This week: a structure where you go straight to the item — O(1).”</p>
+        <span class="src">Hash Tables, slide 2</span>
+      </div>
+      <p>كل ما تعلّمته حتى الآن يكلّفك <b>مقارنات</b>: القائمة تُفحص عنصرًا عنصرًا، والقائمة المرتّبة تسمح بالبحث الثنائي لكن الإدخال في المنتصف يزحزح بقية العناصر. جدول التجزئة يغيّر السؤال: بدلًا من «أين قد يكون المفتاح؟» نسأل «ما رقم الخانة التي <i>يحسبها</i> المفتاح نفسه؟». إذا عرفنا رقم الخانة حسابيًا، فلا حاجة إلى بحث أصلًا.</p>
+      <div class="tw"><table>
+        <caption>سلّم التكلفة قبل التجزئة (من الشريحة)</caption>
+        <thead><tr><th>البنية</th><th class="c">بحث</th><th class="c">إدخال</th><th>لماذا؟</th></tr></thead>
+        <tbody>
+          <tr><td>قائمة / قائمة مرتبطة</td><td class="c ltr">O(n)</td><td class="c ltr">O(1) في الرأس</td><td>فحص متسلسل بلا عناوين</td></tr>
+          <tr><td>قائمة مرتّبة + بحث ثنائي</td><td class="c ltr">O(log n)</td><td class="c ltr">O(n)</td><td>الإدخال يزحزح العناصر</td></tr>
+          <tr><td>جدول تجزئة</td><td class="c ltr">O(1)</td><td class="c ltr">O(1)</td><td>الفهرس يُحسب، لا يُبحث عنه</td></tr>
+        </tbody>
+      </table></div>
+      <p>الشريحة تذكر مثالًا عمليًا: نظام سجلات طلاب فيه <span class="mono" dir="ltr">50 000</span> سجل. بحث خطّي واحد = حتى 50 000 مقارنة؛ جدول تجزئة = حساب واحد ثم خانة واحدة. في الاختبار، السؤال المتكرّر هو <b>«لماذا لا يكفي البحث الثنائي؟»</b> — الجواب: لأنه يكلّف <span class="mono" dir="ltr">O(log n)</span> في البحث و<span class="mono" dir="ltr">O(n)</span> في الإدخال، والتجزئة تعطي <span class="mono" dir="ltr">O(1)</span> في الاثنين معًا (في المتوسط).</p>
+      <div class="aside"><span class="k"><svg class="ic"><use href="#i-target"/></svg> لماذا هذا المثال؟</span>
+        <p>الرقم 50 000 يجعل الفرق ملموسًا: 50 000 مقابل 1 ليس تحسينًا في الثابت، بل تغيير في رتبة النمو — وهذا هو معيار CLO 2.2.</p></div>
+      <div class="fold"><details class="ex"><summary><svg class="ic"><use href="#i-bulb"/></svg> تمرين 1.1 — اختر البنية <span class="ex-lbl">أظهر الحل</span></summary>
+        <p><b>السؤال:</b> تحتاج بحثًا متكرّرًا عن أسماء 20 000 طالب، وإضافة أسماء جديدة باستمرار، ولا تحتاج ترتيبهم. أي بنية تختار ولماذا؟</p>
+        <p><b>الحل:</b> جدول تجزئة (أو <span class="mono" dir="ltr">dict</span> في بايثون). البحث والإدخال <span class="mono" dir="ltr">O(1)</span> في المتوسط. القائمة المرتّبة تعطي بحثًا <span class="mono" dir="ltr">O(log n)</span> لكن إدخالها <span class="mono" dir="ltr">O(n)</span>، ولا فائدة من الترتيب لأننا لا نطلبه.</p>
+      </details></div>
+      <p class="sm muted">الأهداف المعلنة على الشريحة (CLO 1.2, 2.1, 2.2): وصف دالة التجزئة وشروط جودتها · حساب <span class="mono" dir="ltr">hash(key) % M</span> يدويًا · معالجة التصادم بالسلسلة والعنونة المفتوحة (خطية، تربيعية، مزدوجة) · شرح معامل الحِمل ومتى نكبّر · بناء جدول في بايثون وعدّ الكلمات وتجميع الجناس.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.2 ================= -->
+<section class="sec reveal" id="s12">
+  <div class="num"><b>1.2</b><span>الخريطة</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 3</span></div>
+    <h2>ما نريده فعلًا: خريطة من مفتاح إلى قيمة</h2>
+    <div data-slide="3">
+      <div class="quote">
+        <span class="term">Map / dictionary / associative array</span>
+        <p>“We want a map from keys to values — also called dictionary or associative array.”</p>
+        <span class="src">Hash Tables, slide 3 · Goodrich et al. (2013) §10.1</span>
+      </div>
+      <p>الخريطة <span class="mono" dir="ltr">map</span> تجمع أزواج (مفتاح، قيمة): المفتاح فريد، والقيمة تُستدعى به. كل عملياتها في بايثون قائمة على جدول تجزئة، لذلك نفهمها بسرعة: العملية نفسها هي الواجهة، والتجزئة هي التنفيذ.</p>
+      <div class="tw"><table>
+        <caption>عمليات الخريطة كما في الشريحة</caption>
+        <thead><tr><th>العملية</th><th class="ltr">Python dict</th><th class="ltr">مثال</th><th>المعنى</th></tr></thead>
+        <tbody>
+          <tr><td>إدراج أو تحديث</td><td class="ltr">map[k] = v</td><td class="ltr">d['ali'] = 90</td><td>insert or update</td></tr>
+          <tr><td>قراءة</td><td class="ltr">map[k]</td><td class="ltr">d['ali']</td><td>look up — KeyError إن غاب</td></tr>
+          <tr><td>حذف</td><td class="ltr">del map[k]</td><td class="ltr">del d['ali']</td><td>remove</td></tr>
+          <tr><td>اختبار وجود</td><td class="ltr">k in map</td><td class="ltr">'ali' in d</td><td>does the key exist?</td></tr>
+          <tr><td>العدد</td><td class="ltr">len(map)</td><td class="ltr">len(d)</td><td>number of pairs</td></tr>
+        </tbody>
+      </table></div>
+      <p>مثال الشريحة: <span class="mono" dir="ltr">'ali' → 90</span> · <span class="mono" dir="ltr">'sara' → 85</span> · <span class="mono" dir="ltr">'omar' → 77</span>. السؤال التصميمي: كيف نخزّن هذه الأزواج بحيث نصل إلى قيمة مفتاح في خطوة واحدة؟</p>
+      <p><b>الطريق الساذج وتكلفته:</b> خزّن الأزواج في قائمة وابحث فيها → البحث <span class="mono" dir="ltr">O(n)</span>. رتّبها واستخدم البحث الثنائي → البحث <span class="mono" dir="ltr">O(log n)</span> لكن الإدخال في المنتصف <span class="mono" dir="ltr">O(n)</span>. الشريحة تصف هذا صراحة بأنه غير كافٍ لنظام فيه 50 000 سجل.</p>
+      <div class="aside warn"><span class="k"><svg class="ic"><use href="#i-warn"/></svg> ملاحظة على الشريحة</span>
+        <p>الشريحة تكتب <span class="mono" dir="ltr">O(1)</span> للبحث والإدراج دون كلمة «متوسط» في عنوان القسم؛ الدقة التي تعتمدها الوحدة في كل مكان: <b>O(1) في المتوسط، O(n) في الأسوأ</b>. لا تكتب <span class="mono" dir="ltr">O(1)</span> مطلقًا في الاختبار بلا «متوسط».</p></div>
+      <div class="fold"><details class="ex"><summary><svg class="ic"><use href="#i-bulb"/></svg> تمرين 1.2 — لماذا الإدخال في قائمة مرتّبة O(n)؟ <span class="ex-lbl">أظهر الحل</span></summary>
+        <p><b>الحل:</b> لأن موضع الإدراج في المنتصف يفرض تحريك كل العناصر التي بعده خانةً واحدة للحفاظ على الترتيب؛ عدد الحركات يتناسب مع n، فلا مفرّ من <span class="mono" dir="ltr">O(n)</span>. في جدول التجزئة لا يوجد ترتيب يجب حمايته، لذا الإدخال لا يزحزح شيئًا.</p>
+      </details></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.3 ================= -->
+<section class="sec reveal" id="s13">
+  <div class="num"><b>1.3</b><span>الفكرة</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحتان 4 و 5</span></div>
+    <h2>الفكرة: حوّل المفتاح إلى رقم خانة</h2>
+    <div data-slide="4">
+      <div class="quote">
+        <span class="term">In plain words</span>
+        <p>“The rule tells you, from the key alone, which box (slot) to open. To store: apply the rule → box number → put the pair there. No searching. To find: apply the same rule → same box → open that one box. Still no searching. The catch: two different keys can give the same box number — a collision.”</p>
+        <span class="src">Hash Tables, slide 4</span>
+      </div>
+      <p>تصوّر خزانة فيها صناديق مرقّمة. القاعدة تقول: من المفتاح وحده، استخرج رقم الصندوق. لا تُفتش، تُحسب. الشريحة تسمّي القاعدة <b>hash function</b> والصناديق <b>slots</b>، والحالة التي يعطي فيها مفتاحان رقمًا واحدًا <b>collision</b>. النصف الأول من المحاضرة يُبنى على «لا بحث»، والنصف الثاني يُعالج استثناء «مفتاحان، صندوق واحد».</p>
+    </div>
+    <div data-slide="5">
+      <div class="flow" style="margin-top:var(--s3)">
+        <div class="node"><span class="lbl">key</span><span class="mono" dir="ltr">'omar'</span></div>
+        <svg class="arrowline" viewBox="0 0 60 12" role="img" aria-label="سهم"><path d="M58 6H14"/><path d="M22 2l-8 4 8 4"/></svg>
+        <div class="node"><span class="lbl">hash function</span><span class="mono" dir="ltr">h(key)</span></div>
+        <svg class="arrowline" viewBox="0 0 60 12" role="img" aria-label="سهم"><path d="M58 6H14"/><path d="M22 2l-8 4 8 4"/></svg>
+        <div class="node hot"><span class="lbl">slot (index)</span><span class="mono" dir="ltr">3</span></div>
+        <svg class="arrowline" viewBox="0 0 60 12" role="img" aria-label="سهم"><path d="M58 6H14"/><path d="M22 2l-8 4 8 4"/></svg>
+        <div class="node"><span class="lbl">array slot</span><span class="mono" dir="ltr">[3]</span></div>
+      </div>
+      <svg viewBox="0 0 600 120" style="width:100%;max-width:600px;height:auto;display:block" role="img" aria-label="مصفوفة من ثماني خانات فيها ali في 0 و omar في 2 و sara في 5">
+        <g font-family="ui-monospace,monospace" font-size="11" fill="#5C5852">
+          <rect x="4" y="30" width="66" height="46" rx="6" fill="none" stroke="#2A6F68" stroke-width="1.75"/><text x="37" y="52" text-anchor="middle" fill="#22211E">ali</text><text x="37" y="68" text-anchor="middle" font-size="10">0</text>
+          <rect x="78" y="30" width="66" height="46" rx="6" fill="none" stroke="#D3CCBC" stroke-width="1.75"/><text x="111" y="68" text-anchor="middle" font-size="10">1</text>
+          <rect x="152" y="30" width="66" height="46" rx="6" fill="none" stroke="#2A6F68" stroke-width="1.75"/><text x="185" y="52" text-anchor="middle" fill="#22211E">omar</text><text x="185" y="68" text-anchor="middle" font-size="10">2</text>
+          <rect x="226" y="30" width="66" height="46" rx="6" fill="none" stroke="#D3CCBC" stroke-width="1.75"/><text x="259" y="68" text-anchor="middle" font-size="10">3</text>
+          <rect x="300" y="30" width="66" height="46" rx="6" fill="none" stroke="#D3CCBC" stroke-width="1.75"/><text x="333" y="68" text-anchor="middle" font-size="10">4</text>
+          <rect x="374" y="30" width="66" height="46" rx="6" fill="none" stroke="#2A6F68" stroke-width="1.75"/><text x="407" y="52" text-anchor="middle" fill="#22211E">sara</text><text x="407" y="68" text-anchor="middle" font-size="10">5</text>
+          <rect x="448" y="30" width="66" height="46" rx="6" fill="none" stroke="#D3CCBC" stroke-width="1.75"/><text x="481" y="68" text-anchor="middle" font-size="10">6</text>
+          <rect x="522" y="30" width="66" height="46" rx="6" fill="none" stroke="#D3CCBC" stroke-width="1.75"/><text x="555" y="68" text-anchor="middle" font-size="10">7</text>
+        </g>
+      </svg>
+      <div class="legend">
+        <span><i style="background:#2A6F68"></i>خانة مشغولة (slot occupied)</span>
+        <span><i style="background:#D3CCBC"></i>خانة فارغة (empty)</span>
+        <span>M = 8 خانة · الفهارس 0 … 7</span>
+      </div>
+      <p style="margin-top:var(--s3)">خطوتان فقط لكل عملية: <b>1)</b> احسب <span class="mono" dir="ltr">i = h(key)</span> · <b>2)</b> اذهب مباشرة إلى الخانة <span class="mono" dir="ltr">i</span>. لا مسح، ولا مقارنة إلا عند التصادم. الشريحة تختم بتعريف:</p>
+      <div class="aside ok"><span class="k"><svg class="ic"><use href="#i-info"/></svg> التعريف</span>
+        <p><b>Hash table</b> = مصفوفة من M خانة + دالة تجزئة h. كل زوج (مفتاح، قيمة) يُخزَّن في الخانة <span class="mono" dir="ltr">h(key)</span>، فيصبح البحث والإدراج والحذف <span class="mono" dir="ltr">O(1)</span> في المتوسط.</p></div>
+      <p>وفي نهاية الشريحة سؤالان يقودان بقية المحاضرة: كيف نحوّل مفتاحًا عشوائيًا (نصًّا، زوجًا…) إلى عدد بين <span class="mono" dir="ltr">0</span> و<span class="mono" dir="ltr">M−1</span>؟ وماذا لو حصل مفتاحان على الخانة نفسها؟</p>
+    </div>
+    <div id="host-pa1"></div>
+    <div class="aside"><span class="k"><svg class="ic"><use href="#i-target"/></svg> لماذا هذا المثال؟</span>
+      <p>مثال <span class="mono" dir="ltr">'omar' → 3 → [3]</span> يفصل بين «القيمة» و«الموضع»: القيمة تُخزَّن، والموضع يُحسب. كل خطأ لاحق في الوحدة (نسيان إعادة التجزئة، مسح كل الخانات) سببه الخلط بين هذين الأمرين.</p></div>
+  </div>
+</section>
+
+<!-- ================= 1.4 ================= -->
+<section class="sec reveal" id="s14">
+  <div class="num"><b>1.4</b><span>باليد</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 6</span></div>
+    <h2>مثال محسوب بالكامل: 7 سجلات في 7 خانات</h2>
+    <div data-slide="6">
+      <p>القاعدة: <span class="mono" dir="ltr">h(key) = key % 7</span> على سجلات القسم: (1, Ali) (3, Raad) (7, Abdullah) (25, Saad) (15, Saeed) (4, Waleed) (12, Sami).</p>
+      <div class="tw"><table>
+        <caption>حساب الخانة الأصلية home slot لكل مفتاح</caption>
+        <thead><tr><th class="ltr">key</th><th class="ltr">compute</th><th>home slot</th><th>الحالة</th></tr></thead>
+        <tbody>
+          <tr><td class="ltr">1</td><td class="ltr">1 % 7 = 1</td><td>slot 1</td><td>—</td></tr>
+          <tr><td class="ltr">3</td><td class="ltr">3 % 7 = 3</td><td>slot 3</td><td>—</td></tr>
+          <tr><td class="ltr">7</td><td class="ltr">7 % 7 = 0</td><td>slot 0</td><td>—</td></tr>
+          <tr><td class="ltr">25</td><td class="ltr">25 % 7 = 4</td><td>slot 4</td><td>—</td></tr>
+          <tr><td class="ltr">15</td><td class="ltr">15 % 7 = 1</td><td>slot 1</td><td>تصادم مع 1</td></tr>
+          <tr><td class="ltr">4</td><td class="ltr">4 % 7 = 4</td><td>slot 4</td><td>تصادم مع 25</td></tr>
+          <tr><td class="ltr">12</td><td class="ltr">12 % 7 = 5</td><td>slot 5</td><td>—</td></tr>
+        </tbody>
+      </table></div>
+      <p>الجدول بعد الإدخال (الشريحة تعرض التصادمات متجاورةً في الخانة نفسها — هذا هو مبدأ السلسلة الذي يأتي في 1.7). الخانات المشغولة: <span class="mono" dir="ltr">0, 1, 3, 4, 5</span>؛ والخانات <span class="mono" dir="ltr">2, 6</span> فارغة. بحث عن المفتاح 7: <span class="mono" dir="ltr">7 % 7 = 0</span> ← الخانة 0 ← <span class="mono" dir="ltr">'Abdullah'</span>. حساب واحد ونظرة واحدة: <span class="mono" dir="ltr">O(1)</span> دون مسح الخانات الست الأخرى.</p>
+    </div>
+
+    <div class="anim" data-anim="pipe" id="anim-pipe">
+      <div class="act-h">
+        <span class="act-k">Animation <b>1.4.1</b></span>
+        <h3>كيف يدخل المفتاح الخانة — ثم يصطدم</h3>
+        <label class="pred"><input type="checkbox" class="predict"> وضع التوقّع</label>
+      </div>
+      <div class="stage" style="min-height:300px">
+        <div class="flow">
+          <div class="node" id="n-key"><span class="lbl">key</span><span class="mono" id="keyv">1</span></div>
+          <svg class="arrowline" viewBox="0 0 60 12" role="img" aria-hidden="true"><path id="ar1" d="M58 6H16"/><path d="M24 2l-8 4 8 4"/></svg>
+          <div class="node" id="n-h"><span class="lbl">key % 7</span><span class="countup" id="cu">0</span></div>
+          <svg class="arrowline" viewBox="0 0 60 12" role="img" aria-hidden="true"><path id="ar2" d="M58 6H16"/><path d="M24 2l-8 4 8 4"/></svg>
+          <div class="node" id="n-slot"><span class="lbl">slot</span><span class="mono" id="niv">—</span></div>
+        </div>
+        <div class="slotrow" id="row" style="margin-top:var(--s4)">
+          <div class="slot" id="p0"><i class="ix">0</i></div>
+          <div class="slot" id="p1"><i class="ix">1</i></div>
+          <div class="slot" id="p2"><i class="ix">2</i></div>
+          <div class="slot" id="p3"><i class="ix">3</i></div>
+          <div class="slot" id="p4"><i class="ix">4</i></div>
+          <div class="slot" id="p5"><i class="ix">5</i></div>
+          <div class="slot" id="p6"><i class="ix">6</i></div>
+        </div>
+        <div class="chip" data-chip="c1" data-home="n-key" style="opacity:0"><span class="t">1</span></div>
+        <div class="chip" data-chip="c7" data-home="n-key" style="opacity:0"><span class="t">7</span></div>
+        <div class="chip" data-chip="c25" data-home="n-key" style="opacity:0"><span class="t">25</span></div>
+        <div class="chip" data-chip="c15" data-home="n-key" data-dy="30" style="opacity:0"><span class="t">15</span></div>
+      </div>
+      <div class="controls">
+        <button class="btn" type="button" data-a="start"><svg class="ic"><use href="#i-play"/></svg> Start</button>
+        <button class="btn ghost" type="button" data-a="prev"><svg class="ic"><use href="#i-prev"/></svg> السابق</button>
+        <button class="btn ghost" type="button" data-a="next"><svg class="ic"><use href="#i-next"/></svg> التالي</button>
+        <button class="btn ghost" type="button" data-a="play"><svg class="ic"><use href="#i-play"/></svg> تشغيل</button>
+        <button class="btn ghost" type="button" data-a="pause"><svg class="ic"><use href="#i-pause"/></svg> إيقاف</button>
+        <button class="btn ghost" type="button" data-a="reset"><svg class="ic"><use href="#i-reset"/></svg> إعادة</button>
+        <button class="btn ghost" type="button" data-a="speed" aria-label="سرعة عادية" aria-pressed="false">2x speed</button>
+        <div class="segstrip" aria-label="شريط الخطوات"></div>
+        <span class="stepno">Step 0 of 16</span>
+      </div>
+      <div class="askbox" hidden>
+        <div class="askq"></div>
+        <div class="askopts opts"></div>
+        <div class="askfb"></div>
+      </div>
+      <p class="cap"><span class="why">لماذا</span><span class="txt">اضغط Start لتبدأ. الشريحة تضع 7 ثم 15 في الخانة 1 نفسها — شاهد ماذا يحدث عند الاصطدام.</span></p>
+      <div class="watch">
+        <div class="w"><span>key</span><b data-w="k">—</b></div>
+        <div class="w"><span>h(key)</span><b data-w="h">—</b></div>
+        <div class="w"><span>slot</span><b data-w="i">—</b></div>
+        <div class="w"><span>collisions</span><b data-w="c">0</b></div>
+      </div>
+    </div>
+
+    <div id="host-sandbox"></div>
+
+    <div class="aside"><span class="k"><svg class="ic"><use href="#i-target"/></svg> لماذا هذا المثال؟</span>
+      <p>الأرقام صغيرة (7 خانات) لكن الخانات المختارة محسوبة: 7 يذهب إلى 0 لأنه مضاعف للمقاس، و15 و4 هما حالتا التصادم الوحيدتان — لذلك يصلح المثال كمرجع لكل تمرين حسابي لاحق.</p></div>
+  </div>
+</section>
+
+<!-- ================= 1.5 ================= -->
+<section class="sec reveal" id="s15">
+  <div class="num"><b>1.5</b><span>تحدٍّ</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">نشاط تطبيقي · 5 مستويات · الشرائح 3–6</span></div>
+    <h2>تحدّي: احسب الخانة بنفسك</h2>
+    <p>خمسة مستويات على مادة الشرائح 1–6: الخانة الأصلية، التصادم، عدد الخانات المشغولة، وبحثٌ خطوة واحدة. الإجابة الصحيحة تُجيز <b>Next</b>؛ والخطأ يعطي تلميحًا ثم <b>Try again</b> بسؤال جديد في المستوى نفسه.</p>
+    <div id="challenge"></div>
+    <div class="aside"><span class="k"><svg class="ic"><use href="#i-info"/></svg> كيف يُحتسب الإنجاز</span>
+      <p>يُسجَّل النشاط مكتملًا عند اجتياز المستويات الخمسة، ويُحفظ في المتصفح.</p></div>
+  </div>
+</section>
+
+<!-- ================= 1.6 ================= -->
+<section class="sec reveal" id="s16">
+  <div class="num"><b>1.6</b><span>اختبار</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">8 أسئلة على الشرائح 1–6 · تصحيح فوري</span></div>
+    <h2>الاختبار القصير</h2>
+    <p>أجب ثم اضغط <b>صحّح</b>. كل سؤال يشرح سببه بعد التصحيح، ونُسجّل المواضيع التي أخطأت فيها لتظهر في «مواضيعك الأضعف».</p>
+    <div id="quizList"></div>
+    <div class="scorebar">
+      <span>النتيجة: <span class="big" id="scoreVal">—</span> <span id="scoreMsg"></span></span>
+      <span class="acts" style="margin:0">
+        <button class="btn" type="button" id="gradeBtn">صحّح</button>
+        <button class="btn ghost" type="button" id="retryBtn">إعادة</button>
+        <button class="btn ghost" type="button" id="onlyWrong">راجع الأخطاء فقط</button>
+        <button class="btn ghost" type="button" id="showAll">كل الأسئلة</button>
+      </span>
+    </div>
+
+    <div id="weakBox" style="margin-top:var(--s4)">
+      <h3>مواضيعك الأضعف</h3>
+      <div id="weakBody"></div>
+      <button class="btn ghost" type="button" id="clearHist" style="margin-top:var(--s2)"><svg class="ic"><use href="#i-trash"/></svg> امسح السجل</button>
+      <p class="sm muted" style="margin-top:var(--s2)">يُحفظ آخر 10 محاولات في هذا المتصفح فقط (localStorage).</p>
+    </div>
+
+    <h3 style="margin-top:var(--s5)">فحوص ذاتية محسوبة</h3>
+    <p class="sm muted">تُحسب عند التحميل من بيانات الوحدة وتُقارن بأرقام الشريحة 6:</p>
+    <div id="selftests"></div>
+
+    <h3 style="margin-top:var(--s5)">تحقق من فهمك</h3>
+    <p class="sm muted">علّم ما أنجزته فعلًا؛ الحالة تُحفظ محليًا.</p>
+    <div id="checkList"></div>
+
+    <div class="aside ok" style="margin-top:var(--s4)"><span class="k"><svg class="ic"><use href="#i-arrow"/></svg> التالي</span>
+      <p>الوحدة 02 تبدأ من الشريحة 7: <b>hash code + compression</b>، خصائص الدالة الجيدة، الطرق الأربع، ثم التصادم واستراتيجيات السبر.</p></div>
+  </div>
+</section>
+
+<footer class="sec" style="display:block;border-top:1px solid var(--hair);padding-top:var(--s3)">
+  <p class="sm muted">CS2015 · الوحدة 01 — جداول التجزئة (الشرائح 1–6 من 33) · تغطية كاملة لكل شريحة في النطاق · كل شيء يعمل بلا إنترنت.</p>
+</footer>
+</main>
+</div>

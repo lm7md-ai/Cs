@@ -1,0 +1,126 @@
+{
+  "core": "1.1",
+  "date": "2026-11-22",
+  "final_dir": "/home/user/CS2015/final",
+  "files": {
+    "core.css": {
+      "sha256": "9b5a980f0d2e5ef64b5eb295c0e1690d6e7d2794979f8b1926ea43c5a732d719",
+      "bytes": 23216
+    },
+    "core.js": {
+      "sha256": "f05f99fbb3e0ca83c4ebdea79830d06ab18f769dcf9642a776af86759ec046ad",
+      "bytes": 35268
+    },
+    "sprite.html": {
+      "sha256": "ca19ea6c7bbefc7bef18f1aaba13a8e3f2dacfa44298861142e9335cc86dd10a",
+      "bytes": 2835
+    }
+  },
+  "views": {
+    "hash": {
+      "version": "2",
+      "files": {
+        "views-hash.css": {
+          "sha256": "fa3e7d5e2b0d0c2f4e5434402fa01272bcb0b617df1a5b285cf8e1d5d033444b",
+          "bytes": 1943
+        },
+        "views-hash.js": {
+          "sha256": "5f160b7d9eda3ce0855363571ed638c3d598f0b9ca7892876749470f6822c04f",
+          "bytes": 5601
+        }
+      },
+      "used_by": [
+        "m01 (optional)",
+        "m02",
+        "m03",
+        "m04",
+        "m05",
+        "m06"
+      ]
+    },
+    "codenotes": {
+      "version": "1",
+      "files": {
+        "views-codenotes.css": {
+          "sha256": "99e3c96fe80c0380f0c6bf9193b67d41fdc6e4f810a783034c6942d48e8e1ee3",
+          "bytes": 2096
+        },
+        "views-codenotes.js": {
+          "sha256": "b7822c93cea11132714dba446566f9775f7134bdbd76f58d56e733ad737e50e6",
+          "bytes": 3143
+        }
+      },
+      "used_by": [
+        "m02",
+        "m03",
+        "m04",
+        "m05",
+        "m06"
+      ]
+    }
+  },
+  "modules": {
+    "m01": {
+      "file": "module01_hash_basics.html",
+      "sha256": "89256174a966217cf5912d056eba6538eb3be4bed5e552d50baa608a7a6af4a3",
+      "bytes": 104296,
+      "pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "views": []
+    },
+    "m02": {
+      "file": "module02_hash_functions.html",
+      "sha256": "4f0082ea5c0b161951e8cb9aa3c4cdbb309d9dae2069d78de27749f9100336da",
+      "bytes": 113030,
+      "pages": [
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "views": [
+        "hash",
+        "codenotes"
+      ]
+    },
+    "m03": {
+      "file": "module03_chaining_loadfactor.html",
+      "sha256": "15c636a03ecb224e3f30623a1eac4f133d1b3f515bbd48ea028752c9279458ee",
+      "bytes": 134056,
+      "pages": [
+        12,
+        13,
+        14,
+        25,
+        26
+      ],
+      "views": [
+        "hash",
+        "codenotes"
+      ]
+    },
+    "m04": {
+      "file": "module04_open_addressing.html",
+      "bytes": 120026,
+      "sha256": "4544ba3f4bfd5fc69a61bf49035e340b4e066b77665de052fd47300c3ebafbea",
+      "pages": [
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "views": [
+        "hash"
+      ]
+    }
+  },
+  "rule": "base = byte-identical in every module; topic views are separate versioned blocks; any base edit = stop and ask"
+}

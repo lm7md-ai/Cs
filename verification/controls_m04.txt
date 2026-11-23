@@ -1,0 +1,47 @@
+CONTROLS M04 — 46/46 PASS
+01. PASS  theme toggles
+02. PASS  theme persists after reload
+03. PASS  font A+ increases
+04. PASS  font A- restores
+05. PASS  selftests rendered (7)
+06. PASS  selftests all match
+07. PASS  anim probe has 7 steps
+08. PASS  anim probe goto(2)
+09. PASS  anim probe watch writes
+10. PASS  anim probe final shows 44 found
+11. PASS  anim probe marks done in state
+12. PASS  anim probe rewinds
+13. PASS  cluster block 2–5
+14. PASS  cluster probes 2.5
+15. PASS  cluster home 2
+16. PASS  cluster shows 4 chips
+17. PASS  tool default used 10/10
+18. PASS  tool default max probes 7
+19. PASS  tool default search found 7
+20. PASS  tool 44 absent correct
+21. PASS  tool 44 found after insert
+22. PASS  tool marks state
+23. PASS  PA has 3 questions
+24. PASS  PA completes when answered
+25. PASS  PA feedback ok class
+26. PASS  PA shows reasons
+27. PASS  challenge mounted
+28. PASS  challenge shows level 1
+29. PASS  challenge asks a question
+30. PASS  challenge wrong -> bad feedback
+31. PASS  challenge correct -> accepted
+32. PASS  challenge level advanced
+33. PASS  challenge reset works
+34. PASS  quiz renders 10 questions
+35. PASS  quiz grades and scores
+36. PASS  quiz state saved
+37. PASS  quiz marks correct options
+38. PASS  quiz retry re-renders
+39. PASS  checklist renders 5 items
+40. PASS  checklist persists
+41. PASS  checklist survives reload
+42. PASS  rail progress has total acts
+43. PASS  scroll progress width set
+44. PASS  state restored after reload
+45. PASS  selftests still green after reload
+46. PASS  no page errors

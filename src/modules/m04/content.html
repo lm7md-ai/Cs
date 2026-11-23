@@ -1,0 +1,338 @@
+<style id="m04-css">
+/* ضبط محلي لوحدة M04 — لا يمسّ CORE: 10 و11 خانة في سطر واحد داخل الأنيميشن */
+body[data-module="m04"] .anim .slotrow{gap:5px}
+body[data-module="m04"] .anim .slotrow .slot{min-width:52px;min-height:50px}
+body[data-module="m04"] .anim .slotrow .slot .inc{font-size:.86em}
+body[data-module="m04"] .slot .inc{direction:ltr;unicode-bidi:isolate;text-align:left}
+body[data-module="m04"] .avmark{color:var(--bad);font-weight:700}
+body[data-module="m04"] #anim-probe .stage,
+body[data-module="m04"] #anim-cluster .stage{min-height:200px}
+/* ثبات موضع الخانات عند 11 خانة */
+body[data-module="m04"] #anim-probe .slotrow{gap:5px}
+body[data-module="m04"] #anim-probe .slotrow .slot{min-width:56px}
+</style>
+
+
+<div class="topbar">
+  <div class="who">
+    <span class="tagm">CS2015</span>
+    <span class="mid">العنونة المفتوحة والفحص الخطّي · Open Addressing</span>
+    <span class="sm muted">M04</span>
+  </div>
+  <div class="tools">
+    <button class="iconbtn only" id="fsMinus" type="button" aria-label="تصغير الخط">A&minus;</button>
+    <button class="iconbtn only" id="fsPlus" type="button" aria-label="تكبير الخط">A+</button>
+    <button class="iconbtn only" id="themeBtn" type="button" aria-label="تبديل الوضع"></button>
+    <a class="iconbtn only" href="#s47" aria-label="إلى الاختبار"><svg class="ic"><use href="#i-target"/></svg></a>
+  </div>
+</div>
+<div class="thumbra"><i id="scrollProg"></i></div>
+
+<div class="shell">
+<nav class="rail" aria-label="فهرس الوحدة">
+  <h2>الفهرس</h2>
+  <ol>
+    <li><a href="#s41"><span class="n">4.1</span>العنونة المفتوحة</a></li>
+    <li><a href="#s42"><span class="n">4.2</span>الفحص بالأرقام</a></li>
+    <li><a href="#s43"><span class="n">4.3</span>عدّ المحاولات</a></li>
+    <li><a href="#s44"><span class="n">4.4</span>التجمّع الأولي</a></li>
+    <li><a href="#s45"><span class="n">4.5</span>الحذف و AV</a></li>
+    <li><a href="#s46"><span class="n">4.6</span>تحدٍّ</a></li>
+    <li><a href="#s47"><span class="n">4.7</span>اختبار</a></li>
+  </ol>
+  <div class="prog">
+    <div class="sm muted" style="display:flex;justify-content:space-between;gap:8px"><span>إنجاز الأنشطة</span><span id="railProgTxt">0%</span></div>
+    <div class="bar" style="margin-top:6px"><i id="introProg"></i></div>
+  </div>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="kick">
+    <span class="tagm">Module 04 · Slides 17, 18, 19, 20, 21 of 33</span>
+    <span class="slidep">CS2015 · Hash Tables — Dr. Areej Alsini · Dr. Saeed Altalhi</span>
+  </div>
+  <h1>الحل الثاني: جدول بلا قوائم — الفحص الخطّي وثمنه</h1>
+  <p class="lede">خمس شرائح متجاورة: 18 تعرّف العنونة المفتوحة، 17 و21 تعرضان الشكل نفسه (تجمّع <span class="mono" dir="ltr">12, 22, 32, 42</span>)، 19 تعدّ المحاولات حتى سبع محاولات للمفتاح 48، و20 تُعلّم الحذف بعلامة AV. الترتيب هنا بترتيب الفهم: الفكرة، ثم الحساب، ثم الأثر، ثم الحذف.</p>
+  <div class="metaline">
+    <span>5 شرائح (17 · 18 · 19 · 20 · 21)</span><span>7 أقسام</span><span>1 Participation</span><span>2 Animation</span><span>1 Tool</span><span>1 Challenge</span><span>10 أسئلة اختبار</span>
+  </div>
+  <div class="progcard">
+    <span>تقدّمك في أنشطة الوحدة:</span>
+    <div class="bar"><i id="introProg2"></i></div>
+    <span class="mono" id="introProgTxt">0%</span>
+  </div>
+</header>
+
+<section class="sec reveal" id="s41">
+  <div class="num"><b>4.1</b><span>عنونة</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 18</span></div>
+    <h2>الحل الثاني: العنونة المفتوحة — مفتاح واحد في كل خانة</h2>
+    <div data-slide="18">
+      <div class="quote">
+        <span class="term">Solution 2 — open addressing with linear probing</span>
+        <p>"One key per slot. slot = (home + i) % M, i = 0, 1, 2, … Search works the same way: start at the home slot, stop when you find the key OR reach an empty slot."</p>
+        <span class="src">Hash Tables, slide 18 · Goodrich et al. (2013) §10.2.2</span>
+      </div>
+      <p>لا قوائم ولا عُقد: <b>مصفوفة واحدة</b>، ومفتاح واحد في كل خانة. إن كانت الخانة الأصلية مشغولة نجرّب الخانة التي بعدها، ثم التي بعدها… والفحص الخطّي تحديدًا يجمع 1 ثم 1 ثم 1: <span class="mono" dir="ltr">slot = (h(k) + i) % M</span> و<span class="mono" dir="ltr">i = 0, 1, 2, …</span></p>
+      <p>مثال الشريحة: <span class="mono" dir="ltr">M = 11</span> و<span class="mono" dir="ltr">h(k) = k % 11</span>. أُدخلت <span class="mono" dir="ltr">18, 41, 22, 59, 32, 31</span> كلٌّ إلى خانته مباشرة. ثم جاء <span class="mono" dir="ltr">44</span>: خانته <span class="mono" dir="ltr">44 % 11 = 0</span>، والخانة 0 فيها 22 ← <span class="mono" dir="ltr">i = 1</span> ← الخانة 1 حرة ← استقرّ فيها.</p>
+      <div class="tw"><table>
+        <caption>جدول الشريحة 18 بعد إدخال 44 (M = 11)</caption>
+        <thead><tr><th class="c">slot</th><th class="c">0</th><th class="c">1</th><th class="c">2</th><th class="c">3</th><th class="c">4</th><th class="c">5</th><th class="c">6</th><th class="c">7</th><th class="c">8</th><th class="c">9</th><th class="c">10</th></tr></thead>
+        <tbody><tr><td class="c">key</td><td class="c ltr">22</td><td class="c ltr">44</td><td class="c">—</td><td class="c">—</td><td class="c ltr">59</td><td class="c">—</td><td class="c">—</td><td class="c ltr">18</td><td class="c ltr">41</td><td class="c ltr">31</td><td class="c ltr">32</td></tr></tbody>
+      </table></div>
+      <p><b>البحث يعمل بالطريقة نفسها:</b> <span class="mono" dir="ltr">get(44)</span> يبدأ من الخانة 0 ← 22 ≠ 44 ← الخانة 1 ← وجده. والقاعدة الحاسمة: <b>توقّف عند المفتاح، أو عند أول خانة فارغة</b> — فإن وصلت إلى خانة فارغة فالمفتاح غير موجود قطعًا.</p>
+      <p><b>لماذا نتحمّل هذا؟</b> لا قوائم إضافية ← ذاكرة أقل واستخدام أفضل للكاش (الخانات متجاورة). بايثون نفسها تستخدم العنونة المفتوحة في <span class="mono" dir="ltr">dict</span> و<span class="mono" dir="ltr">set</span>، لكن بتسلسل فحص أذكى من الخطّي.</p>
+      <div class="aside"><span class="k"><svg class="ic"><use href="#i-info"/></svg> خريطة ترقيم التذييل</span>
+        <p>أرقام التذييل في ملف الشرائح <b>لا تساوي رقم صفحة الـPDF</b>، وقد تتكرّر. لهذه الوحدة: ص17 ← تذييل 2 · ص18 ← 14 · ص19 ← 15 · ص20 ← 16 · ص21 ← 4 (والتذييل 4 يظهر أيضًا في ص24). لذلك نعتمد رقم صفحة الـPDF في كل وسم «الشريحة»، لا التذييل.</p></div>
+    </div>
+
+    <p><b>لماذا هذا المثال؟</b> لأنّ <span class="mono" dir="ltr">M = 11</span> عدد أوّلي صغير، وسبعة مفاتيح تكفي لتظهر الحالتان في جدول واحد: ستة مفاتيح تهبط على خانات فارغة (محاولة واحدة)، ومفتاح واحد فقط يتصادم — فيُرى أثر التصادم معزولًا عن ضجيج بقية المفاتيح. ولو اخترنا <span class="mono" dir="ltr">M = 10</span> لظهر التصادم في مفاتيح كثيرة دفعة واحدة، ولما استطعنا تتبّع المحاولات واحدة واحدة كما في شريحة 19.</p>
+
+<div class="anim" data-anim="probe" id="anim-probe">
+      <div class="act-h">
+        <span class="act-k">Animation <b>4.1.1</b></span>
+        <h3>إدخال 44 ثم البحث عنه: من الخانة 0 إلى الخانة 1</h3>
+        <label class="pred"><input type="checkbox" class="predict"> وضع التوقّع</label>
+      </div>
+      <div class="stage" style="min-height:260px">
+        <div class="slotrow">
+          <div class="slot" id="q0"><i class="ix">0</i><span class="inc" id="q0v">22</span></div>
+          <div class="slot" id="q1"><i class="ix">1</i><span class="inc" id="q1v"></span></div>
+          <div class="slot" id="q2"><i class="ix">2</i><span class="inc" id="q2v"></span></div>
+          <div class="slot" id="q3"><i class="ix">3</i><span class="inc" id="q3v"></span></div>
+          <div class="slot" id="q4"><i class="ix">4</i><span class="inc" id="q4v">59</span></div>
+          <div class="slot" id="q5"><i class="ix">5</i><span class="inc" id="q5v"></span></div>
+          <div class="slot" id="q6"><i class="ix">6</i><span class="inc" id="q6v"></span></div>
+          <div class="slot" id="q7"><i class="ix">7</i><span class="inc" id="q7v">18</span></div>
+          <div class="slot" id="q8"><i class="ix">8</i><span class="inc" id="q8v">41</span></div>
+          <div class="slot" id="q9"><i class="ix">9</i><span class="inc" id="q9v">31</span></div>
+          <div class="slot" id="q10"><i class="ix">10</i><span class="inc" id="q10v">32</span></div>
+        </div>
+        <div class="chip" data-chip="c44" data-home="q10" style="opacity:0"><span class="t">44</span></div>
+        <div class="watch">
+          <div class="w"><span>key</span><b data-w="k">—</b></div>
+          <div class="w"><span>i</span><b data-w="i">0</b></div>
+          <div class="w"><span>slot = (0+i)%11</span><b data-w="s">—</b></div>
+          <div class="w"><span>probes</span><b data-w="p">0</b></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" type="button" data-a="start"><svg class="ic"><use href="#i-play"/></svg> Start</button>
+        <button class="btn ghost" type="button" data-a="prev"><svg class="ic"><use href="#i-prev"/></svg> السابق</button>
+        <button class="btn ghost" type="button" data-a="next"><svg class="ic"><use href="#i-next"/></svg> التالي</button>
+        <button class="btn ghost" type="button" data-a="play"><svg class="ic"><use href="#i-play"/></svg> تشغيل</button>
+        <button class="btn ghost" type="button" data-a="pause"><svg class="ic"><use href="#i-pause"/></svg> إيقاف</button>
+        <button class="btn ghost" type="button" data-a="reset"><svg class="ic"><use href="#i-reset"/></svg> إعادة</button>
+        <button class="btn ghost" type="button" data-a="speed" aria-label="سرعة عادية" aria-pressed="false">2x speed</button>
+        <div class="segstrip" aria-label="شريط الخطوات"></div>
+        <span class="stepno">Step 0 of 7</span>
+      </div>
+      <p class="cap"><span class="why">لماذا</span><span class="txt">اضغط Start: الخانة 0 مشغولة، فالفحص الخطّي يجرّب 0 ثم 1 — والبحث لاحقًا يمرّ بالطريق نفسه.</span></p>
+    </div>
+  </div>
+</section>
+
+<section class="sec reveal" id="s42">
+  <div class="num"><b>4.2</b><span>تجمّع</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 17</span></div>
+    <h2>الفحص الخطّي بالأرقام: أربعة مفاتيح في كتلة واحدة</h2>
+    <div data-slide="17">
+      <p><span class="mono" dir="ltr">M = 10</span> والبواقي: <span class="mono" dir="ltr">12 % 10 = 2</span> · <span class="mono" dir="ltr">22 % 10 = 2</span> · <span class="mono" dir="ltr">32 % 10 = 2</span> · <span class="mono" dir="ltr">42 % 10 = 2</span>. كلها تريد الخانة 2، فتُدفع واحدًا بعد الآخر إلى الخانات 3 ثم 4 ثم 5.</p>
+      <div class="tw"><table>
+        <caption>المفاتيح <span class="mono" dir="ltr">12, 22, 32, 42</span> في <span class="mono" dir="ltr">M = 10</span> (الخانات المشغولة متّصلة)</caption>
+        <thead><tr><th class="ltr">key</th><th class="ltr">i → slots tried</th><th class="c">slot</th><th class="c">probes</th></tr></thead>
+        <tbody>
+          <tr><td class="ltr">12</td><td class="ltr">i=0: 2</td><td class="c">2</td><td class="c">1</td></tr>
+          <tr><td class="ltr">22</td><td class="ltr">i=0: 2 → i=1: 3</td><td class="c">3</td><td class="c">2</td></tr>
+          <tr><td class="ltr">32</td><td class="ltr">i=0: 2 → i=1: 3 → i=2: 4</td><td class="c">4</td><td class="c">3</td></tr>
+          <tr><td class="ltr">42</td><td class="ltr">i=0: 2 → i=1: 3 → i=2: 4 → i=3: 5</td><td class="c">5</td><td class="c">4</td></tr>
+        </tbody>
+      </table></div>
+      <p><b>التجمّع الأولي (primary clustering):</b> كل مفتاح جديد خانته 2 سيكلّف محاولة إضافية، حتى لو كانت له خانة أخرى «نظريًا». الخانات المتتالية الممتلئة تجذب مزيدًا من التصادمات، والكتلة تكبر من نفسها.</p>
+      <div class="legend"><span>الخانات <span class="mono" dir="ltr">2 · 3 · 4 · 5</span> كتلة واحدة متّصلة</span><span>متوسط المحاولات هنا <span class="mono" dir="ltr">(1+2+3+4)/4 = 2.5</span></span></div>
+    </div>
+
+    <div class="anim" data-anim="cluster" id="anim-cluster">
+      <div class="act-h">
+        <span class="act-k">Animation <b>4.2.1</b></span>
+        <h3>كيف تتكوّن الكتلة: 12 ثم 22 ثم 32 ثم 42</h3>
+        <label class="pred"><input type="checkbox" class="predict"> وضع التوقّع</label>
+      </div>
+      <div class="stage" style="min-height:250px">
+        <div class="slotrow">
+          <div class="slot" id="k0"><i class="ix">0</i><span class="inc" id="k0v"></span></div>
+          <div class="slot" id="k1"><i class="ix">1</i><span class="inc" id="k1v"></span></div>
+          <div class="slot" id="k2"><i class="ix">2</i><span class="inc" id="k2v"></span></div>
+          <div class="slot" id="k3"><i class="ix">3</i><span class="inc" id="k3v"></span></div>
+          <div class="slot" id="k4"><i class="ix">4</i><span class="inc" id="k4v"></span></div>
+          <div class="slot" id="k5"><i class="ix">5</i><span class="inc" id="k5v"></span></div>
+          <div class="slot" id="k6"><i class="ix">6</i><span class="inc" id="k6v"></span></div>
+          <div class="slot" id="k7"><i class="ix">7</i><span class="inc" id="k7v"></span></div>
+          <div class="slot" id="k8"><i class="ix">8</i><span class="inc" id="k8v"></span></div>
+          <div class="slot" id="k9"><i class="ix">9</i><span class="inc" id="k9v"></span></div>
+        </div>
+        <div class="chip" data-chip="c12" data-home="k9" style="opacity:0"><span class="t">12</span></div>
+        <div class="chip" data-chip="c22" data-home="k9" style="opacity:0"><span class="t">22</span></div>
+        <div class="chip" data-chip="c32" data-home="k9" style="opacity:0"><span class="t">32</span></div>
+        <div class="chip" data-chip="c42" data-home="k9" style="opacity:0"><span class="t">42</span></div>
+        <div class="watch">
+          <div class="w"><span>key</span><b data-w="k">—</b></div>
+          <div class="w"><span>home</span><b data-w="h">—</b></div>
+          <div class="w"><span>probes</span><b data-w="p">0</b></div>
+          <div class="w"><span>block</span><b data-w="b">—</b></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" type="button" data-a="start"><svg class="ic"><use href="#i-play"/></svg> Start</button>
+        <button class="btn ghost" type="button" data-a="prev"><svg class="ic"><use href="#i-prev"/></svg> السابق</button>
+        <button class="btn ghost" type="button" data-a="next"><svg class="ic"><use href="#i-next"/></svg> التالي</button>
+        <button class="btn ghost" type="button" data-a="play"><svg class="ic"><use href="#i-play"/></svg> تشغيل</button>
+        <button class="btn ghost" type="button" data-a="pause"><svg class="ic"><use href="#i-pause"/></svg> إيقاف</button>
+        <button class="btn ghost" type="button" data-a="reset"><svg class="ic"><use href="#i-reset"/></svg> إعادة</button>
+        <button class="btn ghost" type="button" data-a="speed" aria-label="سرعة عادية" aria-pressed="false">2x speed</button>
+        <div class="segstrip" aria-label="شريط الخطوات"></div>
+        <span class="stepno">Step 0 of 9</span>
+      </div>
+      <p class="cap"><span class="why">لماذا</span><span class="txt">كل إضافة تجد الخانة 2 ومن بعدها مشغولة، فتطول الكتلة ومحاولات المفاتيح التالية.</span></p>
+    </div>
+  </div>
+</section>
+
+<section class="sec reveal" id="s43">
+  <div class="num"><b>4.3</b><span>عدّ</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 19</span></div>
+    <h2>عدّ المحاولات: 10 مفاتيح في 10 خانات</h2>
+    <div data-slide="19">
+      <p>عشرة مفاتيح في <span class="mono" dir="ltr">M = 10</span>، و<span class="mono" dir="ltr">h(k) = k % 10</span>. كل مفتاح يكشف عن خانته الحقيقية وعدد المحاولات التي كلّفها:</p>
+      <div class="tw"><table class="tight">
+        <caption>جدول الشريحة 19 — المفاتيح <span class="mono" dir="ltr">11, 13, 15, 17, 25, 37, 38, 40, 41, 48</span></caption>
+        <thead><tr><th class="ltr">key</th><th class="c">home = k % 10</th><th class="ltr">slots tried</th><th class="c">probes</th></tr></thead>
+        <tbody>
+          <tr><td class="ltr">11</td><td class="c">1</td><td class="ltr">1</td><td class="c">1</td></tr>
+          <tr><td class="ltr">13</td><td class="c">3</td><td class="ltr">3</td><td class="c">1</td></tr>
+          <tr><td class="ltr">15</td><td class="c">5</td><td class="ltr">5</td><td class="c">1</td></tr>
+          <tr><td class="ltr">17</td><td class="c">7</td><td class="ltr">7</td><td class="c">1</td></tr>
+          <tr><td class="ltr">25</td><td class="c">5</td><td class="ltr">5, 6</td><td class="c">2</td></tr>
+          <tr><td class="ltr">37</td><td class="c">7</td><td class="ltr">7, 8</td><td class="c">2</td></tr>
+          <tr><td class="ltr">38</td><td class="c">8</td><td class="ltr">8, 9</td><td class="c">2</td></tr>
+          <tr><td class="ltr">40</td><td class="c">0</td><td class="ltr">0</td><td class="c">1</td></tr>
+          <tr><td class="ltr">41</td><td class="c">1</td><td class="ltr">1, 2</td><td class="c">2</td></tr>
+          <tr><td class="ltr">48</td><td class="c">8</td><td class="ltr">8, 9, 0, 1, 2, 3, 4</td><td class="c">7</td></tr>
+        </tbody>
+      </table></div>
+      <p>الجدول النهائي: <span class="mono" dir="ltr">0:40 · 1:11 · 2:41 · 3:13 · 4:48 · 5:15 · 6:25 · 7:17 · 8:37 · 9:38</span>. والمفتاح <b>48</b> هو الدرس: خانته 8، لكن 8 و9 و0 و1 و2 و3 مشغولة كلها ← سبع محاولات، أي شبه مسح كامل.</p>
+      <div class="aside bad"><span class="k"><svg class="ic"><use href="#i-warn"/></svg> القاعدة الرقمية</span>
+        <p>مع العنونة المفتوحة أبقِ <span class="mono" dir="ltr">λ ≤ 0.5</span>. عند نصف امتلاء: نحو <b>1.5 محاولة</b> للبحث الناجح و<b>2.5</b> للفاشل (Knuth, 1998). هنا <span class="mono" dir="ltr">λ = 10/10 = 1.0</span> ← أسوأ حالة تعليمية مقصودة.</p></div>
+    </div>
+
+    <div id="host-probes"></div>
+    <div id="host-pa4"></div>
+  </div>
+</section>
+
+<section class="sec reveal" id="s44">
+  <div class="num"><b>4.4</b><span>تجمّع أولي</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 21</span></div>
+    <h2>التجمّع الأولي: الشكل نفسه، بلا أرقام جديدة</h2>
+    <div data-slide="21">
+      <p>شريحة 21 تعرض <b>الشكل نفسه</b> الذي في شريحة 17 — الكتلة <span class="mono" dir="ltr">12, 22, 32, 42</span> في الخانات <span class="mono" dir="ltr">2–5</span> من <span class="mono" dir="ltr">M = 10</span> — ولا نصّ فيها إلا سطر واحد: «A continuous block of occupied slots attracts even more collisions». لذلك نُبقي القسمين منفصلين: هذا القسم للشكل والمعنى، وقسم 4.2 للحساب خطوة بخطوة.</p>
+      <div class="tw"><table>
+        <caption>جدول الشريحة 21 كما هو (M = 10)</caption>
+        <thead><tr><th class="c">slot</th><th class="c">0</th><th class="c">1</th><th class="c">2</th><th class="c">3</th><th class="c">4</th><th class="c">5</th><th class="c">6</th><th class="c">7</th><th class="c">8</th><th class="c">9</th></tr></thead>
+        <tbody><tr><td class="c">key</td><td class="c">—</td><td class="c">—</td><td class="c ltr">12</td><td class="c ltr">22</td><td class="c ltr">32</td><td class="c ltr">42</td><td class="c">—</td><td class="c">—</td><td class="c">—</td><td class="c">—</td></tr></tbody>
+      </table></div>
+      <p>لماذا يسيء التجمّع للجميع؟ لأن أي مفتاح خانته داخل الكتلة — أو خانته أول خانة بعدها — سيمرّ على الكتلة كلها قبل أن يجد خانة فارغة. الكتلة الطويلة تجعل متوسط المحاولات ينمو بسرعة أكبر من نسبة الامتلاء.</p>
+      <div class="aside"><span class="k"><svg class="ic"><use href="#i-target"/></svg> ملاحظة على الشريحة</span>
+        <p>الشرح على الشريحة 21 سطر واحد فقط، والرسم مكرّر من الشريحة 17. لم نضف أرقامًا جديدة هنا؛ كل الحساب (المحاولات <span class="mono" dir="ltr">1 · 2 · 3 · 4</span>) موجود في §4.2 مع أنيميشن 4.2.1. هذا تكرار مقصود في ملف الشرائح، وليس سهوًا في الوحدة.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec reveal" id="s45">
+  <div class="num"><b>4.5</b><span>حذف</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 20</span></div>
+    <h2>الحذف وعلامة AV: الخانة الفارغة تكذب</h2>
+    <div data-slide="20">
+      <p>الشريحة 20 فيها تحذيران: التجمّع، والحذف. الأول رأيناه. الثاني هو الأخطر: <b>لا تُفرغ الخانة أبدًا</b> عند الحذف، بل اترك فيها علامة <span class="mono" dir="ltr">AV</span> (كانت مستخدمة).</p>
+      <div class="tw"><table>
+        <caption>جدول الشريحة 20 قبل الحذف (M = 11) — الكتلة 0–4 متّصلة</caption>
+        <thead><tr><th class="c">slot</th><th class="c">0</th><th class="c">1</th><th class="c">2</th><th class="c">3</th><th class="c">4</th><th class="c">5</th><th class="c">6</th><th class="c">7</th><th class="c">8</th><th class="c">9</th><th class="c">10</th></tr></thead>
+        <tbody><tr><td class="c">key</td><td class="c ltr">22</td><td class="c ltr">44</td><td class="c ltr">66</td><td class="c ltr">88</td><td class="c ltr">59</td><td class="c">—</td><td class="c">—</td><td class="c ltr">18</td><td class="c ltr">41</td><td class="c ltr">31</td><td class="c ltr">32</td></tr></tbody>
+      </table></div>
+      <p><b>حذف 44:</b> خانته 0، لكنه استقرّ في 1 بعد تصادم. لو أفرغنا 1 لانقطعت السلسلة. الصحيح:</p>
+      <div class="tw"><table>
+        <caption>الجدول الصحيح بعد حذف 44 — لاحظ 66 و88 ما زالا في 2 و3</caption>
+        <thead><tr><th class="c">slot</th><th class="c">0</th><th class="c">1</th><th class="c">2</th><th class="c">3</th><th class="c">4</th><th class="c">5</th><th class="c">6</th><th class="c">7</th><th class="c">8</th><th class="c">9</th><th class="c">10</th></tr></thead>
+        <tbody><tr><td class="c">key</td><td class="c ltr">22</td><td class="c avmark ltr">AV</td><td class="c ltr">66</td><td class="c ltr">88</td><td class="c ltr">59</td><td class="c">—</td><td class="c">—</td><td class="c ltr">18</td><td class="c ltr">41</td><td class="c ltr">31</td><td class="c ltr">32</td></tr></tbody>
+      </table></div>
+      <p><b>كيف تُنقذ AV البحث؟</b> ابحث عن <span class="mono" dir="ltr">66</span> وخانته الأصلية <span class="mono" dir="ltr">66 % 11 = 0</span>: الخانة 0 فيها 22 ← ليست 66، نُكمل؛ الخانة 1 فيها <span class="mono" dir="ltr">AV</span> ← «كانت مستخدمة» فنتجاوزها؛ الخانة 2 فيها 66 ← وُجد. ثلاث محاولات. ولو كانت الخانة 1 <b>فارغة</b> لتوقّف البحث عندها وقال «غير موجود» — وهو خطأ، لأن 66 موجود في الخانة 2.</p>
+      <div class="aside bad"><span class="k"><svg class="ic"><use href="#i-warn"/></svg> ملاحظة على الشريحة (نقص في الرسم)</span>
+        <p>رسم الحذف في الشريحة 20 <b>يسقط المفتاحين 66 و88</b> من الخانتين 2 و3، فيظهر الجدول كأنه 22 ثم AV ثم فراغات. الجدولان أعلاه هما النسخة الصحيحة، والمفتاحان ليسا تفصيلًا: هما بالضبط ما يجعل AV ضرورية — لو لم يكن بعدهما أحد، لما ضرّ تفريغ الخانة 1 شيئًا.</p></div>
+      <div class="tw"><table>
+        <caption>السلسلة مقابل العنونة المفتوحة (جدول الشريحة 20)</caption>
+        <thead><tr><th></th><th>Chaining</th><th>Open addressing</th></tr></thead>
+        <tbody>
+          <tr><td>الذاكرة</td><td>قائمة إضافية لكل خانة</td><td>المصفوفة فقط</td></tr>
+          <tr><td>معامل الحِمل</td><td>≤ 0.9 (نحو 1)</td><td>≤ 0.5</td></tr>
+          <tr><td>الحذف</td><td>سهل</td><td>يحتاج علامة AV</td></tr>
+          <tr><td>الكود</td><td>أبسط</td><td>أدقّ وأصعب</td></tr>
+          <tr><td>يُستخدم في</td><td>Java HashMap</td><td>Python dict / set</td></tr>
+        </tbody>
+      </table></div>
+      <div class="aside ok"><span class="k"><svg class="ic"><use href="#i-info"/></svg> إضافي (خارج الشرائح)</span>
+        <p>الشريحة تقول «<span dir="rtl">≤ 0.9 (نحو 1)</span>» للسلسلة، بينما §3.4 في M03 اعتمد عتبة <span class="mono" dir="ltr">0.75</span> لتوسيع جدول السلسلة. لا تناقض: <b>0.9</b> سقف نظري لمنطقة العمل، و<b>0.75</b> عتبة هندسية نُوسّع عندها قبل بلوغ السقف. راجع <a href="#s34">§3.4 من M03</a>.</p></div>
+    </div>
+
+    <div class="fold"><details class="ex"><summary><svg class="ic"><use href="#i-bulb"/></svg> تمرين 4.5 — لماذا لا يكفي الحذف البسيط؟ <span class="ex-lbl">أظهر الحل</span></summary>
+      <p><b>السؤال:</b> في جدول M = 11 بالجدول أعلاه، احذف 66 بطريقة صحيحة، ثم ابحث عن 88. كم محاولة تحتاج؟ وماذا يحدث لو أفرغنا الخانتين 1 و2؟</p>
+      <p><b>الحل:</b> تُعلَّم الخانة 2 بـ <span class="mono" dir="ltr">AV</span> ويبقى 88 في 3. البحث عن 88: <span class="mono" dir="ltr">88 % 11 = 0</span> ← 0 (22) ← 1 (AV تجاوز) ← 2 (AV تجاوز) ← 3 (88) = أربع محاولات. لو أُفرغت 1 و2 لتوقّف البحث عند الخانة 1 الفارغة وأعاد «غير موجود» خطأً.</p>
+    </details></div>
+  </div>
+</section>
+
+<section class="sec reveal" id="s46">
+  <div class="num"><b>4.6</b><span>تحدّ</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشرائح 17–21 · 5 مستويات</span></div>
+    <h2>تحدّي: الفحص الخطّي، المحاولات، والحذف</h2>
+    <p>خمسة مستويات مولَّدة: خانة المفتاح، عدد المحاولات، الجدول النهائي، البحث بعد <span class="mono" dir="ltr">AV</span>، وقاعدة λ. كل مستوى يُصحَّح فورًا مع شرح.</p>
+    <div id="challenge"></div>
+  </div>
+</section>
+
+<section class="sec reveal" id="s47">
+  <div class="num"><b>4.7</b><span>اختبار</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">10 أسئلة · تصحيح فوري</span></div>
+    <h2>الاختبار القصير</h2>
+    <p>أجب ثم اضغط <b>صحّح</b>: كل سؤال يشرح سببه بعد التصحيح، وتُسجَّل المواضيع التي أخطأت فيها لتظهر في «مواضيعك الأضعف».</p>
+    <div id="quizList"></div>
+    <div class="act"><div class="scorebar">
+      <span>النتيجة: <span class="big" id="scoreVal">—</span> <span id="scoreMsg"></span></span>
+      <div class="acts">
+        <button class="btn" type="button" id="gradeBtn">صحّح</button>
+        <button class="btn ghost" type="button" id="retryBtn">إعادة</button>
+      </div>
+    </div></div>
+    <div id="weakBody" class="act" style="margin-top:var(--s3)"></div>
+
+    <h3 style="margin-top:var(--s5)">تحقق من فهمك</h3>
+    <p class="sm muted">كل بند يُحسب عند التحميل من بيانات الوحدة — لا قيم ثابتة.</p>
+    <div id="selftests"></div>
+
+    <h3 style="margin-top:var(--s5)">قائمة تحقّق قبل الحصة القادمة</h3>
+    <div id="checkList"></div>
+  </div>
+</section>
+
+<footer class="sec" style="display:block;border-top:1px solid var(--hair);padding-top:var(--s3)">
+  <p class="sm muted">CS2015 · الوحدة 04 — العنونة المفتوحة والفحص الخطّي (الشرائح 17 · 18 · 19 · 20 · 21 من 33) · تغطية كاملة لكل شريحة في النطاق · بلا إنترنت.</p>
+</footer>
+</main>
+</div>

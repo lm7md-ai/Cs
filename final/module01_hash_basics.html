@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CS2015 · جداول التجزئة (1–6) — وحدة تفاعلية</title>
+<meta name="description" content="الوحدة 01 من CS2015: الخريطة، فكرة التجزئة، الخانة المحسوبة، والمثال المحسوب (الشرائح 1–6 من 33).">
+<style id="core-css">
+/* CORE v1.1 START:css */
+/* =========================================================================
+   CS2015 · CORE v1.1 — مشترك في M01..M16 (بايت-ببايت)
+   لا يُسمح بأي تعديل هنا داخل ملفات الوحدات. أي تغيير = إصدار جديد.
+   ========================================================================= */
+:root{
+  --paper:#F6F4EE; --body:#FFFDF8; --ink:#22211E; --ink2:#5C5852;
+  --hair:#E2DDD1; --hair2:#D3CCBC; --surface:#F0ECE3; --surface2:#E9E4D9;
+  --accent:#2A6F68; --accent-ink:#1F5A54; --accent-soft:#E7EFEC;
+  --ok:#2E6B4F; --bad:#A23B32; --warn:#8A6114;
+  --ok-bg:#EAF2EC; --bad-bg:#F9EAE7; --warn-bg:#F8F0DF;
+  --code-bg:#1E222A; --code-ink:#E7E9E3; --code-dim:#7C8894;
+  --fs:17.2px; --r:10px; --sh:0 1px 2px rgba(34,33,30,.06);
+  --t:cubic-bezier(.2,.8,.2,1); --t-fast:240ms; --t-move:480ms;
+  --s1:8px; --s2:16px; --s3:24px; --s4:32px; --s5:48px; --s6:64px;
+}
+[data-theme="dark"]{
+  --paper:#171716; --body:#1C1C1A; --ink:#E7E3D9; --ink2:#A7A29A;
+  --hair:#302F2B; --hair2:#3B3A34; --surface:#212120; --surface2:#2A2926;
+  --accent:#6EB5AA; --accent-ink:#93CEC4; --accent-soft:#1F2C2A;
+  --ok:#86C6A5; --bad:#E2938A; --warn:#E0AA5E;
+  --ok-bg:#1B261F; --bad-bg:#2A1E1C; --warn-bg:#26200F;
+  --code-bg:#12150F; --code-ink:#E7E9E3; --code-dim:#6E7A72;
+  --sh:0 1px 2px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+@media (prefers-reduced-motion: no-preference){ html{scroll-behavior:smooth} }
+html{scroll-padding-top:72px}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:system-ui,"Segoe UI",Tahoma,"Geeza Pro","Noto Sans Arabic",Arial,sans-serif;
+  font-size:var(--fs);line-height:1.9;-webkit-text-size-adjust:100%}
+h1,h2,h3,h4{margin:0 0 var(--s2);line-height:1.35;font-weight:700;letter-spacing:-.01em}
+h1{font-size:2.4rem}
+h2{font-size:1.6rem}
+h3{font-size:1.25rem;font-weight:650}
+p{margin:0 0 var(--s2);max-width:74ch}
+ul,ol{margin:0 0 var(--s2);padding-inline-start:1.3em;max-width:74ch}
+li{margin:.15em 0}
+a{color:var(--accent-ink);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--accent) 40%,transparent)}
+a:hover{border-bottom-color:var(--accent)}
+strong{font-weight:700}
+small,.sm{font-size:.85em}
+.muted{color:var(--ink2)}
+.mono,code,kbd{font-family:ui-monospace,Consolas,Menlo,monospace;direction:ltr;unicode-bidi:isolate}
+code{font-size:.92em;background:var(--surface);padding:.05em .35em;border-radius:5px}
+hr{border:0;border-top:1px solid var(--hair);margin:var(--s4) 0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* icons */
+.ic{width:1.05em;height:1.05em;stroke:currentColor;stroke-width:1.75;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;display:inline-block;vertical-align:-.16em;flex:none}
+.iconbtn{display:inline-flex;align-items:center;gap:6px;background:none;border:1px solid var(--hair);
+  color:var(--ink);border-radius:var(--r);padding:5px 9px;font:inherit;font-size:.82em;cursor:pointer;
+  transition:background var(--t-fast) var(--t),border-color var(--t-fast) var(--t)}
+.iconbtn:hover{background:var(--surface);border-color:var(--hair2)}
+.iconbtn:active{transform:translateY(1px)}
+.iconbtn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+.iconbtn.only{padding:6px;gap:0}
+.iconbtn.done{color:var(--ok);border-color:var(--ok)}
+
+/* topbar */
+.topbar{position:sticky;top:0;z-index:60;display:flex;gap:var(--s2);align-items:center;justify-content:space-between;
+  padding:8px 20px;background:var(--paper);background:color-mix(in srgb,var(--paper) 86%,transparent);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--hair);flex-wrap:wrap}
+.topbar .who{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-size:.9em}
+.topbar .mid{font-weight:700}
+.topbar .tagm{font-family:var(--mono);font-size:.72em;letter-spacing:.06em;color:var(--ink2);text-transform:uppercase}
+.topbar .tools{display:flex;gap:6px;align-items:center}
+.thumbra{position:fixed;inset-inline:0;bottom:0;height:2px;background:transparent;z-index:70}
+.thumbra i{display:block;height:2px;width:0;background:var(--accent);transition:width .12s linear}
+
+/* shell + rail */
+.shell{max-width:1180px;margin:0 auto;padding:0 24px 96px;display:grid;
+  grid-template-columns:232px minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:start}
+.rail{position:sticky;top:64px;max-height:calc(100vh - 84px);overflow:auto;padding-top:var(--s4);font-size:.86em}
+.rail h2{font-size:.78em;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin-bottom:var(--s1)}
+.rail ol{list-style:none;margin:0;padding:0}
+.rail li{margin:0}
+.rail a{display:flex;gap:8px;align-items:baseline;padding:4px 8px;border-radius:6px;border:0;color:var(--ink2);line-height:1.5}
+.rail a:hover{background:var(--surface);color:var(--ink)}
+.rail a.on{color:var(--accent-ink);font-weight:700;background:var(--accent-soft)}
+.rail .n{font-family:var(--mono);font-size:.82em;opacity:.75;min-width:2.6em}
+.rail .tick{margin-inline-start:auto;font-size:.8em;color:var(--ok);font-family:var(--mono)}
+.rail .tick.part{color:var(--warn)}
+.rail .prog{margin-top:var(--s3);padding-top:var(--s2);border-top:1px solid var(--hair)}
+.bar{height:6px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:6px;width:0;background:var(--accent);border-radius:99px;transition:width var(--t-fast) var(--t)}
+
+/* editorial sections (flat) */
+main{min-width:0;padding-top:var(--s5)}
+.sec{display:grid;grid-template-columns:minmax(0,1fr) 76px;column-gap:var(--s3);
+  border-top:1px solid var(--hair);padding-block:var(--s5) var(--s6);scroll-margin-top:72px}
+.sec:first-of-type{border-top:0;padding-top:0}
+.sec>.num{grid-column:2;order:2;text-align:center;font-family:var(--mono);color:var(--hair2);line-height:1}
+.sec>.num b{display:block;font-size:2.4rem;font-weight:700;letter-spacing:-.03em}
+.sec>.num span{display:block;font-size:.7rem;margin-top:6px;color:var(--ink2);letter-spacing:.04em}
+.sec>.bd{grid-column:1;min-width:0}
+.sec .kick{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.sec h2{margin-bottom:var(--s3)}
+.slidep{font-family:var(--mono);font-size:.72em;color:var(--ink2);letter-spacing:.06em}
+
+.reveal{opacity:0;transform:translateY(8px)}
+.reveal.in{opacity:1;transform:none;transition:opacity 420ms var(--t),transform 420ms var(--t)}
+@media (prefers-reduced-motion: reduce){ .reveal{opacity:1;transform:none} }
+
+.aside{border-inline-start:2px solid var(--hair2);padding:2px 0 2px var(--s2);margin:var(--s3) 0;
+  color:var(--ink2);font-size:.94em;max-width:68ch}
+.aside b{color:var(--ink)}
+.aside.warn{border-inline-start-color:var(--warn)}
+.aside.ok{border-inline-start-color:var(--ok)}
+.aside.bad{border-inline-start-color:var(--bad)}
+.aside .k{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--ink);font-size:.92em}
+.fold{border-top:1px solid var(--hair);padding-top:var(--s2);margin:var(--s3) 0}
+.fold>summary{cursor:pointer;font-weight:650;font-size:.95em;display:flex;gap:8px;align-items:center;list-style:none}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary .ic{transition:transform var(--t-fast) var(--t)}
+.fold[open]>summary .ic{transform:rotate(180deg)}
+.quote{border-inline-start:3px solid var(--accent);padding:var(--s1) 0 var(--s1) var(--s2);margin:var(--s3) 0}
+.quote .term{display:block;font-family:var(--mono);font-size:.9em;color:var(--accent-ink);margin-bottom:2px}
+.quote p{margin:0;font-size:1.02em}
+.quote .src{display:block;margin-top:6px;font-size:.8em;color:var(--ink2)}
+
+/* tables */
+.tw{overflow-x:auto;margin:var(--s3) 0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+table{border-collapse:collapse;width:100%;font-size:.92em}
+caption{caption-side:top;text-align:start;font-size:.82em;color:var(--ink2);padding:6px 0}
+thead th{position:sticky;top:0;background:var(--paper);text-align:start;font-weight:700;font-size:.88em;
+  color:var(--ink2);border-bottom:1px solid var(--hair2);padding:8px 10px;white-space:nowrap;z-index:1}
+td{padding:8px 10px;border-bottom:1px solid var(--hair);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.ltr,th.ltr{direction:ltr;text-align:left;font-family:var(--mono)}
+td.c,th.c{text-align:center}
+.tw.tight td{padding:5px 9px}
+
+/* code */
+.code{position:relative;background:var(--code-bg);border-radius:var(--r);margin:var(--s3) 0;overflow:hidden;box-shadow:var(--sh)}
+.code .ch{display:flex;align-items:center;gap:10px;padding:7px 10px 7px 12px;border-bottom:1px solid #2A313A;color:#9FB0AD;font-size:.78em}
+.code .ch .ttl{font-family:var(--mono);direction:ltr;color:#C9D6D2}
+.code .ch .sp{margin-inline-start:auto}
+.code .cbody{position:relative;padding:10px 0}
+.code .cbody .hl{position:absolute;inset-inline:0;height:1.75em;top:10px;background:rgba(110,181,170,.16);
+  border-inline-start:3px solid #6EB5AA;pointer-events:none;transform:translateY(0);transition:transform var(--t-fast) var(--t),opacity var(--t-fast)}
+.code pre{margin:0;padding:0;overflow-x:auto;font-family:ui-monospace,Consolas,Menlo,monospace;font-size:.86em;line-height:1.75;color:var(--code-ink);direction:ltr;text-align:left}
+.code .ln{display:block;padding:0 14px;white-space:pre}
+.code .ln .cn{color:var(--code-dim);display:inline-block;width:2.2em;user-select:none;text-align:right;margin-inline-end:8px}
+.code .k{color:#C792EA}.code .s{color:#A5D6A7}.code .n{color:#F0B37E}.code .c{color:#7C8894;font-style:italic}.code .f{color:#8FD0E8}
+.codedots{display:flex;gap:4px}
+.codedots i{width:7px;height:7px;border-radius:50%;background:#39424D}
+
+/* activity blocks */
+.act,.anim{border-top:1px solid var(--hair2);padding-top:var(--s3);margin:var(--s5) 0 0}
+.act-h{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:var(--s2)}
+.act-k{font-family:var(--mono);font-size:.7em;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.act-k b{color:var(--ink);font-weight:700}
+.act-h h3{margin:0;font-size:1.05rem}
+.stage{position:relative;background:var(--body);border:1px solid var(--hair);border-radius:var(--r);
+  padding:var(--s3);overflow:hidden;min-height:260px;box-shadow:var(--sh)}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:var(--s2)}
+.stepno{font-family:var(--mono);font-size:.8em;color:var(--ink2);min-width:9.5em}
+.segstrip{display:flex;gap:3px;flex-wrap:wrap;flex:1;min-width:120px}
+.segstrip button{width:16px;height:16px;padding:0;border-radius:4px;border:1px solid var(--hair2);
+  background:var(--surface);cursor:pointer}
+.segstrip button.seen{background:var(--accent-soft);border-color:var(--accent)}
+.segstrip button.cur{background:var(--accent);border-color:var(--accent);outline:2px solid var(--accent);outline-offset:1px}
+.cap{min-height:3.2em;margin-top:var(--s2);font-size:.96em}
+.cap .why{display:block;font-size:.78em;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);margin-bottom:2px}
+.watch{display:flex;gap:var(--s3);flex-wrap:wrap;margin-top:var(--s2);padding-top:var(--s2);border-top:1px solid var(--hair)}
+.watch .w{display:flex;gap:7px;align-items:baseline;font-size:.86em}
+.watch .w span{color:var(--ink2);font-family:var(--mono);font-size:.86em}
+.watch .w b{font-family:ui-monospace,Consolas,monospace;direction:ltr;padding:0 5px;border-radius:5px}
+.watch .w b.flash{animation:wtf 420ms var(--t)}
+@keyframes wtf{0%{background:var(--accent-soft)}100%{background:transparent}}
+
+.chip{position:absolute;top:0;left:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:2px 10px;min-width:34px;border-radius:7px;
+  background:var(--accent-soft);border:1px solid var(--accent);color:var(--accent-ink);font-size:.74em;line-height:1.5;
+  font-family:ui-monospace,Consolas,monospace;white-space:nowrap;will-change:transform;z-index:3;box-shadow:var(--sh)}
+.chip.held{opacity:.3}
+.chip.bad{border-color:var(--bad);color:var(--bad);background:var(--bad-bg)}
+.chip.good{border-color:var(--ok);color:var(--ok);background:var(--ok-bg)}
+.slotrow{display:flex;gap:6px;flex-wrap:wrap}
+.slot{position:relative;min-width:72px;min-height:54px;border:1px solid var(--hair2);border-radius:8px;
+  background:var(--body);display:flex;flex-direction:column;align-items:center;padding:16px 4px 4px;font-size:.78em}
+.slot .ix{position:absolute;top:2px;inset-inline-start:6px;font-family:ui-monospace,monospace;font-size:.86em;color:var(--ink2)}
+.slot.hot{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft) inset}
+.slot .inc{font-family:ui-monospace,monospace;font-size:.94em}
+.slot.okpulse{animation:okp 520ms var(--t)}
+.slot.badfade{animation:bdf 620ms var(--t)}
+.slot.collide{animation:shk 380ms var(--t)}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}60%{transform:translateX(4px)}}
+@keyframes okp{0%{box-shadow:0 0 0 0 rgba(46,107,79,.45)}100%{box-shadow:0 0 0 10px rgba(46,107,79,0)}}
+@keyframes bdf{0%{background:var(--bad-bg)}100%{background:var(--body)}}
+.flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:var(--s3)}
+.node{border:1px solid var(--hair2);border-radius:8px;padding:6px 12px;font-size:.86em;background:var(--body);text-align:center;min-width:96px}
+.node.hot{border-color:var(--accent);color:var(--accent-ink);background:var(--accent-soft)}
+.node .lbl{display:block;font-size:.72em;color:var(--ink2)}
+.arrowline{flex:1;min-width:34px;height:12px}
+.arrowline path{stroke:var(--hair2);stroke-width:1.75;fill:none;stroke-linecap:round}
+.countup{font-family:ui-monospace,monospace;font-weight:700;color:var(--accent-ink)}
+
+/* participation / challenge */
+.pa-item{padding-top:var(--s2);margin-top:var(--s2);border-top:1px dashed var(--hair)}
+.pa-item:first-of-type{border-top:0;padding-top:0;margin-top:0}
+.pa-q{display:flex;gap:9px;font-size:.98em}
+.pa-qn{font-family:ui-monospace,monospace;color:var(--ink2);font-size:.85em;min-width:1.4em}
+.opts{display:flex;gap:8px;flex-wrap:wrap;margin-top:var(--s2)}
+.opt{font:inherit;font-size:.9em;background:var(--body);border:1px solid var(--hair2);border-radius:var(--r);
+  padding:5px 13px;cursor:pointer;transition:border-color var(--t-fast) var(--t),background var(--t-fast) var(--t)}
+.opt:hover{border-color:var(--ink2)}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink);font-weight:700}
+.opt.correct{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:var(--s2)}
+.btn{font:inherit;font-size:.88em;border:1px solid var(--accent);background:var(--accent);color:#fff;
+  border-radius:var(--r);padding:6px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;
+  transition:filter var(--t-fast) var(--t)}
+[data-theme="dark"] .btn{color:#10201D}
+.btn:hover{filter:brightness(1.07)}
+.btn.ghost{background:none;color:var(--ink);border-color:var(--hair2)}
+.btn.ghost:hover{background:var(--surface)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.fb{font-size:.92em;margin-top:var(--s2);padding-inline-start:var(--s2);border-inline-start:2px solid var(--hair2);display:none}
+.fb.show{display:block}
+.fb.ok{border-color:var(--ok)} .fb.bad{border-color:var(--bad)}
+.fb b.tag{display:inline-flex;gap:6px;align-items:center;margin-bottom:2px}
+.fb.ok b.tag{color:var(--ok)} .fb.bad b.tag{color:var(--bad)}
+.forfeit{font-size:.76em;color:var(--warn);border:1px solid var(--warn);border-radius:99px;padding:0 8px;margin-inline-start:6px}
+.lvstrip{display:flex;gap:5px;flex-wrap:wrap}
+.lvstrip .lv{width:26px;height:26px;display:grid;place-items:center;border-radius:7px;border:1px solid var(--hair2);
+  background:var(--surface);font-family:ui-monospace,monospace;font-size:.78em;color:var(--ink2);cursor:pointer}
+.lvstrip .lv.cur{outline:2px solid var(--accent);outline-offset:1px;color:var(--accent-ink)}
+.lvstrip .lv.pass{background:var(--ok);border-color:var(--ok);color:#fff}
+.lvstrip .lv.pass .ic{width:.9em;height:.9em;stroke:#fff}
+.jump{font-family:ui-monospace,monospace;font-size:.76em;border:1px solid var(--hair2);border-radius:99px;padding:1px 10px;color:var(--ink2)}
+.state{font-size:.82em;font-weight:700}
+.state.ok{color:var(--ok)} .state.bad{color:var(--bad)}
+
+/* quiz */
+.q{padding-top:var(--s3);margin-top:var(--s3);border-top:1px solid var(--hair)}
+.q-h{display:flex;gap:9px;align-items:baseline;flex-wrap:wrap}
+.q-n{font-family:ui-monospace,monospace;font-size:.82em;color:var(--ink2)}
+.q-meta{margin-inline-start:auto;font-size:.76em;color:var(--ink2);border:1px solid var(--hair);border-radius:99px;padding:0 8px}
+.qfb{display:none;margin-top:var(--s2);font-size:.92em;border-inline-start:2px solid var(--hair2);padding-inline-start:var(--s2)}
+.qfb.show{display:block}
+.qfb.ok{border-color:var(--ok)} .qfb.bad{border-color:var(--bad)}
+.scorebar{margin-top:var(--s4);display:flex;gap:var(--s2);align-items:center;justify-content:space-between;
+  flex-wrap:wrap;background:var(--ink);color:var(--paper);border-radius:var(--r);padding:8px 16px;font-size:.9em;z-index:20;box-shadow:var(--sh)}
+.scorebar .btn.ghost{color:var(--paper);border-color:color-mix(in srgb,var(--paper) 45%,transparent);background:none}
+.scorebar .btn.ghost:hover{background:color-mix(in srgb,var(--paper) 14%,transparent)}
+[data-theme="dark"] .scorebar .btn.ghost{color:var(--ink);border-color:var(--hair2)}
+[data-theme="dark"] .scorebar{background:var(--surface2);color:var(--ink);border:1px solid var(--hair)}
+.scorebar .big{font-family:ui-monospace,monospace;font-size:1.1em;font-weight:700}
+.pillrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.pill{font-size:.78em;border:1px solid var(--hair2);border-radius:99px;padding:0 9px;color:var(--ink2)}
+.pill.bad{border-color:var(--bad);color:var(--bad)}
+
+/* forms */
+label.fl{display:block;font-size:.84em;color:var(--ink2);margin:var(--s2) 0 4px}
+input[type=text],input[type=number],textarea{font:inherit;font-size:.92em;background:var(--body);color:var(--ink);
+  border:1px solid var(--hair2);border-radius:var(--r);padding:6px 11px;width:100%;max-width:320px}
+input[type=number]{max-width:120px}
+input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2)}
+@media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+.toolrow{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+.why{font-size:.86em;color:var(--ink2);border-inline-start:2px solid var(--hair2);padding-inline-start:var(--s2);margin-top:var(--s2)}
+
+@media print{
+  .topbar,.rail,.controls,.scorebar,.iconbtn,.btn,.thumbra{display:none!important}
+  body{background:#fff;color:#000;font-size:11pt;line-height:1.55}
+  .shell{display:block;padding:0;max-width:none}
+  .sec{display:block;break-inside:avoid;border-top:1px solid #ccc;padding:14px 0}
+  .sec>.num{display:none}
+  .fb,.qfb{display:block!important}
+  .code{background:#f5f5f5;color:#111;border:1px solid #ccc}
+  .code .cbody .hl{display:none}
+  .code pre,.code .ln{color:#111}
+  a{color:#000;border:0}
+  .stage{min-height:0}
+}
+@media(max-width:900px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;padding-top:var(--s3);order:-1;border-bottom:1px solid var(--hair);padding-bottom:var(--s3)}
+  .rail ol{columns:2;column-gap:16px}
+  .sec{grid-template-columns:minmax(0,1fr)}
+  .sec>.num{grid-column:1;order:-1;display:flex;gap:8px;align-items:baseline;text-align:start;margin-bottom:var(--s1)}
+  .sec>.num b{font-size:1.2rem}
+  .sec>.num span{margin:0}
+  body{font-size:16.6px}
+  h1{font-size:1.9rem} h2{font-size:1.35rem}
+}
+@media(prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+
+/* --- v1.1 additions: hero, defs, ask box, race bars, tree --- */
+.hero{padding:var(--s5) 0 var(--s4);border-bottom:1px solid var(--hair)}
+.hero .kick{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:var(--s2);font-size:.84em;color:var(--ink2)}
+.hero h1{margin-bottom:var(--s2)}
+.hero .lede{font-size:1.06em;color:var(--ink2);max-width:68ch}
+.hero .metaline{display:flex;gap:var(--s3);flex-wrap:wrap;margin-top:var(--s3);font-size:.84em;color:var(--ink2);font-family:var(--mono)}
+.progcard{margin-top:var(--s3);display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap;font-size:.86em;color:var(--ink2)}
+.progcard .bar{flex:1;min-width:160px}
+dl.defs{margin:var(--s3) 0;display:grid;grid-template-columns:auto 1fr;gap:4px var(--s2);font-size:.95em}
+dl.defs dt{font-family:var(--mono);font-size:.88em;color:var(--accent-ink);direction:ltr;text-align:left}
+dl.defs dd{margin:0}
+.pred{display:inline-flex;gap:7px;align-items:center;font-size:.82em;color:var(--ink2);cursor:pointer}
+.pred input{width:15px;height:15px;accent-color:var(--accent)}
+.askbox{margin-top:var(--s2);border-inline-start:2px solid var(--accent);padding-inline-start:var(--s2);font-size:.92em}
+.askq{font-weight:650;margin-bottom:6px}
+.askfb{display:none}.askfb.show{display:block;margin-top:8px}
+.askfb.ok b,.askfb.ok{color:var(--ok)}.askfb.bad{color:var(--bad)}
+.ca-q{font-size:1em;margin:var(--s2) 0 0}
+.racebars{display:flex;flex-direction:column;gap:8px;margin:var(--s2) 0}
+.rl{display:flex;gap:10px;align-items:center;font-size:.84em}
+.rl .nm{font-family:var(--mono);min-width:92px;color:var(--ink2);direction:ltr;text-align:left}
+.rl .track{flex:1;height:12px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.rl .fill{height:12px;width:0;background:var(--accent);border-radius:99px;transition:width 420ms var(--t)}
+.rl.b .fill{background:var(--warn)}
+.rl .vn{font-family:var(--mono);font-size:.86em;min-width:3.2em;text-align:end}
+.tree{width:100%;max-width:520px;height:auto;overflow:visible}
+.tree .n{fill:var(--body);stroke:var(--hair2);stroke-width:1.75}
+.tree .n.hot{fill:var(--accent-soft);stroke:var(--accent)}
+.tree .e{stroke:var(--hair2);stroke-width:1.75;fill:none}
+.tree text{font-family:ui-monospace,monospace;font-size:13px;fill:var(--ink);text-anchor:middle;dominant-baseline:middle}
+.legend{display:flex;gap:var(--s2);flex-wrap:wrap;font-size:.8em;color:var(--ink2);margin-top:var(--s1)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:5px;vertical-align:-1px}
+.kv{display:flex;gap:6px;flex-wrap:wrap;font-size:.86em;color:var(--ink2);margin-top:var(--s2)}
+.kv b{font-family:var(--mono);color:var(--ink);direction:ltr}
+.quote p,.quote .term,.quote .src{direction:ltr;text-align:left}
+.quote .term{margin-bottom:4px}
+.controls .segstrip{flex:2;min-width:140px}
+.controls .segstrip button{width:14px;height:20px}
+.code .ch .iconbtn{color:#A9B7B3;border-color:#39424D;background:none}
+.code .ch .iconbtn:hover{background:#232A32;color:#E7E9E3;border-color:#4B5661}
+.code .ch .iconbtn.done{color:#8FD0A9;border-color:#8FD0A9}
+.code .ch .iconbtn .ic{width:1.15em;height:1.15em}
+/* CORE v1.1 END:css */
+
+</style>
+<style id="views-css">
+
+</style>
+</head>
+<body data-module="m01">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5l11 7.5-11 7.5z"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol>
+<symbol id="i-next" viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></symbol>
+<symbol id="i-prev" viewBox="0 0 24 24"><path d="M10 6l6 6-6 6"/></symbol>
+<symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 2.3 6.4"/><path d="M4 5v5h5"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 5.5A1.5 1.5 0 0 0 13.5 4H6a2 2 0 0 0-2 2v7.5A1.5 1.5 0 0 0 5.5 15"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></symbol>
+<symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 4.5l8 14H4z"/><path d="M12 10v4M12 16.6v.1"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><path d="M12 11v5.2M12 7.9v.1"/></symbol>
+<symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9z"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.4"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><path d="M12 7.5V12l3 2"/></symbol>
+<symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 17h6M10 20h4"/><path d="M8.2 13.6a5.2 5.2 0 1 1 7.6 0c-.7.8-1.1 1.6-1.1 2.4h-5.4c0-.8-.4-1.6-1.1-2.4z"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.4"/><path d="M15.8 15.8L21 21"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 7h15M9.5 7V4.8h5V7M6.8 7l.9 11.2h8.6L17.2 7"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6.5h12M8 12h12M8 17.5h12M4 6.5v.1M4 12v.1M4 17.5v.1"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M19 12H5M10 7l-5 5 5 5"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.4"/><rect x="13" y="4" width="7" height="7" rx="1.4"/><rect x="4" y="13" width="7" height="7" rx="1.4"/><rect x="13" y="13" width="7" height="7" rx="1.4"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+</defs></svg>
+
+<div class="topbar">
+  <div class="who">
+    <span class="tagm">CS2015</span>
+    <span class="mid">جداول التجزئة · Hash Tables</span>
+    <span class="sm muted">M01</span>
+  </div>
+  <div class="tools">
+    <button class="iconbtn only" id="fsMinus" type="button" aria-label="تصغير الخط">A&minus;</button>
+    <button class="iconbtn only" id="fsPlus" type="button" aria-label="تكبير الخط">A+</button>
+    <button class="iconbtn only" id="themeBtn" type="button" aria-label="تبديل الوضع"></button>
+    <a class="iconbtn only" href="#s116" aria-label="إلى الاختبار"><svg class="ic"><use href="#i-target"/></svg></a>
+  </div>
+</div>
+<div class="thumbra"><i id="scrollProg"></i></div>
+
+<div class="shell">
+<nav class="rail" aria-label="فهرس الوحدة">
+  <h2>الفهرس</h2>
+  <ol>
+    <li><a href="#s11"><span class="n">1.1</span>لماذا التجزئة</a></li>
+    <li><a href="#s12"><span class="n">1.2</span>الخريطة Map</a></li>
+    <li><a href="#s13"><span class="n">1.3</span>الفكرة</a></li>
+    <li><a href="#s14"><span class="n">1.4</span>حساب باليد</a></li>
+    <li><a href="#s15"><span class="n">1.5</span>تحدٍّ</a></li>
+    <li><a href="#s16"><span class="n">1.6</span>اختبار</a></li>
+  </ol>
+  <div class="prog">
+    <div class="sm muted" style="display:flex;justify-content:space-between;gap:8px"><span>إنجاز الأنشطة</span><span id="railProgTxt">0%</span></div>
+    <div class="bar" style="margin-top:6px"><i id="introProg"></i></div>
+  </div>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="kick">
+    <span class="tagm">Module 01 · Slides 1–6 of 33</span>
+    <span class="slidep">CS2015 · Hash Tables — Dr. Areej Alsini · Dr. Saeed Altalhi</span>
+  </div>
+  <h1>جداول التجزئة: من البحث الخطّي إلى <span class="mono" dir="ltr">O(1)</span></h1>
+  <p class="lede">الشريحة تقول «ابحث عن المفتاح في خانة واحدة». تغطي هذه الوحدة الشرائح 1–6: الفكرة، الخريطة، القاعدة، والمثال المحسوب. أما دالة التجزئة بشقيها والتصادمات فموضعها الوحدة التالية (الشرائح 7–11).</p>
+  <div class="metaline">
+    <span>6 شرائح (1–6)</span><span>6 أقسام</span><span>1 Participation</span><span>1 Challenge</span><span>8 أسئلة اختبار</span>
+  </div>
+  <div class="progcard">
+    <span>تقدّمك في أنشطة الوحدة:</span>
+    <div class="bar"><i id="introProg2"></i></div>
+    <span class="mono" id="introProgTxt">0%</span>
+  </div>
+</header>
+
+<div data-slide="1" class="sm muted" style="border-bottom:1px solid var(--hair);padding-bottom:var(--s2);margin-bottom:var(--s3)">
+  <b>الشريحة 1 — صفحة العنوان:</b> Hash Tables · Hash functions · Collisions: chaining and open addressing · O(1) search and insert — Dr. Areej Alsini · Dr. Saeed Altalhi · Adapted from Goodrich, Tamassia &amp; Goldwasser (2013), ch. 10 — Maps, Hash Tables, and Skip Lists; Knuth (1998), §6.4.
+</div>
+
+<!-- ================= 1.1 ================= -->
+<section class="sec reveal" id="s11">
+  <div class="num"><b>1.1</b><span>لماذا</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 2</span></div>
+    <h2>البحث عن شيء في O(1) — في المتوسط</h2>
+    <div data-slide="2">
+      <div class="quote">
+        <span class="term">Where we are</span>
+        <p>“So far, finding a value meant looking through the data: list / linked list — check items one by one, O(n); sorted list + binary search — O(log n), but inserting is O(n). This week: a structure where you go straight to the item — O(1).”</p>
+        <span class="src">Hash Tables, slide 2</span>
+      </div>
+      <p>كل ما تعلّمته حتى الآن يكلّفك <b>مقارنات</b>: القائمة تُفحص عنصرًا عنصرًا، والقائمة المرتّبة تسمح بالبحث الثنائي لكن الإدخال في المنتصف يزحزح بقية العناصر. جدول التجزئة يغيّر السؤال: بدلًا من «أين قد يكون المفتاح؟» نسأل «ما رقم الخانة التي <i>يحسبها</i> المفتاح نفسه؟». إذا عرفنا رقم الخانة حسابيًا، فلا حاجة إلى بحث أصلًا.</p>
+      <div class="tw"><table>
+        <caption>سلّم التكلفة قبل التجزئة (من الشريحة)</caption>
+        <thead><tr><th>البنية</th><th class="c">بحث</th><th class="c">إدخال</th><th>لماذا؟</th></tr></thead>
+        <tbody>
+          <tr><td>قائمة / قائمة مرتبطة</td><td class="c ltr">O(n)</td><td class="c ltr">O(1) في الرأس</td><td>فحص متسلسل بلا عناوين</td></tr>
+          <tr><td>قائمة مرتّبة + بحث ثنائي</td><td class="c ltr">O(log n)</td><td class="c ltr">O(n)</td><td>الإدخال يزحزح العناصر</td></tr>
+          <tr><td>جدول تجزئة</td><td class="c ltr">O(1)</td><td class="c ltr">O(1)</td><td>الفهرس يُحسب، لا يُبحث عنه</td></tr>
+        </tbody>
+      </table></div>
+      <p>الشريحة تذكر مثالًا عمليًا: نظام سجلات طلاب فيه <span class="mono" dir="ltr">50 000</span> سجل. بحث خطّي واحد = حتى 50 000 مقارنة؛ جدول تجزئة = حساب واحد ثم خانة واحدة. في الاختبار، السؤال المتكرّر هو <b>«لماذا لا يكفي البحث الثنائي؟»</b> — الجواب: لأنه يكلّف <span class="mono" dir="ltr">O(log n)</span> في البحث و<span class="mono" dir="ltr">O(n)</span> في الإدخال، والتجزئة تعطي <span class="mono" dir="ltr">O(1)</span> في الاثنين معًا (في المتوسط).</p>
+      <div class="aside"><span class="k"><svg class="ic"><use href="#i-target"/></svg> لماذا هذا المثال؟</span>
+        <p>الرقم 50 000 يجعل الفرق ملموسًا: 50 000 مقابل 1 ليس تحسينًا في الثابت، بل تغيير في رتبة النمو — وهذا هو معيار CLO 2.2.</p></div>
+      <div class="fold"><details class="ex"><summary><svg class="ic"><use href="#i-bulb"/></svg> تمرين 1.1 — اختر البنية <span class="ex-lbl">أظهر الحل</span></summary>
+        <p><b>السؤال:</b> تحتاج بحثًا متكرّرًا عن أسماء 20 000 طالب، وإضافة أسماء جديدة باستمرار، ولا تحتاج ترتيبهم. أي بنية تختار ولماذا؟</p>
+        <p><b>الحل:</b> جدول تجزئة (أو <span class="mono" dir="ltr">dict</span> في بايثون). البحث والإدخال <span class="mono" dir="ltr">O(1)</span> في المتوسط. القائمة المرتّبة تعطي بحثًا <span class="mono" dir="ltr">O(log n)</span> لكن إدخالها <span class="mono" dir="ltr">O(n)</span>، ولا فائدة من الترتيب لأننا لا نطلبه.</p>
+      </details></div>
+      <p class="sm muted">الأهداف المعلنة على الشريحة (CLO 1.2, 2.1, 2.2): وصف دالة التجزئة وشروط جودتها · حساب <span class="mono" dir="ltr">hash(key) % M</span> يدويًا · معالجة التصادم بالسلسلة والعنونة المفتوحة (خطية، تربيعية، مزدوجة) · شرح معامل الحِمل ومتى نكبّر · بناء جدول في بايثون وعدّ الكلمات وتجميع الجناس.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.2 ================= -->
+<section class="sec reveal" id="s12">
+  <div class="num"><b>1.2</b><span>الخريطة</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 3</span></div>
+    <h2>ما نريده فعلًا: خريطة من مفتاح إلى قيمة</h2>
+    <div data-slide="3">
+      <div class="quote">
+        <span class="term">Map / dictionary / associative array</span>
+        <p>“We want a map from keys to values — also called dictionary or associative array.”</p>
+        <span class="src">Hash Tables, slide 3 · Goodrich et al. (2013) §10.1</span>
+      </div>
+      <p>الخريطة <span class="mono" dir="ltr">map</span> تجمع أزواج (مفتاح، قيمة): المفتاح فريد، والقيمة تُستدعى به. كل عملياتها في بايثون قائمة على جدول تجزئة، لذلك نفهمها بسرعة: العملية نفسها هي الواجهة، والتجزئة هي التنفيذ.</p>
+      <div class="tw"><table>
+        <caption>عمليات الخريطة كما في الشريحة</caption>
+        <thead><tr><th>العملية</th><th class="ltr">Python dict</th><th class="ltr">مثال</th><th>المعنى</th></tr></thead>
+        <tbody>
+          <tr><td>إدراج أو تحديث</td><td class="ltr">map[k] = v</td><td class="ltr">d['ali'] = 90</td><td>insert or update</td></tr>
+          <tr><td>قراءة</td><td class="ltr">map[k]</td><td class="ltr">d['ali']</td><td>look up — KeyError إن غاب</td></tr>
+          <tr><td>حذف</td><td class="ltr">del map[k]</td><td class="ltr">del d['ali']</td><td>remove</td></tr>
+          <tr><td>اختبار وجود</td><td class="ltr">k in map</td><td class="ltr">'ali' in d</td><td>does the key exist?</td></tr>
+          <tr><td>العدد</td><td class="ltr">len(map)</td><td class="ltr">len(d)</td><td>number of pairs</td></tr>
+        </tbody>
+      </table></div>
+      <p>مثال الشريحة: <span class="mono" dir="ltr">'ali' → 90</span> · <span class="mono" dir="ltr">'sara' → 85</span> · <span class="mono" dir="ltr">'omar' → 77</span>. السؤال التصميمي: كيف نخزّن هذه الأزواج بحيث نصل إلى قيمة مفتاح في خطوة واحدة؟</p>
+      <p><b>الطريق الساذج وتكلفته:</b> خزّن الأزواج في قائمة وابحث فيها → البحث <span class="mono" dir="ltr">O(n)</span>. رتّبها واستخدم البحث الثنائي → البحث <span class="mono" dir="ltr">O(log n)</span> لكن الإدخال في المنتصف <span class="mono" dir="ltr">O(n)</span>. الشريحة تصف هذا صراحة بأنه غير كافٍ لنظام فيه 50 000 سجل.</p>
+      <div class="aside warn"><span class="k"><svg class="ic"><use href="#i-warn"/></svg> ملاحظة على الشريحة</span>
+        <p>الشريحة تكتب <span class="mono" dir="ltr">O(1)</span> للبحث والإدراج دون كلمة «متوسط» في عنوان القسم؛ الدقة التي تعتمدها الوحدة في كل مكان: <b>O(1) في المتوسط، O(n) في الأسوأ</b>. لا تكتب <span class="mono" dir="ltr">O(1)</span> مطلقًا في الاختبار بلا «متوسط».</p></div>
+      <div class="fold"><details class="ex"><summary><svg class="ic"><use href="#i-bulb"/></svg> تمرين 1.2 — لماذا الإدخال في قائمة مرتّبة O(n)؟ <span class="ex-lbl">أظهر الحل</span></summary>
+        <p><b>الحل:</b> لأن موضع الإدراج في المنتصف يفرض تحريك كل العناصر التي بعده خانةً واحدة للحفاظ على الترتيب؛ عدد الحركات يتناسب مع n، فلا مفرّ من <span class="mono" dir="ltr">O(n)</span>. في جدول التجزئة لا يوجد ترتيب يجب حمايته، لذا الإدخال لا يزحزح شيئًا.</p>
+      </details></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.3 ================= -->
+<section class="sec reveal" id="s13">
+  <div class="num"><b>1.3</b><span>الفكرة</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحتان 4 و 5</span></div>
+    <h2>الفكرة: حوّل المفتاح إلى رقم خانة</h2>
+    <div data-slide="4">
+      <div class="quote">
+        <span class="term">In plain words</span>
+        <p>“The rule tells you, from the key alone, which box (slot) to open. To store: apply the rule → box number → put the pair there. No searching. To find: apply the same rule → same box → open that one box. Still no searching. The catch: two different keys can give the same box number — a collision.”</p>
+        <span class="src">Hash Tables, slide 4</span>
+      </div>
+      <p>تصوّر خزانة فيها صناديق مرقّمة. القاعدة تقول: من المفتاح وحده، استخرج رقم الصندوق. لا تُفتش، تُحسب. الشريحة تسمّي القاعدة <b>hash function</b> والصناديق <b>slots</b>، والحالة التي يعطي فيها مفتاحان رقمًا واحدًا <b>collision</b>. النصف الأول من المحاضرة يُبنى على «لا بحث»، والنصف الثاني يُعالج استثناء «مفتاحان، صندوق واحد».</p>
+    </div>
+    <div data-slide="5">
+      <div class="flow" style="margin-top:var(--s3)">
+        <div class="node"><span class="lbl">key</span><span class="mono" dir="ltr">'omar'</span></div>
+        <svg class="arrowline" viewBox="0 0 60 12" role="img" aria-label="سهم"><path d="M58 6H14"/><path d="M22 2l-8 4 8 4"/></svg>
+        <div class="node"><span class="lbl">hash function</span><span class="mono" dir="ltr">h(key)</span></div>
+        <svg class="arrowline" viewBox="0 0 60 12" role="img" aria-label="سهم"><path d="M58 6H14"/><path d="M22 2l-8 4 8 4"/></svg>
+        <div class="node hot"><span class="lbl">slot (index)</span><span class="mono" dir="ltr">3</span></div>
+        <svg class="arrowline" viewBox="0 0 60 12" role="img" aria-label="سهم"><path d="M58 6H14"/><path d="M22 2l-8 4 8 4"/></svg>
+        <div class="node"><span class="lbl">array slot</span><span class="mono" dir="ltr">[3]</span></div>
+      </div>
+      <svg viewBox="0 0 600 120" style="width:100%;max-width:600px;height:auto;display:block" role="img" aria-label="مصفوفة من ثماني خانات فيها ali في 0 و omar في 2 و sara في 5">
+        <g font-family="ui-monospace,monospace" font-size="11" fill="#5C5852">
+          <rect x="4" y="30" width="66" height="46" rx="6" fill="none" stroke="#2A6F68" stroke-width="1.75"/><text x="37" y="52" text-anchor="middle" fill="#22211E">ali</text><text x="37" y="68" text-anchor="middle" font-size="10">0</text>
+          <rect x="78" y="30" width="66" height="46" rx="6" fill="none" stroke="#D3CCBC" stroke-width="1.75"/><text x="111" y="68" text-anchor="middle" font-size="10">1</text>
+          <rect x="152" y="30" width="66" height="46" rx="6" fill="none" stroke="#2A6F68" stroke-width="1.75"/><text x="185" y="52" text-anchor="middle" fill="#22211E">omar</text><text x="185" y="68" text-anchor="middle" font-size="10">2</text>
+          <rect x="226" y="30" width="66" height="46" rx="6" fill="none" stroke="#D3CCBC" stroke-width="1.75"/><text x="259" y="68" text-anchor="middle" font-size="10">3</text>
+          <rect x="300" y="30" width="66" height="46" rx="6" fill="none" stroke="#D3CCBC" stroke-width="1.75"/><text x="333" y="68" text-anchor="middle" font-size="10">4</text>
+          <rect x="374" y="30" width="66" height="46" rx="6" fill="none" stroke="#2A6F68" stroke-width="1.75"/><text x="407" y="52" text-anchor="middle" fill="#22211E">sara</text><text x="407" y="68" text-anchor="middle" font-size="10">5</text>
+          <rect x="448" y="30" width="66" height="46" rx="6" fill="none" stroke="#D3CCBC" stroke-width="1.75"/><text x="481" y="68" text-anchor="middle" font-size="10">6</text>
+          <rect x="522" y="30" width="66" height="46" rx="6" fill="none" stroke="#D3CCBC" stroke-width="1.75"/><text x="555" y="68" text-anchor="middle" font-size="10">7</text>
+        </g>
+      </svg>
+      <div class="legend">
+        <span><i style="background:#2A6F68"></i>خانة مشغولة (slot occupied)</span>
+        <span><i style="background:#D3CCBC"></i>خانة فارغة (empty)</span>
+        <span>M = 8 خانة · الفهارس 0 … 7</span>
+      </div>
+      <p style="margin-top:var(--s3)">خطوتان فقط لكل عملية: <b>1)</b> احسب <span class="mono" dir="ltr">i = h(key)</span> · <b>2)</b> اذهب مباشرة إلى الخانة <span class="mono" dir="ltr">i</span>. لا مسح، ولا مقارنة إلا عند التصادم. الشريحة تختم بتعريف:</p>
+      <div class="aside ok"><span class="k"><svg class="ic"><use href="#i-info"/></svg> التعريف</span>
+        <p><b>Hash table</b> = مصفوفة من M خانة + دالة تجزئة h. كل زوج (مفتاح، قيمة) يُخزَّن في الخانة <span class="mono" dir="ltr">h(key)</span>، فيصبح البحث والإدراج والحذف <span class="mono" dir="ltr">O(1)</span> في المتوسط.</p></div>
+      <p>وفي نهاية الشريحة سؤالان يقودان بقية المحاضرة: كيف نحوّل مفتاحًا عشوائيًا (نصًّا، زوجًا…) إلى عدد بين <span class="mono" dir="ltr">0</span> و<span class="mono" dir="ltr">M−1</span>؟ وماذا لو حصل مفتاحان على الخانة نفسها؟</p>
+    </div>
+    <div id="host-pa1"></div>
+    <div class="aside"><span class="k"><svg class="ic"><use href="#i-target"/></svg> لماذا هذا المثال؟</span>
+      <p>مثال <span class="mono" dir="ltr">'omar' → 3 → [3]</span> يفصل بين «القيمة» و«الموضع»: القيمة تُخزَّن، والموضع يُحسب. كل خطأ لاحق في الوحدة (نسيان إعادة التجزئة، مسح كل الخانات) سببه الخلط بين هذين الأمرين.</p></div>
+  </div>
+</section>
+
+<!-- ================= 1.4 ================= -->
+<section class="sec reveal" id="s14">
+  <div class="num"><b>1.4</b><span>باليد</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 6</span></div>
+    <h2>مثال محسوب بالكامل: 7 سجلات في 7 خانات</h2>
+    <div data-slide="6">
+      <p>القاعدة: <span class="mono" dir="ltr">h(key) = key % 7</span> على سجلات القسم: (1, Ali) (3, Raad) (7, Abdullah) (25, Saad) (15, Saeed) (4, Waleed) (12, Sami).</p>
+      <div class="tw"><table>
+        <caption>حساب الخانة الأصلية home slot لكل مفتاح</caption>
+        <thead><tr><th class="ltr">key</th><th class="ltr">compute</th><th>home slot</th><th>الحالة</th></tr></thead>
+        <tbody>
+          <tr><td class="ltr">1</td><td class="ltr">1 % 7 = 1</td><td>slot 1</td><td>—</td></tr>
+          <tr><td class="ltr">3</td><td class="ltr">3 % 7 = 3</td><td>slot 3</td><td>—</td></tr>
+          <tr><td class="ltr">7</td><td class="ltr">7 % 7 = 0</td><td>slot 0</td><td>—</td></tr>
+          <tr><td class="ltr">25</td><td class="ltr">25 % 7 = 4</td><td>slot 4</td><td>—</td></tr>
+          <tr><td class="ltr">15</td><td class="ltr">15 % 7 = 1</td><td>slot 1</td><td>تصادم مع 1</td></tr>
+          <tr><td class="ltr">4</td><td class="ltr">4 % 7 = 4</td><td>slot 4</td><td>تصادم مع 25</td></tr>
+          <tr><td class="ltr">12</td><td class="ltr">12 % 7 = 5</td><td>slot 5</td><td>—</td></tr>
+        </tbody>
+      </table></div>
+      <p>الجدول بعد الإدخال (الشريحة تعرض التصادمات متجاورةً في الخانة نفسها — هذا هو مبدأ السلسلة الذي يأتي في 1.7). الخانات المشغولة: <span class="mono" dir="ltr">0, 1, 3, 4, 5</span>؛ والخانات <span class="mono" dir="ltr">2, 6</span> فارغة. بحث عن المفتاح 7: <span class="mono" dir="ltr">7 % 7 = 0</span> ← الخانة 0 ← <span class="mono" dir="ltr">'Abdullah'</span>. حساب واحد ونظرة واحدة: <span class="mono" dir="ltr">O(1)</span> دون مسح الخانات الست الأخرى.</p>
+    </div>
+
+    <div class="anim" data-anim="pipe" id="anim-pipe">
+      <div class="act-h">
+        <span class="act-k">Animation <b>1.4.1</b></span>
+        <h3>كيف يدخل المفتاح الخانة — ثم يصطدم</h3>
+        <label class="pred"><input type="checkbox" class="predict"> وضع التوقّع</label>
+      </div>
+      <div class="stage" style="min-height:300px">
+        <div class="flow">
+          <div class="node" id="n-key"><span class="lbl">key</span><span class="mono" id="keyv">1</span></div>
+          <svg class="arrowline" viewBox="0 0 60 12" role="img" aria-hidden="true"><path id="ar1" d="M58 6H16"/><path d="M24 2l-8 4 8 4"/></svg>
+          <div class="node" id="n-h"><span class="lbl">key % 7</span><span class="countup" id="cu">0</span></div>
+          <svg class="arrowline" viewBox="0 0 60 12" role="img" aria-hidden="true"><path id="ar2" d="M58 6H16"/><path d="M24 2l-8 4 8 4"/></svg>
+          <div class="node" id="n-slot"><span class="lbl">slot</span><span class="mono" id="niv">—</span></div>
+        </div>
+        <div class="slotrow" id="row" style="margin-top:var(--s4)">
+          <div class="slot" id="p0"><i class="ix">0</i></div>
+          <div class="slot" id="p1"><i class="ix">1</i></div>
+          <div class="slot" id="p2"><i class="ix">2</i></div>
+          <div class="slot" id="p3"><i class="ix">3</i></div>
+          <div class="slot" id="p4"><i class="ix">4</i></div>
+          <div class="slot" id="p5"><i class="ix">5</i></div>
+          <div class="slot" id="p6"><i class="ix">6</i></div>
+        </div>
+        <div class="chip" data-chip="c1" data-home="n-key" style="opacity:0"><span class="t">1</span></div>
+        <div class="chip" data-chip="c7" data-home="n-key" style="opacity:0"><span class="t">7</span></div>
+        <div class="chip" data-chip="c25" data-home="n-key" style="opacity:0"><span class="t">25</span></div>
+        <div class="chip" data-chip="c15" data-home="n-key" data-dy="30" style="opacity:0"><span class="t">15</span></div>
+      </div>
+      <div class="controls">
+        <button class="btn" type="button" data-a="start"><svg class="ic"><use href="#i-play"/></svg> Start</button>
+        <button class="btn ghost" type="button" data-a="prev"><svg class="ic"><use href="#i-prev"/></svg> السابق</button>
+        <button class="btn ghost" type="button" data-a="next"><svg class="ic"><use href="#i-next"/></svg> التالي</button>
+        <button class="btn ghost" type="button" data-a="play"><svg class="ic"><use href="#i-play"/></svg> تشغيل</button>
+        <button class="btn ghost" type="button" data-a="pause"><svg class="ic"><use href="#i-pause"/></svg> إيقاف</button>
+        <button class="btn ghost" type="button" data-a="reset"><svg class="ic"><use href="#i-reset"/></svg> إعادة</button>
+        <button class="btn ghost" type="button" data-a="speed" aria-label="سرعة عادية" aria-pressed="false">2x speed</button>
+        <div class="segstrip" aria-label="شريط الخطوات"></div>
+        <span class="stepno">Step 0 of 16</span>
+      </div>
+      <div class="askbox" hidden>
+        <div class="askq"></div>
+        <div class="askopts opts"></div>
+        <div class="askfb"></div>
+      </div>
+      <p class="cap"><span class="why">لماذا</span><span class="txt">اضغط Start لتبدأ. الشريحة تضع 7 ثم 15 في الخانة 1 نفسها — شاهد ماذا يحدث عند الاصطدام.</span></p>
+      <div class="watch">
+        <div class="w"><span>key</span><b data-w="k">—</b></div>
+        <div class="w"><span>h(key)</span><b data-w="h">—</b></div>
+        <div class="w"><span>slot</span><b data-w="i">—</b></div>
+        <div class="w"><span>collisions</span><b data-w="c">0</b></div>
+      </div>
+    </div>
+
+    <div id="host-sandbox"></div>
+
+    <div class="aside"><span class="k"><svg class="ic"><use href="#i-target"/></svg> لماذا هذا المثال؟</span>
+      <p>الأرقام صغيرة (7 خانات) لكن الخانات المختارة محسوبة: 7 يذهب إلى 0 لأنه مضاعف للمقاس، و15 و4 هما حالتا التصادم الوحيدتان — لذلك يصلح المثال كمرجع لكل تمرين حسابي لاحق.</p></div>
+  </div>
+</section>
+
+<!-- ================= 1.5 ================= -->
+<section class="sec reveal" id="s15">
+  <div class="num"><b>1.5</b><span>تحدٍّ</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">نشاط تطبيقي · 5 مستويات · الشرائح 3–6</span></div>
+    <h2>تحدّي: احسب الخانة بنفسك</h2>
+    <p>خمسة مستويات على مادة الشرائح 1–6: الخانة الأصلية، التصادم، عدد الخانات المشغولة، وبحثٌ خطوة واحدة. الإجابة الصحيحة تُجيز <b>Next</b>؛ والخطأ يعطي تلميحًا ثم <b>Try again</b> بسؤال جديد في المستوى نفسه.</p>
+    <div id="challenge"></div>
+    <div class="aside"><span class="k"><svg class="ic"><use href="#i-info"/></svg> كيف يُحتسب الإنجاز</span>
+      <p>يُسجَّل النشاط مكتملًا عند اجتياز المستويات الخمسة، ويُحفظ في المتصفح.</p></div>
+  </div>
+</section>
+
+<!-- ================= 1.6 ================= -->
+<section class="sec reveal" id="s16">
+  <div class="num"><b>1.6</b><span>اختبار</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">8 أسئلة على الشرائح 1–6 · تصحيح فوري</span></div>
+    <h2>الاختبار القصير</h2>
+    <p>أجب ثم اضغط <b>صحّح</b>. كل سؤال يشرح سببه بعد التصحيح، ونُسجّل المواضيع التي أخطأت فيها لتظهر في «مواضيعك الأضعف».</p>
+    <div id="quizList"></div>
+    <div class="scorebar">
+      <span>النتيجة: <span class="big" id="scoreVal">—</span> <span id="scoreMsg"></span></span>
+      <span class="acts" style="margin:0">
+        <button class="btn" type="button" id="gradeBtn">صحّح</button>
+        <button class="btn ghost" type="button" id="retryBtn">إعادة</button>
+        <button class="btn ghost" type="button" id="onlyWrong">راجع الأخطاء فقط</button>
+        <button class="btn ghost" type="button" id="showAll">كل الأسئلة</button>
+      </span>
+    </div>
+
+    <div id="weakBox" style="margin-top:var(--s4)">
+      <h3>مواضيعك الأضعف</h3>
+      <div id="weakBody"></div>
+      <button class="btn ghost" type="button" id="clearHist" style="margin-top:var(--s2)"><svg class="ic"><use href="#i-trash"/></svg> امسح السجل</button>
+      <p class="sm muted" style="margin-top:var(--s2)">يُحفظ آخر 10 محاولات في هذا المتصفح فقط (localStorage).</p>
+    </div>
+
+    <h3 style="margin-top:var(--s5)">فحوص ذاتية محسوبة</h3>
+    <p class="sm muted">تُحسب عند التحميل من بيانات الوحدة وتُقارن بأرقام الشريحة 6:</p>
+    <div id="selftests"></div>
+
+    <h3 style="margin-top:var(--s5)">تحقق من فهمك</h3>
+    <p class="sm muted">علّم ما أنجزته فعلًا؛ الحالة تُحفظ محليًا.</p>
+    <div id="checkList"></div>
+
+    <div class="aside ok" style="margin-top:var(--s4)"><span class="k"><svg class="ic"><use href="#i-arrow"/></svg> التالي</span>
+      <p>الوحدة 02 تبدأ من الشريحة 7: <b>hash code + compression</b>، خصائص الدالة الجيدة، الطرق الأربع، ثم التصادم واستراتيجيات السبر.</p></div>
+  </div>
+</section>
+
+<footer class="sec" style="display:block;border-top:1px solid var(--hair);padding-top:var(--s3)">
+  <p class="sm muted">CS2015 · الوحدة 01 — جداول التجزئة (الشرائح 1–6 من 33) · تغطية كاملة لكل شريحة في النطاق · كل شيء يعمل بلا إنترنت.</p>
+</footer>
+</main>
+</div>
+
+<script>
+/* بيانات وحدة M01 — الشرائح 1–6 فقط (Hash p.1–6) */
+(function(){
+const M = {};
+M.id = 'm01';
+const mod = (a,b)=> ((a%b)+b)%b;
+const pick = a => a[Math.floor(Math.random()*a.length)];
+function chainOf(Mt,keys){
+  const t = Array.from({length:Mt},()=>[]); const cols=[];
+  keys.forEach(k=>{ const i=mod(k,Mt); if(t[i].length) cols.push(k); t[i].push(k); });
+  return {t,cols,longest:Math.max(...t.map(c=>c.length)),used:t.filter(c=>c.length).length};
+}
+M.range = [1,6];
+
+M.sections = [
+  {id:'s11'},{id:'s12'},
+  {id:'s13', acts:['pa:1.3.1']},
+  {id:'s14', acts:['anim:pipe','tool:sandbox']},
+  {id:'s15', acts:['ca:1']},
+  {id:'s16', acts:['quiz']}
+];
+
+/* ---------- ANIMATION: المفتاح ← h(key) ← الخانة ثم تصادم ---------- */
+M.anims = { pipe: { steps: [
+  {line:2, cap:'المفتاح 1. لا نبحث عن مكانه، نحسبه.', lbl:{c1:'1'}, css:[{id:'c1',t:1}],
+   watch:{k:'1',h:'—',i:'—',c:'0'}, fx:['draw:ar1','draw:ar2']},
+  {line:2, cap:'<b>1 % 7</b> — الباقي 1. العدّاد يرتفع قبل أن تتحرك الشريحة.', fx:['count:cu:1'], pos:{c1:'n-h'}, set:[{id:'cu',text:'1'}], watch:{h:'1'}},
+  {line:2, cap:'الباقي 1 ← الخانة 1. الشريحة تنتقل إلى الخانة.', pos:{c1:'p1'}, set:[{id:'niv',text:'1'}], watch:{i:'1'}},
+  {line:2, cap:'المفتاح 1 في الخانة 1. الخانة الآن <b>مشغولة</b>.', pos:{c1:'p1'}, fx:['pulse:p1:ok'], hot:['p1']},
+  {line:2, cap:'المفتاح التالي: <b>7</b>.', set:[{id:'keyv',text:'7'}], lbl:{c7:'7'}, css:[{id:'c7',t:1}],
+   pos:{c1:'p1'}, watch:{k:'7',h:'—',i:'—'}},
+  {line:2, cap:'<b>7 % 7</b> … الباقي لا يساوي 7 أبدًا.', fx:['count:cu:7'], pos:{c1:'p1'}, set:[{id:'cu',text:'7'}], watch:{h:'7'}},
+  {line:2, cap:'7 يقبل القسمة على 7 تمامًا ← الباقي <b>0</b>.', fx:['count:cu:0'], pos:{c1:'p1'}, set:[{id:'cu',text:'0'}], watch:{h:'0'}},
+  {line:2, cap:'7 في الخانة <b>0</b>.', pos:{c1:'p1',c7:'p0'}, fx:['pulse:p0:ok'], hot:['p0'],
+   set:[{id:'niv',text:'0'}], watch:{i:'0'}},
+  {line:2, cap:'المفتاح <b>25</b>.', set:[{id:'keyv',text:'25'}], lbl:{c25:'25'}, css:[{id:'c25',t:1}],
+   pos:{c1:'p1',c7:'p0'}, watch:{k:'25',h:'—',i:'—'}},
+  {line:2, cap:'<b>25 % 7</b> — العدّاد إلى 25.', fx:['count:cu:25'], pos:{c1:'p1',c7:'p0'}, set:[{id:'cu',text:'25'}], watch:{h:'25'}},
+  {line:2, cap:'ثم الباقي: 7×3 = 21، والباقي <b>4</b>.', fx:['count:cu:4'], pos:{c1:'p1',c7:'p0'}, set:[{id:'cu',text:'4'}], watch:{h:'4'}},
+  {line:2, cap:'25 في الخانة <b>4</b>.', pos:{c1:'p1',c7:'p0',c25:'p4'}, fx:['pulse:p4:ok'], hot:['p4'],
+   set:[{id:'niv',text:'4'}], watch:{i:'4'}},
+  {line:2, cap:'المفتاح الأخير في الشريحة: <b>15</b>.', set:[{id:'keyv',text:'15'}], lbl:{c15:'15'}, css:[{id:'c15',t:1}],
+   pos:{c1:'p1',c7:'p0',c25:'p4'}, watch:{k:'15',h:'—',i:'—'}},
+  {line:2, cap:'<b>15 % 7</b> …', fx:['count:cu:15'], pos:{c1:'p1',c7:'p0',c25:'p4'}, set:[{id:'cu',text:'15'}], watch:{h:'15'}},
+  {line:2, cap:'7×2 = 14، والباقي <b>1</b> — الخانة 1 نفسها!', fx:['count:cu:1'], pos:{c1:'p1',c7:'p0',c25:'p4'}, set:[{id:'cu',text:'1'}], watch:{h:'1'}},
+  {line:2, cap:'<b>تصادم:</b> الخانة 1 مشغولة بـ 1، والمفتاح 15 يريدها أيضًا. هذه هي الحالة التي تُحلّ في 1.7 وما بعدها.',
+   pos:{c1:'p1',c7:'p0',c25:'p4',c15:'p1'}, fx:['shake:p1'], lbl:{c15:'15 · occupied'},
+   cls:{c15:'bad'}, set:[{id:'niv',text:'1'}], watch:{c:'1',i:'1'}, hot:['p1']}
+]}};
+
+/* ---------- PARTICIPATION ACTIVITY (الشرائح 3–6) ---------- */
+M.pas = [
+  {num:'1.3.1', sec:'s16', after:'host-pa1', title:'تحقّق: الخريطة والقاعدة', items:[
+    {q:'أي عملية في <span class="mono" dir="ltr">dict</span> تُرجع خطأً إن غاب المفتاح؟',
+     opts:['<span class="mono" dir="ltr">map[k]</span>','<span class="mono" dir="ltr">k in map</span>','<span class="mono" dir="ltr">map.get(k)</span>'], a:0,
+     why:'<span class="mono" dir="ltr">map[k]</span> ترفع KeyError؛ أما <span class="mono" dir="ltr">in</span> فتُرجع False، و<span class="mono" dir="ltr">get</span> تُرجع None أو القيمة الافتراضية.'},
+    {q:'في جدول <span class="mono" dir="ltr">M = 7</span>، ما خانة المفتاح <span class="mono" dir="ltr">7</span>؟',
+     opts:['7','0','6','1'], a:1, why:'7 % 7 = 0: الباقي صفر لأن 7 من مضاعفات المقاس.'},
+    {q:'مع <span class="mono" dir="ltr">M = 7</span>، أي مفتاحين يتصادمان في جدول الشريحة 6؟',
+     opts:['1 و 3','15 و 4','7 و 25','12 و 15'], a:1,
+     why:'15 % 7 = 1 (والخانة 1 فيها 1)، و4 % 7 = 4 (والخانة 4 فيها 25) — وهما التصادمان الوحيدان في المثال.'}
+  ]}
+];
+
+/* ---------- CHALLENGE (خمسة مستويات على الشرائح 3–6) ---------- */
+M.ca = { num:'1.4.1', title:'الخانة الأصلية والتصادم', levels:[
+  ()=>{ const Mt=pick([5,7,11,13]); const k=pick([3,4,12,15,25,7,20,31]);
+        return {kind:'num', q:`جدول <span class="mono" dir="ltr">M = ${Mt}</span> وقاعدة <span class="mono" dir="ltr">h(k) = k % ${Mt}</span>. ما خانة المفتاح <span class="mono" dir="ltr">${k}</span>؟`,
+                a: mod(k,Mt), hint:`اقسم ${k} على ${Mt} وخُذ الباقي.`, why:`${k} % ${Mt} = ${mod(k,Mt)} ← الخانة ${mod(k,Mt)}.`}; },
+  ()=>{ const Mt=pick([7,11]); const base=pick([1,3,25]); const k=base+Mt*pick([1,2]);
+        const home=mod(base,Mt);
+        return {kind:'num', q:`الخانة <span class="mono" dir="ltr">${home}</span> مشغولة بالمفتاح <span class="mono" dir="ltr">${base}</span> في <span class="mono" dir="ltr">M = ${Mt}</span>. إلى أي خانة يريد المفتاح <span class="mono" dir="ltr">${k}</span> أن يذهب؟`,
+                a: home, hint:`${k} = ${base} + ${Mt}×${(k-base)/Mt} ← له الباقي نفسه.`,
+                why:`${k} % ${Mt} = ${home}: الحساب لا يعرف أن الخانة مشغولة — ولهذا يحدث التصادم.`}; },
+  ()=>{ const keys=[1,3,7,25,15,4,12];
+        const c=chainOf(7,keys);
+        return {kind:'num', q:`للمفاتيح <span class="mono" dir="ltr">1, 3, 7, 25, 15, 4, 12</span> في <span class="mono" dir="ltr">M = 7</span>: كم <b>خانة مشغولة</b>؟`,
+                a: c.used, hint:'عدّ الخانات المختلفة التي تصل إليها البواقي.', why:`الخانات المشغولة: ${c.t.map((v,i)=>v.length?i:null).filter(v=>v!==null).join(', ')} ← ${c.used} خانة.`}; },
+  ()=>{ const keys=[1,3,7,25,15,4,12]; const c=chainOf(7,keys);
+        return {kind:'num', q:`نفس المفاتيح <span class="mono" dir="ltr">1, 3, 7, 25, 15, 4, 12</span> في <span class="mono" dir="ltr">M = 7</span>: كم <b>تصادمًا</b> يحدث (مفتاح يجد خانته مشغولة)؟`,
+                a: c.cols.length, hint:'كل مفتاح غير أول يهبط في خانة مشغولة يُحسب.', why:`المتصادمان: ${c.cols.join(', ')} ← ${c.cols.length} تصادم.`}; },
+  ()=>{ const k=pick([7,25,15,4,12,3]);
+        return {kind:'num', q:`في جدول الشريحة 6 (<span class="mono" dir="ltr">M = 7</span>)، كم <b>مقارنة/خطوة</b> يحتاج البحث عن المفتاح <span class="mono" dir="ltr">${k}</span> إن وُجد مباشرة في خانته؟`,
+                a: 1, hint:'القاعدة: حساب واحد ثم خانة واحدة.', why:`${k} % 7 = ${mod(k,7)} ← خانة واحدة: خطوة واحدة فقط، وهذا معنى O(1).`}; }
+]};
+
+/* ---------- QUIZ (8 أسئلة على 1–6) ---------- */
+M.quiz = [
+ {topic:'لماذا التجزئة', q:'ما تكلفة البحث في قائمة مرتّبة بالبحث الثنائي، وتكلفة الإدخال فيها؟',
+  opts:['O(1) و O(1)','O(log n) و O(n)','O(n) و O(log n)','O(log n) و O(log n)'], a:1,
+  why:'البحث الثنائي O(log n)، لكن الإدخال في المنتصف يزحزح العناصر ← O(n).'},
+ {topic:'الخريطة', q:'أي تعبير يرفع <span class="mono" dir="ltr">KeyError</span> إذا غاب المفتاح؟',
+  opts:['<span class="mono" dir="ltr">k in map</span>','<span class="mono" dir="ltr">map.get(k)</span>','<span class="mono" dir="ltr">map[k]</span>','<span class="mono" dir="ltr">len(map)</span>'], a:2,
+  why:'الوصول المباشر map[k] يرفع الخطأ؛ in تُرجع False، وget تُرجع None.'},
+ {topic:'الفكرة', q:'ما الخطوتان في كل عملية على جدول تجزئة؟',
+  opts:['رتّب ثم ابحث','احسب الخانة ثم اذهب إليها','امسح الخانات حتى تجد','قارن كل مفتاح بالهدف'], a:1,
+  why:'i = h(key) ثم الذهاب إلى الخانة i مباشرة — بلا مسح (الشريحة 5).'},
+ {topic:'الفكرة', q:'تعريف جدول التجزئة كما في الشريحة 5:',
+  opts:['قائمة مرتبطة مرتّبة','مصفوفة من M خانة + دالة تجزئة','شجرة ثنائية متوازنة','مصفوفة مرتّبة + بحث ثنائي'], a:1,
+  why:'Array of M slots + hash function، والتخزين في الخانة h(key).'},
+ {topic:'حساب الخانة', q:'في <span class="mono" dir="ltr">M = 7</span>، ما خانة المفتاح 25؟',
+  opts:['3','4','5','0'], a:1, why:'7×3 = 21 والباقي 4 ← الخانة 4.'},
+ {topic:'حساب الخانة', q:'في <span class="mono" dir="ltr">M = 7</span>، ما خانة المفتاح 7؟',
+  opts:['7','1','0','6'], a:2, why:'الباقي صفر لأن 7 من مضاعفات 7، فلا يمكن أن يكون الباقي 7.'},
+ {topic:'التصادم', q:'في مثال الشريحة 6، أي مفتاحين يتصادمان؟',
+  opts:['7 و 12','1 و 15','25 و 12','3 و 4'], a:1, why:'15 % 7 = 1 والخانة 1 فيها 1 ← تصادم؛ وكذلك 4 مع 25 في الخانة 4.'},
+ {topic:'مثال محسوب', q:'البحث عن المفتاح 7 في مثال الشريحة 6 يكلف:',
+  opts:['7 مقارنات','حسابًا واحدًا ونظرة واحدة','مسح نصف الجدول','O(n)'], a:1,
+  why:'7 % 7 = 0 ← الخانة 0 ← Abdullah. هذه هي فكرة O(1) في المتوسط.'}
+];
+
+/* ---------- مِعمل صغير (أداة القسم 1.4) ---------- */
+M.tools = [{id:'sandbox', btn:'sbRun'}];
+M.mount = [function(){
+  const host = document.getElementById('host-sandbox'); if(!host) return;
+  host.innerHTML = `
+    <div class="act" id="sandbox">
+      <div class="act-h"><span class="act-k">Tool <b>1.4.2</b></span><h3>مِعمل صغير: احسب جدولك</h3></div>
+      <div class="toolrow">
+        <div><label class="fl" for="sbKeys">المفاتيح (مفصولة بفاصلة أو مسافة)</label>
+          <input type="text" id="sbKeys" value="2, 9, 16, 4" dir="ltr" style="max-width:260px"></div>
+        <div><label class="fl" for="sbM">M (عدد الخانات)</label>
+          <input type="number" id="sbM" value="7" min="2" max="31"></div>
+        <button class="btn" type="button" id="sbRun">احسب</button>
+      </div>
+      <div id="sbOut" style="margin-top:var(--s3)" aria-live="polite"></div>
+    </div>`;
+  const btn = document.getElementById('sbRun');
+  function run(){
+    const raw = (document.getElementById('sbKeys').value.match(/-?\d+/g)||[]).map(Number);
+    const Mt = Math.max(2, Math.min(31, parseInt(document.getElementById('sbM').value,10)||7));
+    const out = document.getElementById('sbOut');
+    if(!raw.length){ out.innerHTML = '<p class="fb show bad">أدخل مفتاحًا واحدًا على الأقل.</p>'; return; }
+    const {t,cols,used} = chainOf(Mt, raw);
+    out.innerHTML = `
+      <div class="tw"><table><caption>الجدول (سلسلة) · M = ${Mt}</caption>
+        <thead><tr><th class="c">slot</th><th>chain</th><th class="c">طول</th></tr></thead><tbody>
+        ${t.map((c,i)=>`<tr><td class="c ltr">${i}</td><td class="ltr">${c.length?c.join(' → '):'—'}</td><td class="c">${c.length}</td></tr>`).join('')}
+      </tbody></table></div>
+      <div class="kv">
+        <span>عدد المفاتيح <b>${raw.length}</b></span>
+        <span>خانات مشغولة <b>${used} / ${Mt}</b></span>
+        <span>تصادمات <b>${cols.length}</b> ${cols.length?'('+cols.join(', ')+')':''}</span>
+        <span>λ <b>${(raw.length/Mt).toFixed(2)}</b></span>
+      </div>`;
+  }
+  btn && btn.addEventListener('click', ()=>{
+    run();
+    const store = window.CS && window.CS.ST;
+    if(store && !store.tool.sandbox){ store.tool.sandbox = true; window.CS.save(); }
+  });
+  run();
+}];
+
+/* ---------- فحوص ذاتية محسوبة (تُقارن بأرقام الشريحة 6) ---------- */
+M.selftests = [
+  {name:'h(7) with M=7', got:()=> mod(7,7), want:0, slide:'6'},
+  {name:'h(25) with M=7', got:()=> mod(25,7), want:4, slide:'6'},
+  {name:'h(15) with M=7', got:()=> mod(15,7), want:1, slide:'6'},
+  {name:'h(4) with M=7', got:()=> mod(4,7), want:4, slide:'6'},
+  {name:'slots used (7 keys, M=7)', got:()=> chainOf(7,[1,3,7,25,15,4,12]).used, want:5, slide:'6'},
+  {name:'collisions (7 keys, M=7)', got:()=> chainOf(7,[1,3,7,25,15,4,12]).cols.length, want:2, slide:'6'}
+];
+
+M.checklist = [
+  'أشرح لماذا البحث الثنائي لا يكفي (O(log n) بحثًا وO(n) إدخالًا).',
+  'أسمّي عمليات الخريطة الخمس في بايثون وأعرف أيّها يرفع KeyError.',
+  'أحسب <b>key % M</b> بلا آلة، وأعرف أن الباقي دائمًا أصغر من M.',
+  'أشرح لماذا يقع مفتاحان في الخانة نفسها، وأن ذلك ليس خطأً في الكود.'
+];
+
+window.MODULE = M;
+})();
+
+</script>
+<script id="views-js">
+
+</script>
+<script id="core-js">
+/* CORE v1.1 START:js */
+/* =========================================================================
+   CS2015 · CORE v1.1 — محرّك مشترك (motion / PA / CA / quiz / completion)
+   يعتمد على window.MODULE الذي يوفّره ملف محتوى الوحدة.
+   ========================================================================= */
+(function(){
+"use strict";
+const $  = (s,r)=> (r||document).querySelector(s);
+const $$ = (s,r)=> Array.from((r||document).querySelectorAll(s));
+const RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const DUR = {move:480, fast:240, hold:600};
+const EASE = 'cubic-bezier(.2,.8,.2,1)';
+const KEY = 'cs2015.' + (document.body.dataset.module || 'x') + '.';
+const LS = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+const M = window.MODULE || {};
+const ST = Object.assign({pa:{},anim:{},tool:{},ca:{lv:0,passed:[]},quiz:false,seen:[]}, LS.get(KEY+'state',{}));
+const save = ()=>{ LS.set(KEY+'state', ST); paintProgress(); };
+function icon(name, cls){ return `<svg class="ic ${cls||''}" aria-hidden="true"><use href="#i-${name}"/></svg>`; }
+
+/* ---------------- theme + font ---------------- */
+(function theme(){
+  const t = LS.get('cs2015.theme','light');
+  document.documentElement.setAttribute('data-theme', t);
+  const fs = LS.get('cs2015.fs', 17.2);
+  document.documentElement.style.setProperty('--fs', fs+'px');
+  const b = $('#themeBtn');
+  const paint = ()=>{ if(!b) return; b.innerHTML = icon(document.documentElement.getAttribute('data-theme')==='dark'?'sun':'moon');
+    b.setAttribute('aria-label', document.documentElement.getAttribute('data-theme')==='dark'?'الوضع الفاتح':'الوضع الداكن'); };
+  paint();
+  b && b.addEventListener('click', ()=>{
+    const nx = document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',nx); LS.set('cs2015.theme',nx); paint();
+  });
+  const step = d=>{
+    let cur = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--fs'))||17.2;
+    cur = Math.min(22, Math.max(14, cur+d));
+    document.documentElement.style.setProperty('--fs', cur.toFixed(1)+'px'); LS.set('cs2015.fs',cur);
+  };
+  const a=$('#fsPlus'), m=$('#fsMinus');
+  a && a.addEventListener('click',()=>step(1));
+  m && m.addEventListener('click',()=>step(-1));
+})();
+
+/* ---------------- motion primitives ---------------- */
+const stageRectOf = el => el.getBoundingClientRect();
+function anim(el, frames, opt){
+  if(!el) return null;
+  if(RM){ const last=frames[frames.length-1]; if(last && last.transform) el.style.transform = last.transform; if(last && last.opacity!=null) el.style.opacity=last.opacity; return null; }
+  try{ return el.animate(frames, Object.assign({duration:DUR.move, easing:EASE, fill:'none'}, opt||{})); }catch(e){ return null; }
+}
+function placeChip(chip, targetEl, animate){
+  const stage = chip.closest('.stage'); if(!stage || !targetEl) return;
+  const s = stageRectOf(stage), r = stageRectOf(targetEl);
+  const x = r.left - s.left + r.width/2 - chip.offsetWidth/2;
+  const dy = parseInt(chip.dataset.dy||'0',10) || 0;
+  const y = r.top  - s.top  + r.height/2 - chip.offsetHeight/2 + 7 + dy;
+  const to = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+  const from = chip.style.transform || 'translate(0px, 0px)';
+  if(animate && !RM){ anim(chip, [{transform:from},{transform:to}], {duration:DUR.move}); }
+  chip.style.transform = to;
+}
+function flash(el, cls, ms){
+  if(!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
+  setTimeout(()=>el.classList.remove(cls), ms||DUR.hold);
+}
+function countTo(el, to, dur){
+  if(!el) return;
+  const from = parseInt(el.dataset.v||'0',10);
+  el.dataset.v = String(to);
+  if(RM){ el.textContent = String(to); return; }
+  const t0 = performance.now();
+  const tick = t=>{
+    const p = Math.min(1,(t-t0)/(dur||420));
+    const v = Math.round(from + (to-from)*(p<.5? 2*p*p : 1-Math.pow(-2*p+2,2)/2));
+    el.textContent = String(v);
+    if(p<1) requestAnimationFrame(tick); else el.textContent = String(to);
+  };
+  requestAnimationFrame(tick);
+}
+function drawPath(path){
+  if(!path || !path.getTotalLength) return;
+  const L = path.getTotalLength(); if(!L) return;
+  path.style.strokeDasharray = L; path.style.strokeDashoffset = RM?0:L;
+  if(!RM) anim(path, [{strokeDashoffset:L},{strokeDashoffset:0}], {duration:DUR.move+160});
+  path.style.strokeDashoffset = 0;
+}
+
+/* ---------------- code blocks: highlight + copy ---------------- */
+const KW = /\b(def|return|if|else|elif|for|while|in|not|and|or|None|True|False|class|import|from|raise|break|continue|lambda|print|len|range|append|pop|in)\b/g;
+function hlLine(txt){
+  let out='', i=0;
+  const re = /(#.*$)|("[^"]*"|'[^']*')|(\b\d+(?:\.\d+)?\b)|(\b(?:def|return|if|elif|else|for|while|in|not|and|or|None|True|False|class|import|from|raise|break|continue|lambda|print|len|range|append|pop)\b)/g;
+  let m, last=0;
+  const esc = s=> s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  while((m = re.exec(txt))){
+    out += esc(txt.slice(last, m.index));
+    const cls = m[1]?'c':m[2]?'s':m[3]?'n':'k';
+    out += `<span class="${cls}">${esc(m[0])}</span>`;
+    last = m.index + m[0].length;
+    if(m[0]==='') re.lastIndex++;
+  }
+  out += esc(txt.slice(last));
+  return out;
+}
+function buildCode(block){
+  const body = $('.cbody', block);
+  let raw = block.dataset.code || '';
+  if(!raw && body && body.dataset.src){
+    const src = document.getElementById('src-'+body.dataset.src);
+    raw = src ? src.textContent.replace(/^\n/,'').replace(/\s+$/,'') : '';
+  }
+  const lines = raw.replace(/\s+$/,'').split('\n');
+  const pre = document.createElement('pre');
+  pre.innerHTML = lines.map((ln,i)=>
+    `<span class="ln" data-l="${i+1}"><span class="cn">${i+1}</span>${hlLine(ln)||' '}</span>`).join('');
+  body.appendChild(pre);
+  const hlb = document.createElement('i'); hlb.className='hl'; body.insertBefore(hlb, pre);
+  const btn = $('[data-copy]', block);
+  if(btn) btn.addEventListener('click', ()=> copyText(raw, btn));
+}
+function copyText(txt, btn){
+  const done = ()=>{
+    if(!btn) return;
+    const old = btn.innerHTML;
+    btn.innerHTML = icon('check'); btn.classList.add('done');
+    btn.setAttribute('aria-label','تم النسخ');
+    setTimeout(()=>{ btn.innerHTML = old; btn.classList.remove('done'); btn.setAttribute('aria-label','نسخ'); }, 1500);
+  };
+  const fb = ()=>{
+    try{
+      const ta=document.createElement('textarea'); ta.value=txt; ta.setAttribute('readonly','');
+      ta.style.cssText='position:fixed;top:-1000px;opacity:0'; document.body.appendChild(ta);
+      ta.select(); ta.setSelectionRange(0,txt.length);
+      const ok=document.execCommand&&document.execCommand('copy'); document.body.removeChild(ta);
+      if(ok) done(); else if(btn){ btn.setAttribute('aria-label','تعذّر النسخ — حدّد النص يدويًا'); }
+    }catch(e){}
+  };
+  if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(txt).then(done, fb);
+  else fb();
+}
+$$('.code').forEach(buildCode);
+
+/* ---------------- reveal on scroll (once) ---------------- */
+(function reveal(){
+  const els = $$('.reveal');
+  if(!els.length) return;
+  if(!('IntersectionObserver' in window)){ els.forEach(e=>e.classList.add('in')); return; }
+  const io = new IntersectionObserver((es)=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {rootMargin:'0px 0px -8% 0px'});
+  els.forEach(e=>io.observe(e));
+})();
+
+/* ---------------- exercise toggles ---------------- */
+$$('details.ex').forEach(d=>{
+  const l=$('.ex-lbl',d); if(!l) return;
+  const p=()=>{ l.textContent = d.open ? 'إخفاء الحل' : 'أظهر الحل'; };
+  d.addEventListener('toggle',p); p();
+});
+
+/* ---------------- rail (TOC) + progress ---------------- */
+const SECTIONS = M.sections || [];
+function actDone(a){
+  const [k,v] = String(a).split(':');
+  if(k==='pa')   return !!ST.pa[v];
+  if(k==='anim') return !!ST.anim[v];
+  if(k==='tool') return !!ST.tool[v];
+  if(k==='ca')   return (ST.ca.passed||[]).length >= ((M.ca&&M.ca.levels&&M.ca.levels.length)||5);
+  if(k==='quiz') return !!ST.quiz;
+  return false;
+}
+const TOTAL_ACTS = SECTIONS.reduce((n,s)=>n+(s.acts||[]).length,0);
+function paintProgress(){
+  SECTIONS.forEach(s=>{
+    const link = $(`.rail a[href="#${s.id}"]`);
+    const n=(s.acts||[]).length, d=(s.acts||[]).filter(actDone).length;
+    if(link){
+      let t = $('.tick', link);
+      if(!t){ t=document.createElement('span'); t.className='tick'; link.appendChild(t); }
+      if(!n){ t.textContent=''; }
+      else if(d===n){ t.innerHTML = icon('check'); }
+      else if(d>0){ t.textContent = `${d}/${n}`; }
+      else { t.textContent = ''; }
+      t.className = 'tick' + ((n&&d<n)?' part':'');
+    }
+  });
+  const doneAll = SECTIONS.reduce((n,s)=>n+(s.acts||[]).filter(actDone).length,0);
+  const p = TOTAL_ACTS ? Math.round(doneAll/TOTAL_ACTS*100) : 0;
+  [['#introProg',p+'%'],['#introProg2',p+'%'],['#introProgTxt',`${p}%`],['#railProgTxt',`${p}% · ${doneAll}/${TOTAL_ACTS}`]].forEach(([sel,val])=>{
+    const el=$(sel); if(el){ if(el.tagName==='I') el.style.width=val; else el.textContent=val; } });
+}
+function paintRail(){
+  const links = $$('.rail a');
+  const io = new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){
+      links.forEach(a=>a.classList.toggle('on', a.getAttribute('href')==='#'+e.target.id));
+      if(ST.seen.indexOf(e.target.id)<0){ ST.seen.push(e.target.id); LS.set(KEY+'state',ST); }
+    }});
+  }, {rootMargin:'-45% 0px -50% 0px'});
+  $$('main .sec').forEach(s=>io.observe(s));
+}
+window.addEventListener('scroll', ()=>{
+  const h=document.documentElement;
+  const p = h.scrollTop/Math.max(1,(h.scrollHeight-h.clientHeight))*100;
+  const bar = $('#scrollProg'); if(bar) bar.style.width = Math.min(100,Math.max(0,p))+'%';
+}, {passive:true});
+paintRail(); paintProgress();
+
+/* ---------------- animation player ---------------- */
+/* حالة كل خطوة قابلة للاسترجاع: أي قفز للأمام أو للخلف يُعيد بناء الحالة من الصفر */
+class Anim {
+  constructor(root){
+    this.root = root;
+    this.id = root.dataset.anim;
+    const spec = (M.anims||{})[this.id];
+    if(!spec) return;
+    this.spec = spec;
+    this.steps = spec.steps || [];
+    this.i = -1; this.timer=null; this.playing=false; this.x2=false;
+    this.chips = $$('.chip', root);
+    this.hl = $('.hl', root);
+    this.capEl = $('.cap', root);
+    this.stepno = $('.stepno', root);
+    this.strip = $('.segstrip', root);
+    this.watchEl = $('.watch', root);
+    // لقطة الحالة الابتدائية (للعودة النظيفة)
+    this.ini = {
+      chips: this.chips.map(c=>({el:c, op:c.style.opacity, cls:c.className, html:c.innerHTML})),
+      texts: new Map()
+    };
+    this.bind(); this.layout(); this.buildStrip();
+    if(this.stepno) this.stepno.textContent = `Step 0 of ${this.steps.length}`;
+    this.root.classList.add('idle');
+  }
+  layout(){
+    this.chips.forEach(c=>{
+      const home = c.dataset.home ? document.getElementById(c.dataset.home) : null;
+      if(home) placeChip(c, home, false);
+    });
+  }
+  buildStrip(){
+    if(!this.strip) return;
+    this.strip.innerHTML = this.steps.map((_,k)=>
+      `<button type="button" data-s="${k}" aria-label="الخطوة ${k+1}"></button>`).join('');
+    $$('button', this.strip).forEach(b=>b.addEventListener('click',()=>{
+      this.pause(); this.goto(+b.dataset.s, +b.dataset.s > this.i);
+    }));
+  }
+  bind(){
+    const q = s=>$(s, this.root);
+    const on=(k,fn)=>{ const b=q(`[data-a="${k}"]`); b && b.addEventListener('click', fn); };
+    on('start', ()=>{ this.root.classList.remove('idle'); this.reset(); this.goto(0,false); });
+    on('next',  ()=>{ this.root.classList.remove('idle'); this.goto(Math.min(this.steps.length-1, this.i+1), true); });
+    on('prev',  ()=>{ this.goto(Math.max(0, this.i-1), false); });
+    on('play',  ()=> this.play());
+    on('pause', ()=> this.pause());
+    on('reset', ()=>{ this.pause(); this.reset(); this.i = -1;
+      if(this.stepno) this.stepno.textContent = `Step 0 of ${this.steps.length}`;
+      $$('button', this.strip||document.createElement('div')).forEach(b=>b.classList.remove('cur','seen'));
+      if(this.capEl) this.capEl.querySelector('.txt').textContent = this.capEl.dataset.base || '';
+      this.root.classList.add('idle'); });
+    on('speed', (e)=>{ this.x2=!this.x2;
+      e.currentTarget.setAttribute('aria-pressed', this.x2?'true':'false');
+      e.currentTarget.setAttribute('aria-label', this.x2?'سرعة مضاعفة مفعّلة':'سرعة عادية'); });
+    const pr = q('.predict');
+    if(pr) pr.addEventListener('change', ()=>{ this.root.dataset.predict = pr.checked?'1':'0'; });
+    this.root.dataset.predict = (pr && pr.checked) ? '1':'0';
+    this.root.addEventListener('mouseenter', ()=>{ window.__activeAnim=this; });
+    this.root.addEventListener('focusin', ()=>{ window.__activeAnim=this; });
+    if(this.capEl && !this.capEl.dataset.base) this.capEl.dataset.base = this.capEl.querySelector('.txt').textContent;
+  }
+  reset(){
+    this.ini.chips.forEach(c=>{
+      c.el.style.opacity = c.op; c.el.className = c.cls; c.el.innerHTML = c.html;
+      if(c.el.style.transform) c.el.style.transform='';
+    });
+    this.ini.texts.forEach((v,k)=>{ const el=document.getElementById(k); if(el) el.textContent = v; });
+    $$('.hot', this.root).forEach(e=>e.classList.remove('hot'));
+    this.layout();
+  }
+  play(){
+    this.root.classList.remove('idle');
+    if(this.playing) return;
+    if(this.i >= this.steps.length-1){ this.reset(); this.i=-1; }
+    this.playing = true;
+    const tick = ()=>{
+      if(!this.playing) return;
+      if(this.i >= this.steps.length-1){ this.pause(); return; }
+      this.goto(this.i+1, true);
+      const waiting = this.root.dataset.predict==='1' && this.steps[this.i] && this.steps[this.i].ask;
+      this.timer = setTimeout(tick, waiting ? 999999 : (this.x2 ? DUR.move*0.9 : DUR.move*1.7));
+    };
+    this.timer = setTimeout(tick, 120);
+  }
+  pause(){ this.playing=false; clearTimeout(this.timer); this.timer=null; }
+  el(id){ return document.getElementById(id) || this.root.querySelector(`[data-chip="${id}"]`); }
+  apply(st, animate){
+    // 1) chips
+    const pos = st.pos || {};
+    this.chips.forEach(chip=>{
+      const id = chip.dataset.chip;
+      const targetId = pos[id] || chip.dataset.home;
+      const target = targetId ? document.getElementById(targetId) : null;
+      if(target) placeChip(chip, target, animate);
+      else if(animate===false) placeChip(chip, document.getElementById(chip.dataset.home), false);
+      chip.classList.toggle('held', !pos[id]);
+    });
+    if(st.lbl) Object.keys(st.lbl).forEach(id=>{
+      const chip=this.chips.find(c=>c.dataset.chip===id); if(!chip) return;
+      const t=$('.t',chip);
+      if(t) t.innerHTML = st.lbl[id]; else chip.innerHTML = st.lbl[id];
+    });
+    if(st.cls) Object.keys(st.cls).forEach(id=>{
+      const chip=this.chips.find(c=>c.dataset.chip===id); if(!chip) return;
+      chip.classList.remove('bad','good'); if(st.cls[id]) chip.classList.add(st.cls[id]);
+    });
+    // 2) raw sets (text/classes)
+    if(st.set) st.set.forEach(o=>{
+      const el=this.el(o.id); if(!el) return;
+      if(!this.ini.texts.has(o.id)) this.ini.texts.set(o.id, el.textContent);
+      if(o.text!=null) el.textContent = o.text;
+      if(o.html!=null) el.innerHTML = o.html;
+      if(o.cls) o.cls.split(' ').forEach(c=>el.classList.add(c));
+      if(o.uncls) o.uncls.split(' ').forEach(c=>el.classList.remove(c));
+    });
+    // 3) css widths/opacities (سباق، إخفاء/إظهار)
+    if(st.css) st.css.forEach(o=>{
+      const el=this.el(o.id); if(!el) return;
+      if(!this.ini.texts.has('_css_'+o.id)) this.ini.texts.set('_css_'+o.id, el.style.cssText);
+      if(o.w!=null){
+        if(animate && !RM) anim(el,[{width:(el.style.width||'0%')},{width:o.w+'%'}],{duration:DUR.move});
+        el.style.width = o.w+'%';
+      }
+      if(o.t!=null){
+        if(animate && !RM) anim(el,[{opacity:(el.style.opacity||'1')},{opacity:o.t}],{duration:DUR.fast});
+        el.style.opacity = o.t;
+      }
+    });
+    // 4) code line
+    if(this.hl && st.line){
+      const ln = $(`.ln[data-l="${st.line}"]`, this.root);
+      if(ln){ this.hl.style.height = ln.offsetHeight+'px';
+        if(animate && !RM) anim(this.hl, [{transform:this.hl.style.transform||'none'},{transform:`translateY(${ln.offsetTop}px)`}], {duration:DUR.fast});
+        this.hl.style.transform = `translateY(${ln.offsetTop}px)`; }
+    }
+    // 5) watch panel
+    if(this.watchEl && st.watch){
+      Object.keys(st.watch).forEach(k=>{
+        const cell = $(`[data-w="${k}"]`, this.watchEl); if(!cell) return;
+        const v = String(st.watch[k]);
+        if(cell.textContent !== v){ cell.textContent = v; if(animate) flash(cell,'flash',420); }
+      });
+    }
+    // 6) caption
+    if(this.capEl && st.cap!=null){
+      const t = this.capEl.querySelector('.txt');
+      t.innerHTML = st.cap;
+      if(animate && !RM) anim(t,[{opacity:0},{opacity:1}],{duration:300});
+    }
+    // 7) marks
+    $$('.hot', this.root).forEach(e=>e.classList.remove('hot'));
+    (st.hot||[]).forEach(id=>{ const e=document.getElementById(id); e && e.classList.add('hot'); });
+  }
+  goto(n, forward){
+    if(n<0) n=0; if(n>=this.steps.length) n=this.steps.length-1;
+    if(n===this.i) return;
+    const back = n < this.i;
+    if(back || n > this.i+1){
+      this.reset();
+      for(let k=0;k<n;k++) this.apply(this.steps[k], false);
+    }
+    const st = this.steps[n];
+    this.apply(st, true);
+    if(forward && !back) (st.fx||[]).forEach(spec=>{
+      const [op, a, b] = String(spec).split(':');
+      if(op==='shake'){ flash($('#'+a, this.root),'collide',420); }
+      if(op==='pulse'){ flash($('#'+a, this.root), b==='bad'?'badfade':'okpulse',700); }
+      if(op==='count'){ countTo($('#'+a, this.root), +b, 420); }
+      if(op==='draw'){ drawPath($('#'+a, this.root)); }
+      if(op==='flash'){ flash($('#'+a, this.root),'okpulse',560); }
+    });
+    this.i = n;
+    if(this.stepno) this.stepno.textContent = `Step ${n+1} of ${this.steps.length}`;
+    if(this.strip) $$('button', this.strip).forEach((b,k)=>{
+      b.classList.toggle('cur', k===n); b.classList.toggle('seen', k<n);
+    });
+    if(st.ask && this.root.dataset.predict==='1') this.ask(st);
+    else { const box=$('.askbox',this.root); if(box) box.hidden = true; }
+    if(n===this.steps.length-1 && !ST.anim[this.id]){ ST.anim[this.id]=true; save(); }
+  }
+  ask(st){
+    const box = $('.askbox', this.root); if(!box) return;
+    box.hidden = false;
+    $('.askq', box).textContent = st.ask.q;
+    const opts = $('.askopts', box);
+    opts.innerHTML = st.ask.opts.map(o=>`<button class="opt" type="button" data-o="${o}">${o}</button>`).join('');
+    $('.askfb', box).textContent='';
+    $$('[data-o]', opts).forEach(b=>b.addEventListener('click', ()=>{
+      const ok = String(b.dataset.o)===String(st.ask.a);
+      $$('[data-o]', opts).forEach(x=>{ if(String(x.dataset.o)===String(st.ask.a)) x.classList.add('correct'); });
+      if(!ok) b.classList.add('wrong');
+      const fb=$('.askfb', box);
+      fb.textContent = (ok?'صحيح — ':'ليس صحيحًا — ')+st.ask.why;
+      fb.className = 'askfb fb show '+(ok?'ok':'bad');
+    }));
+  }
+}
+$$('.anim[data-anim]').forEach(el=>{
+  try{ const a=new Anim(el); (window.__anims=window.__anims||{})[el.dataset.anim]=a; }
+  catch(e){ if(window.console) console.warn('anim init',e); }
+});
+document.addEventListener('keydown', e=>{
+  const a = window.__activeAnim; if(!a || !a.steps) return;
+  if(/input|textarea|select/i.test(e.target.tagName)) return;
+  if(e.key==='ArrowLeft'){ e.preventDefault(); a.root.classList.remove('idle'); a.goto(Math.min(a.steps.length-1,a.i+1), true); }
+  if(e.key==='ArrowRight'){ e.preventDefault(); a.goto(Math.max(0,a.i-1), false); }
+  if(e.code==='Space'){ e.preventDefault(); a.playing? a.pause() : a.play(); }
+});
+
+/* ---------------- participation activities ---------------- */
+function mountPA(spec){
+  const pid = 'pa-' + String(spec.num).replace(/\./g,'-');
+  const host = document.getElementById(pid) || document.getElementById(spec.sec);
+  if(!host) return;
+  const box = document.createElement('div');
+  box.className='act'; box.id=pid;
+  box.innerHTML = `<div class="act-h"><span class="act-k">Participation Activity <b>${spec.num}</b></span><h3>${spec.title}</h3></div>`;
+  const solved = [], forfeit = [];
+  spec.items.forEach((it, idx)=>{
+    const w = document.createElement('div'); w.className='pa-item';
+    w.innerHTML = `<div class="pa-q"><span class="pa-qn">${idx+1}</span><span>${it.q}</span></div>`;
+    box.appendChild(w);
+    let picked = null;
+    if(it.opts){
+      const opts = document.createElement('div'); opts.className='opts';
+      it.opts.forEach((o,j)=>{
+        const b=document.createElement('button'); b.type='button'; b.className='opt'; b.textContent=o;
+        b.addEventListener('click', ()=>{ if(w.dataset.locked==='1') return;
+          $$('.opt',opts).forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); picked=j; });
+        opts.appendChild(b);
+      });
+      w.appendChild(opts);
+    } else {
+      const lab=document.createElement('label'); lab.className='fl'; lab.textContent='إجابتك (رقم)';
+      const inp=document.createElement('input'); inp.type='number'; inp.setAttribute('aria-label','إجابتك');
+      w.appendChild(lab); w.appendChild(inp);
+    }
+    const acts=document.createElement('div'); acts.className='acts';
+    acts.innerHTML = `<button class="btn" type="button" data-check>Check</button>
+      <button class="btn ghost" type="button" data-show>Show answer</button>`;
+    const fb=document.createElement('div'); fb.className='fb';
+    w.appendChild(acts); w.appendChild(fb);
+    const val = ()=> it.opts ? picked : (w.querySelector('input').value.trim());
+    const correct = ()=> String(it.a);
+    $('[data-check]',acts).addEventListener('click', ()=>{
+      const v = val();
+      if(v===null || v===''){ fb.className='fb show bad'; fb.innerHTML='<b class="tag">اختر إجابة أو اكتب قيمة أولًا</b>'; return; }
+      const ok = String(v)===correct();
+      fb.className='fb show '+(ok?'ok':'bad');
+      if(ok){
+        fb.innerHTML = `<b class="tag">${icon('check')} Correct</b><div>${it.why}</div>`;
+        w.dataset.locked='1'; solved[idx]=true;
+        if(it.opts) $$('.opt',w).forEach((x,j)=>{ if(String(j)===correct()) x.classList.add('correct'); });
+        if(solved.every(Boolean)){ ST.pa[spec.num]=true; save(); box.dataset.done='1'; }
+      } else {
+        fb.innerHTML = `<b class="tag">${icon('x')} Incorrect — Try again</b><div>أعِد الحساب من التعريف في القسم أعلاه ثم اضغط Check مرة أخرى.</div>`;
+      }
+    });
+    $('[data-show]',acts).addEventListener('click', ()=>{
+      const inp=w.querySelector('input'); if(inp) inp.value = correct();
+      if(it.opts) $$('.opt',w).forEach((x,j)=>{ if(String(j)===correct()) x.classList.add('correct'); });
+      fb.className='fb show';
+      fb.innerHTML = `<b class="tag">Answer: <span class="mono">${it.opts?it.opts[+correct()]:correct()}</span></b>
+        <span class="forfeit">لا نقطة بعد إظهار الإجابة</span><div>${it.why}</div>`;
+      w.dataset.locked='1'; solved[idx]=true; forfeit[idx]=true;
+      if(solved.every(Boolean)){ ST.pa[spec.num]=true; save(); box.dataset.done='1'; }
+    });
+  });
+  const anchor = document.getElementById(spec.after) || host;
+  anchor.appendChild(box);
+}
+(M.pas||[]).forEach(mountPA);
+
+/* ---------------- challenge activity ---------------- */
+function mountCA(spec){
+  const host = document.getElementById(spec.after) || document.getElementById('challenge');
+  if(!host) return;
+  const box=document.createElement('div'); box.className='act'; box.id='ca-'+String(spec.num).replace(/\./g,'-');
+  box.innerHTML = `
+    <div class="act-h"><span class="act-k">Challenge Activity <b>${spec.num}</b></span><h3>${spec.title}</h3></div>
+    <div class="controls" style="margin:0 0 var(--s2)">
+      <span class="jump" data-jump>Jump to level 1</span>
+      <div class="lvstrip" data-strip></div>
+      <span class="state" data-state>—</span>
+    </div>
+    <div class="ca-q" data-q></div>
+    <div data-form style="margin-top:var(--s2)"></div>
+    <div class="acts">
+      <button class="btn" type="button" data-check>Check</button>
+      <button class="btn ghost" type="button" data-try>Try again</button>
+      <button class="btn ghost" type="button" data-next disabled>Next ${icon('chevron-left')}</button>
+      <button class="btn ghost" type="button" data-reset>من المستوى 1</button>
+    </div>
+    <div class="fb" data-fb></div>`;
+  host.appendChild(box);
+  const ca = {lv:0, passed:new Set(ST.ca.passed||[]), cur:null, graded:false, pick:null};
+  const el = s=>$(s,box);
+  function paint(){
+    el('[data-jump]').innerHTML = ca.passed.size>=spec.levels.length
+      ? `${icon('check')} Level ${spec.levels.length}/${spec.levels.length}`
+      : `Jump to level ${ca.lv+1}`;
+    el('[data-strip]').innerHTML = spec.levels.map((_,k)=>
+      `<button type="button" class="lv ${ca.passed.has(k)?'pass':''} ${k===ca.lv?'cur':''}" data-l="${k}" aria-label="المستوى ${k+1}">${ca.passed.has(k)?icon('check'):k+1}</button>`).join('');
+    $$('[data-l]',box).forEach(b=>b.addEventListener('click',()=>{
+      const l=+b.dataset.l; if(l<=Math.max(-1,...[...ca.passed])+1){ ca.lv=l; newQ(); }
+    }));
+    el('[data-next]').disabled = !ca.passed.has(ca.lv) || ca.lv>=spec.levels.length-1;
+  }
+  function newQ(){
+    ca.cur = spec.levels[ca.lv]();
+    ca.graded=false; ca.pick=null;
+    el('[data-fb]').className='fb'; el('[data-fb]').innerHTML='';
+    el('[data-state]').textContent='—'; el('[data-state]').className='state';
+    el('[data-q]').innerHTML = ca.cur.q;
+    const f = el('[data-form]');
+    if(ca.cur.kind==='num'){
+      f.innerHTML = `<label class="fl">إجابتك (رقم)</label><input type="number" data-in aria-label="إجابة رقمية">`;
+      el('[data-in]').addEventListener('keydown', e=>{ if(e.key==='Enter') grade(); });
+    } else {
+      f.innerHTML = `<div class="opts">${ca.cur.opts.map(o=>`<button type="button" class="opt" data-c="${String(o).replace(/"/g,'&quot;')}">${o}</button>`).join('')}</div>`;
+      $$('[data-c]',f).forEach(b=>b.addEventListener('click',()=>{
+        if(ca.graded) return;
+        $$('[data-c]',f).forEach(x=>x.setAttribute('aria-pressed','false'));
+        b.setAttribute('aria-pressed','true'); ca.pick=b.dataset.c;
+      }));
+    }
+    paint();
+  }
+  function grade(){
+    if(ca.graded) return;
+    const inp=el('[data-in]');
+    const v = inp? inp.value.trim() : (ca.pick||'');
+    const fb=el('[data-fb]');
+    if(v===''){ fb.className='fb show bad'; fb.innerHTML='<b class="tag">اكتب إجابة أو اختر خيارًا</b>'; return; }
+    const ok = String(v)===String(ca.cur.a);
+    el('[data-state]').innerHTML = ok? icon('check')+' Correct' : icon('x')+' Try again';
+    el('[data-state]').className='state '+(ok?'ok':'bad');
+    if(ok){
+      ca.graded=true; ca.passed.add(ca.lv);
+      ST.ca.passed=[...ca.passed]; ST.ca.lv=ca.lv; save(); paint();
+      fb.className='fb show ok';
+      fb.innerHTML = `<b class="tag">${icon('check')} صحيح — المستوى ${ca.lv+1} مُجتاز</b><div>${ca.cur.why}</div>
+        ${ca.lv<spec.levels.length-1?'<div class="muted">اضغط Next للانتقال إلى المستوى التالي.</div>':'<div class="muted">أكملت المستويات كلها.</div>'}`;
+    } else {
+      fb.className='fb show bad';
+      fb.innerHTML = `<b class="tag">${icon('x')} ليس صحيحًا</b><div>${ca.cur.hint||'راجع الحساب ثم أعد المحاولة.'}</div>
+        <div class="muted">اضغط Try again لسؤال جديد في المستوى نفسه.</div>`;
+    }
+  }
+  el('[data-check]').addEventListener('click', grade);
+  el('[data-try]').addEventListener('click', ()=>{ if(!ca.graded) newQ(); });
+  el('[data-next]').addEventListener('click', ()=>{ if(ca.passed.has(ca.lv) && ca.lv<spec.levels.length-1){ ca.lv++; newQ(); } });
+  el('[data-reset]').addEventListener('click', ()=>{ ca.lv=0; ca.passed.clear(); ST.ca.passed=[]; save(); newQ(); });
+  paint(); newQ();
+}
+if(M.ca) mountCA(M.ca);
+
+/* ---------------- sandbox / tool hooks ---------------- */
+(M.tools||[]).forEach(t=>{
+  const btn = document.getElementById(t.btn); if(!btn) return;
+  btn.addEventListener('click', ()=>{
+    const host = document.getElementById(t.after) || document.getElementById('sandbox');
+    const a = (window.__anims||{})[t.anim];
+    if(a && a.steps) a.paint && a.paint();
+    if(!ST.tool[t.id]){ ST.tool[t.id]=true; save(); }
+  });
+});
+
+/* ---------------- quiz ---------------- */
+function mountQuiz(){
+  const wrap = document.getElementById('quizList'); if(!wrap || !(M.quiz||[]).length) return;
+  const Q = M.quiz;
+  let graded=false, lastWrong=[];
+  function render(filter){
+    graded=false;
+    const list = Q.map((q,i)=>({q,i})).filter(o=>!filter||filter.includes(o.i));
+    if(!list.length){ wrap.innerHTML='<p class="muted">لا أخطاء سابقة — كل الأسئلة صحيحة في محاولتك الأخيرة.</p>'; return; }
+    wrap.innerHTML = list.map(({q,i})=>`
+      <div class="q" data-q="${i}">
+        <div class="q-h"><span class="q-n">${i+1}</span><span>${q.q}</span><span class="q-meta">${q.topic}</span></div>
+        <div class="opts" data-opts>${q.opts.map((o,j)=>
+          `<button type="button" class="opt" data-o="${j}" aria-pressed="false">${o}</button>`).join('')}</div>
+        <div class="qfb"></div>
+      </div>`).join('');
+    $$('[data-opts]', wrap).forEach(row=>{
+      $$('.opt', row).forEach(b=>b.addEventListener('click', ()=>{
+        if(graded) return;
+        $$('.opt',row).forEach(x=>x.setAttribute('aria-pressed','false'));
+        b.setAttribute('aria-pressed','true');
+      }));
+    });
+  }
+  function grade(){
+    if(graded) return; graded=true;
+    const qs=$$('.q',wrap); let correct=0, wrong=[], topics={};
+    qs.forEach(qd=>{
+      const i=+qd.dataset.q, q=Q[i];
+      const sel=$('.opt[aria-pressed="true"]',qd);
+      const val = sel? +sel.dataset.o : -1;
+      $$('.opt',qd).forEach((b,j)=>{
+        if(j===q.a) b.classList.add('correct');
+        if(j===val && val!==q.a) b.classList.add('wrong');
+      });
+      const fb=$('.qfb',qd); fb.classList.add('show', val===q.a?'ok':'bad');
+      if(val===q.a){ correct++; fb.innerHTML=`<b class="tag">${icon('check')} صحيح</b><div>${q.why}</div>`; }
+      else { wrong.push(i); topics[q.topic]=(topics[q.topic]||0)+1;
+        fb.innerHTML=`<b class="tag">${icon('x')} خطأ${val<0?' (لم تختر)':''}</b><div>${q.why}</div>`; }
+    });
+    const total=qs.length, pct= total? Math.round(correct/total*100):0;
+    const sv=$('#scoreVal'), sm=$('#scoreMsg');
+    if(sv) sv.textContent=`${correct} / ${total}`;
+    if(sm) sm.textContent = pct===100?'— ممتاز':(pct>=75?'— جيد، راجع الأخطاء فقط':(pct>=50?'— راجع أقسام 1.4–1.6':'— أعد قراءة الوحدة'));
+    lastWrong=wrong;
+    const hist=LS.get(KEY+'quiz',[]);
+    hist.push({t:new Date().toISOString().slice(0,16),score:correct,total,wrong,topics});
+    LS.set(KEY+'quiz', hist.slice(-10));
+    if(!ST.quiz){ ST.quiz=true; save(); }
+    paintWeak();
+  }
+  function paintWeak(){
+    const body=$('#weakBody'); if(!body) return;
+    const hist=LS.get(KEY+'quiz',[]);
+    if(!hist.length){ body.innerHTML='<p class="muted">لم تُصحَّح أي محاولة بعد.</p>'; return; }
+    const agg={}; hist.forEach(h=>Object.entries(h.topics||{}).forEach(([k,v])=>agg[k]=(agg[k]||0)+v));
+    const rows=Object.entries(agg).sort((a,b)=>b[1]-a[1]);
+    const last=hist[hist.length-1];
+    body.innerHTML = `<p class="muted">آخر محاولة <b>${last.score}/${last.total}</b> · ${last.t} · المحاولات: ${hist.length}</p>
+      <div class="pillrow">${rows.length? rows.map(([k,v])=>`<span class="pill bad">${k} ×${v}</span>`).join('') : '<span class="pill">لا مواضيع ضعيفة</span>'}</div>`;
+  }
+  const on=(sel,fn)=>{ const b=$(sel); b && b.addEventListener('click',fn); };
+  on('#gradeBtn', grade);
+  on('#retryBtn', ()=>{ render(null); if($('#scoreVal'))$('#scoreVal').textContent='—'; });
+  on('#onlyWrong', ()=>{ const h=LS.get(KEY+'quiz',[]); const w=h.length?h[h.length-1].wrong:[]; render(w.length?w:[-1]); });
+  on('#showAll', ()=>render(null));
+  on('#clearHist', ()=>{ LS.del(KEY+'quiz'); paintWeak(); render(null); });
+  render(null); paintWeak();
+}
+mountQuiz();
+
+/* ---------------- self tests ---------------- */
+(function selfTests(){
+  const host=document.getElementById('selftests'); if(!host) return;
+  const list=M.selftests||[]; let ok=0;
+  host.innerHTML = list.map(t=>{
+    let got='ERR'; try{ got=t.got(); }catch(e){ got='ERR'; }
+    const pass = String(got)===String(t.want); if(pass) ok++;
+    return `<div class="pa-item" style="border-top:0;padding-top:4px;margin-top:0">
+      <span class="mono">${pass?icon('check'):icon('x')}</span> ${t.name}:
+      <span class="mono">${got}</span>
+      ${pass?`<span class="pill" style="border-color:var(--ok);color:var(--ok)">${icon('check')} مطابق للشريحة ${t.slide}</span>`
+            :`<span class="pill bad">متوقّع ${t.want}</span>`}</div>`;
+  }).join('') + `<p class="muted" style="margin-top:8px">النتيجة: <b>${ok}/${list.length}</b> — تُحسب عند تحميل الصفحة من بيانات الوحدة، لا من قيم ثابتة.</p>`;
+})();
+
+/* ---------------- checklist ---------------- */
+(function checklist(){
+  const host=document.getElementById('checkList'); if(!host || !M.checklist) return;
+  const saved=LS.get(KEY+'check',[]);
+  host.innerHTML = M.checklist.map((t,i)=>
+    `<label class="pa-item" style="display:flex;gap:10px;align-items:flex-start;border-top:0;padding-top:4px;margin-top:0">
+      <input type="checkbox" data-ci="${i}" ${saved.includes(i)?'checked':''} style="margin-top:.55em;width:16px;height:16px;accent-color:var(--accent)">
+      <span>${t}</span></label>`).join('')
+    + `<p class="muted" id="chkTxt" style="margin-top:8px"></p>`;
+  const paint=()=>{
+    const s=$$('[data-ci]:checked',host).map(x=>+x.dataset.ci);
+    LS.set(KEY+'check',s);
+    const t=$('#chkTxt'); if(t) t.textContent=`أنجزت ${s.length} من ${M.checklist.length}`;
+  };
+  $$('[data-ci]',host).forEach(c=>c.addEventListener('change',paint)); paint();
+})();
+
+/* expose a couple of helpers for module data */
+window.CS = {icon, countTo, drawPath, save, ST, LS, flash};
+
+/* module-specific mounts (sandbox tools etc.) */
+(M.mount||[]).forEach(f=>{ try{ f(); }catch(e){ if(window.console) console.warn('mount failed',e); } });
+})();
+/* CORE v1.1 END:js */
+
+</script>
+</body>
+</html>
