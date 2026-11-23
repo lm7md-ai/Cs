@@ -1,0 +1,2338 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M01 · أساسيات جداول التجزئة — Hash Table Basics | CS2015</title>
+<style>
+/* CORE v1.0 START:css — لا تُعدّل داخل هذا النطاق في أي وحدة */
+/* ===================== CORE (مشترك في كل الوحدات) ===================== */
+:root{
+  --page:#F6F4EE;--card:#FCFBF8;--surface:#EFECE4;--border:#E4DFD3;--ink:#262522;--ink2:#5C5852;
+  --accent:#2A6F68;--accent2:#1F5A54;--asoft:#E6EFEC;--th:#EAE5DA;--quote:#F2EFE8;
+  --warn:#96551B;--warnbg:#FBF1E3;--ok:#2C6A4C;--okbg:#E7F1EA;--bad:#A23B32;--badbg:#FAE9E6;
+  --code:#1E222A;--fs:17.2px;--sh:0 1px 2px rgba(38,37,34,.06);
+}
+[data-theme="dark"]{
+  --page:#171716;--card:#1F1F1D;--surface:#282825;--border:#31302C;--ink:#E6E2D8;--ink2:#A8A399;
+  --accent:#6EB5AA;--accent2:#8FC8BF;--asoft:#23322F;--th:#2A2926;--quote:#232320;
+  --warn:#E3A473;--warnbg:#2B2318;--ok:#86C6A5;--okbg:#1E2A22;--bad:#E2938A;--badbg:#2C1F1D;
+  --sh:0 1px 2px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:86px}
+body{margin:0;background:var(--page);color:var(--ink);
+  font-family:system-ui,"Segoe UI",Tahoma,"Geeza Pro","Noto Sans Arabic",Arial,sans-serif;
+  font-size:var(--fs);line-height:1.95;-webkit-text-size-adjust:100%}
+code,pre,.mono,.ltr{font-family:ui-monospace,Consolas,Menlo,monospace;direction:ltr;text-align:left}
+h1,h2,h3,h4{line-height:1.5;margin:.2em 0 .5em}
+h1{font-size:1.72em;letter-spacing:-.2px}
+h2{font-size:1.32em}
+h3{font-size:1.08em;color:var(--accent2)}
+p,li{max-width:74ch}
+ul,ol{padding-inline-start:1.35em}
+li{margin:.18em 0}
+a{color:var(--accent);text-underline-offset:3px}
+strong{font-weight:700}
+.muted{color:var(--ink2);font-size:.92em}
+hr{border:0;border-top:1px solid var(--border);margin:22px 0}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:60;background:var(--page);background:color-mix(in srgb,var(--page) 84%,transparent);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+.top-in{max-width:1180px;margin:0 auto;display:flex;gap:12px;align-items:center;justify-content:space-between;
+  padding:9px 16px;flex-wrap:wrap}
+.t-title{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.94em}
+.chip{background:var(--accent);color:#fff;border-radius:999px;padding:1px 10px;font-size:.82em;font-weight:700;direction:ltr}
+[data-theme="dark"] .chip{color:#12201E}
+.t-tools{display:flex;gap:6px;align-items:center}
+.btn{font:inherit;font-size:.86em;background:var(--card);color:var(--ink);border:1px solid var(--border);
+  border-radius:9px;padding:4px 11px;cursor:pointer;line-height:1.7;box-shadow:var(--sh)}
+.btn:hover{background:var(--surface)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+[data-theme="dark"] .btn.pri{color:#11201E}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.top-prog{height:3px;background:var(--surface)}
+.top-prog i{display:block;height:3px;width:0;background:var(--accent);transition:width .15s linear}
+
+/* layout + toc */
+.layout{max-width:1180px;margin:0 auto;padding:20px 16px 70px;display:grid;
+  grid-template-columns:252px minmax(0,1fr);gap:26px;align-items:start}
+.toc{position:sticky;top:74px;max-height:calc(100vh - 96px);overflow:auto;
+  background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px 12px 14px;font-size:.9em}
+.toc-h{font-weight:700;color:var(--accent2);margin-bottom:6px;font-size:.98em}
+.toc ol{list-style:none;margin:0;padding:0}
+.toc li{margin:0}
+.toc a{display:block;padding:4px 8px;border-radius:8px;color:var(--ink2);text-decoration:none;
+  border-inline-start:2px solid transparent;line-height:1.6}
+.toc a:hover{background:var(--surface);color:var(--ink)}
+.toc a.on{background:var(--asoft);color:var(--accent2);border-inline-start-color:var(--accent);font-weight:700}
+.toc b{font-family:ui-monospace,Consolas,monospace;font-size:.86em;opacity:.8;direction:ltr;display:inline-block;margin-inline-end:4px}
+.toc-prog{margin-top:10px;border-top:1px solid var(--border);padding-top:9px;font-size:.88em;color:var(--ink2)}
+.tbar{height:8px;background:var(--surface);border-radius:99px;overflow:hidden;margin-top:5px}
+.tbar i{display:block;height:8px;width:0;background:var(--accent);border-radius:99px;transition:width .3s}
+
+/* sections */
+main{min-width:0}
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px 22px;
+  margin:0 0 20px;box-shadow:var(--sh);scroll-margin-top:86px}
+.sec>h2{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.tag{font-family:ui-monospace,Consolas,monospace;font-size:.62em;direction:ltr;background:var(--asoft);color:var(--accent2);
+  border:1px solid var(--accent);border-radius:999px;padding:1px 9px;font-weight:700;white-space:nowrap}
+.tag.slide{background:var(--ink);color:var(--page);border-color:var(--ink)}
+[data-theme="dark"] .tag.slide{background:var(--surface);color:var(--ink);border-color:var(--border)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 16px}
+.card.tint{background:var(--asoft);border-color:var(--accent)}
+
+/* definition quote */
+.quote{background:var(--quote);border-left:5px solid var(--accent);border-radius:10px;padding:12px 16px;margin:12px 0}
+.quote .term{font-weight:700;color:var(--accent2);direction:ltr;text-align:left;display:block;font-size:1.02em;
+  font-family:ui-monospace,Consolas,monospace;margin-bottom:2px}
+.quote p{margin:2px 0;max-width:70ch}
+.quote .src{font-size:.82em;color:var(--ink2)}
+
+/* notes */
+.note{border-radius:11px;padding:11px 15px;margin:12px 0;border:1px solid var(--border);background:var(--surface)}
+.note.warn{background:var(--warnbg);border-color:var(--warn)}
+.note.ok{background:var(--okbg);border-color:var(--ok)}
+.note.bad{background:var(--badbg);border-color:var(--bad)}
+.note .nh{font-weight:700;display:block;margin-bottom:2px}
+.note.warn .nh{color:var(--warn)} .note.ok .nh{color:var(--ok)} .note.bad .nh{color:var(--bad)}
+.tagx{font-size:.8em;border-radius:6px;padding:1px 7px;font-weight:700;border:1px solid currentColor;white-space:nowrap}
+.tagx.add{color:var(--accent2);background:var(--asoft)}
+
+/* tables */
+.tw{overflow-x:auto;margin:12px 0;border:1px solid var(--border);border-radius:11px}
+table{border-collapse:collapse;width:100%;font-size:.93em}
+th,td{border:1px solid var(--border);padding:7px 10px;text-align:right;vertical-align:top}
+thead th{background:var(--th);font-weight:700}
+tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--surface) 45%,transparent)}
+td.ltr,th.ltr{direction:ltr;text-align:left;font-family:ui-monospace,Consolas,monospace;font-size:.94em}
+caption{caption-side:top;text-align:right;font-size:.88em;color:var(--ink2);padding:6px 10px}
+
+/* legend */
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.84em;color:var(--ink2);margin:6px 0 2px}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.sw{width:15px;height:15px;border-radius:4px;border:1px solid var(--border);display:inline-block}
+.sw.a{background:var(--accent)}.sw.b{background:#E9B44C}.sw.c{background:var(--surface)}
+.sw.d{background:var(--bad)}.sw.e{background:var(--ok)}.sw.f{background:#7A8CA3}
+.svgbox{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px;overflow-x:auto}
+svg.dsvg{width:100%;height:auto;display:block;max-width:100%}
+svg text{font-family:system-ui,"Segoe UI",Tahoma,Arial,sans-serif}
+
+/* code */
+.code{background:var(--code);border-radius:12px;overflow:hidden;margin:14px 0;border:1px solid #2b3340}
+.code-h{display:flex;gap:10px;align-items:center;justify-content:space-between;background:#161A20;color:#AEBDB9;
+  padding:6px 12px;font-size:.82em;flex-wrap:wrap}
+.code-h .ttl{color:#D8E4E0;font-weight:700}
+.code-h .cp{font:inherit;font-size:.95em;background:#26323A;color:#CFE0DC;border:1px solid #38474F;border-radius:7px;
+  padding:2px 10px;cursor:pointer}
+.code-h .cp:hover{background:#33424B}
+.code pre{margin:0;padding:10px 0 12px;overflow-x:auto;font-size:.9em;line-height:1.75;color:#E6E9E4}
+.cl{display:block;padding:0 14px;white-space:pre}
+.cl .cn{color:#6C7A85;display:inline-block;width:1.8em;user-select:none}
+.cl.on{background:#2A3A3A;box-shadow:inset 3px 0 0 #6EB5AA}
+.cl .kw{color:#C792EA}.cl .st{color:#A5D6A7}.cl .nu{color:#F0B37E}.cl .cm{color:#8A9AA0;font-style:italic}
+.codenote{font-size:.85em;color:var(--ink2);margin:-4px 0 14px;padding-inline-start:10px;border-inline-start:2px solid var(--border)}
+.codenote li{margin:.1em 0}
+
+/* exercise */
+.ex{border:1px solid var(--accent);background:var(--asoft);border-radius:12px;padding:13px 16px;margin:16px 0}
+.ex .xh{font-weight:700;color:var(--accent2);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ex p{margin:.35em 0}
+.sol{display:none;margin-top:10px;border-top:1px dashed var(--accent);padding-top:9px}
+.sol.open{display:block}
+.why{font-size:.9em;color:var(--ink2);border-inline-start:3px solid var(--accent);padding-inline-start:10px;margin-top:9px}
+
+/* traps */
+.trap{border:1px solid var(--border);border-radius:12px;padding:12px 15px;margin:12px 0;background:var(--card)}
+.trap .row{display:grid;grid-template-columns:28px 1fr;gap:9px;margin:.3em 0;align-items:start}
+.trap .mk{font-weight:700;text-align:center}
+.trap .x .mk{color:var(--bad)} .trap .y .mk{color:var(--warn)} .trap .z .mk{color:var(--ok)}
+.trap .x .tx{color:var(--bad)} .trap .z .tx{color:var(--ok)}
+
+/* player */
+.player{border:1px solid var(--border);border-radius:13px;background:var(--card);padding:12px;margin:14px 0}
+.pl-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:12px}
+@media(max-width:860px){.pl-grid{grid-template-columns:1fr}}
+.pl-code pre{margin:0;padding:6px 0;font-size:.86em;line-height:1.7;overflow-x:auto}
+.pl-note{background:var(--asoft);border:1px solid var(--accent);border-radius:10px;padding:9px 13px;margin-top:10px;min-height:58px}
+.pl-note .why2{font-weight:700;color:var(--accent2);font-size:.9em}
+.pl-bar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.pl-bar input[type=range]{flex:1;min-width:110px;accent-color:var(--accent)}
+.pl-bar select{font:inherit;font-size:.86em;background:var(--card);color:var(--ink);border:1px solid var(--border);border-radius:8px;padding:3px 6px}
+.pl-ask{margin-top:10px;border:1px solid var(--warn);background:var(--warnbg);border-radius:10px;padding:10px 13px}
+.pl-ask.hide{display:none}
+.pl-ask.shake{animation:shk .28s}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.opts{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.opts .btn{font-family:ui-monospace,Consolas,monospace}
+.opts .btn.sel-ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.opts .btn.sel-bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.askfb{font-size:.9em;margin-top:7px}
+.askfb.ok{color:var(--ok)} .askfb.bad{color:var(--bad)}
+.tr{max-height:230px;overflow:auto;border:1px solid var(--border);border-radius:10px;margin-top:10px}
+.tr table{font-size:.84em}
+.tr th,.tr td{padding:4px 7px}
+.tr tr.now td{background:var(--asoft);font-weight:700}
+.kbd{font-family:ui-monospace,Consolas,monospace;font-size:.8em;border:1px solid var(--border);background:var(--surface);
+  border-radius:5px;padding:0 5px}
+
+/* quiz / tools */
+.q{border:1px solid var(--border);border-radius:12px;padding:12px 15px;margin:12px 0;background:var(--card)}
+.q .qh{font-weight:700;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.q .qn{font-family:ui-monospace,monospace;color:var(--accent2);font-size:.85em}
+.q label{display:block;border:1px solid var(--border);border-radius:9px;padding:6px 11px;margin:5px 0;cursor:pointer;
+  background:var(--card);transition:background .12s}
+.q label:hover{background:var(--surface)}
+.q label.pick{border-color:var(--accent);background:var(--asoft)}
+.q label.correct{border-color:var(--ok);background:var(--okbg)}
+.q label.wrong{border-color:var(--bad);background:var(--badbg)}
+.qfb{display:none;margin-top:8px;font-size:.9em;border-inline-start:3px solid var(--accent);padding-inline-start:10px}
+.qfb.show{display:block}
+.score{position:sticky;bottom:10px;background:var(--ink);color:var(--page);border-radius:11px;padding:9px 15px;
+  display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:.92em;margin-top:14px;z-index:20}
+[data-theme="dark"] .score{background:var(--surface);color:var(--ink);border:1px solid var(--border)}
+.score .big{font-family:ui-monospace,monospace;font-size:1.15em;font-weight:700}
+input[type=text],input[type=number],textarea{font:inherit;font-size:.92em;background:var(--card);color:var(--ink);
+  border:1px solid var(--border);border-radius:9px;padding:5px 10px;width:100%;max-width:340px}
+input[type=number]{max-width:110px}
+label.f{display:block;font-size:.88em;color:var(--ink2);margin:6px 0 2px}
+.chk{display:flex;gap:9px;align-items:flex-start;margin:7px 0;font-size:.95em}
+.chk input{margin-top:.55em;accent-color:var(--accent);width:17px;height:17px}
+.pill{display:inline-block;font-size:.8em;border:1px solid var(--border);background:var(--surface);border-radius:99px;
+  padding:1px 9px;margin:2px 3px;color:var(--ink2)}
+.pill.bad{border-color:var(--bad);color:var(--bad);background:var(--badbg)}
+.bughunt .ln{display:block;width:100%;text-align:left;font-family:ui-monospace,Consolas,monospace;font-size:.88em;
+  background:#161A20;color:#E6E9E4;border:0;border-bottom:1px solid #232B33;padding:3px 12px;cursor:pointer;direction:ltr}
+.bughunt .ln:hover{background:#22303A}
+.bughunt .ln.chosen{background:var(--badbg);color:var(--bad)}
+.bughunt .ln.fixed{background:var(--okbg);color:var(--ok)}
+.ai{background:var(--surface);border:1px dashed var(--accent);border-radius:11px;padding:10px 14px;margin:12px 0}
+.ai summary{cursor:pointer;font-weight:700;color:var(--accent2)}
+.ai .prompt{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:10px;margin-top:8px;
+  direction:ltr;text-align:left;font-family:ui-monospace,Consolas,monospace;font-size:.85em;white-space:pre-wrap}
+details.tocm{display:none}
+.hide{display:none!important}
+.st-legend{font-size:.85em;color:var(--ink2)}
+
+/* print */
+
+/* ===================== zyBOOKS-STYLE LAYER (v2) ===================== */
+.seclabel{font-family:ui-monospace,Consolas,monospace;direction:ltr;font-size:.72em;font-weight:700;
+  background:var(--accent);color:#fff;border-radius:7px;padding:1px 9px;align-self:center}
+[data-theme="dark"] .seclabel{color:#12201E}
+.zbbar{display:flex;gap:9px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:5px 11px;margin:0 0 14px;font-size:.84em}
+.zbbar .lbl{color:var(--ink2)}
+.zbbar .nm{font-family:ui-monospace,Consolas,monospace;direction:ltr;color:var(--accent2);font-weight:700}
+.zbdots{display:flex;gap:4px;align-items:center}
+.zbdot{width:10px;height:10px;border-radius:3px;background:var(--border);display:inline-block}
+.zbdot.on{background:var(--accent)}
+.zbtick{font-size:.85em;margin-inline-start:5px;color:var(--ok);font-weight:700}
+.zbtick.part{color:var(--warn)}
+
+/* participation activity */
+.pa{border:1px solid var(--border);border-inline-start:4px solid var(--accent);border-radius:12px;
+  padding:12px 15px;margin:15px 0;background:var(--card);box-shadow:var(--sh)}
+.pa.border-ok{border-inline-start-color:var(--ok)}
+.pa-h{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-weight:700;color:var(--accent2)}
+.pa-n{font-family:ui-monospace,Consolas,monospace;direction:ltr;font-size:.76em;background:var(--ink);color:var(--page);
+  border-radius:5px;padding:1px 7px;letter-spacing:.3px}
+[data-theme="dark"] .pa-n{background:var(--surface);color:var(--ink);border:1px solid var(--border)}
+.pa-item{border-top:1px dashed var(--border);padding-top:9px;margin-top:9px}
+.pa-item:first-of-type{border-top:0;margin-top:6px;padding-top:0}
+.pa-q{display:flex;gap:7px}
+.pa-qn{font-family:ui-monospace,monospace;color:var(--accent2);font-size:.86em;min-width:1.4em}
+.pa-opts{display:flex;gap:6px;flex-wrap:wrap;margin:7px 0 0}
+.pa-opts .btn{text-align:right}
+.pa-opts .btn.pick{border-color:var(--accent);background:var(--asoft);font-weight:700}
+.pa-opts .btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.pa-opts .btn.no{background:var(--bad);border-color:var(--bad);color:#fff}
+.pa-act{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:7px}
+.pa-act .btn{font-size:.82em;padding:3px 12px}
+.pa-fb{font-size:.9em;margin-top:7px;display:none;border-inline-start:3px solid var(--accent);padding-inline-start:9px}
+.pa-fb.show{display:block}
+.pa-fb.ok{color:var(--ok);border-color:var(--ok)}
+.pa-fb.bad{color:var(--bad);border-color:var(--bad)}
+.pa-fb .ans{color:var(--ink)}
+.forfeit{font-size:.76em;color:var(--warn);border:1px solid var(--warn);border-radius:99px;padding:0 7px;white-space:nowrap}
+
+/* challenge activity */
+.ca{border:1px solid var(--border);border-inline-start:4px solid var(--warn);border-radius:12px;padding:12px 15px;margin:15px 0;background:var(--card)}
+.ca-h{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-weight:700;color:var(--warn)}
+.ca-n{font-family:ui-monospace,Consolas,monospace;direction:ltr;font-size:.76em;background:var(--warnbg);color:var(--warn);
+  border:1px solid var(--warn);border-radius:5px;padding:1px 7px;letter-spacing:.3px}
+.ca-top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:9px 0 4px}
+.jump{font-size:.78em;background:var(--warnbg);border:1px solid var(--warn);color:var(--warn);border-radius:99px;
+  padding:1px 9px;font-family:ui-monospace,monospace;direction:ltr}
+.ca-state{font-size:.8em;font-weight:700}
+.ca-state.ok{color:var(--ok)} .ca-state.no{color:var(--bad)}
+.strip{display:flex;gap:5px;flex-wrap:wrap}
+.strip b{width:24px;height:24px;display:grid;place-items:center;border-radius:6px;background:var(--surface);
+  border:1px solid var(--border);font-size:.76em;font-family:ui-monospace,monospace;color:var(--ink2);cursor:pointer}
+.strip b.cur{outline:2px solid var(--accent);outline-offset:1px;color:var(--accent2);font-weight:700}
+.strip b.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.ca-q{margin:8px 0 2px}
+.ca-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+
+/* animation player: start state + strip */
+.player{position:relative}
+.player.notstarted .pl-bar,.player.notstarted .tr,.player.notstarted .pl-note{display:none}
+.startovl{position:absolute;inset:0;z-index:5;display:grid;place-items:center;border-radius:13px;
+  background:var(--card);background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(3px)}
+.player.started .startovl{display:none}
+.startbtn{font-weight:700}
+.stepno{font-size:.8em;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:1px 9px;white-space:nowrap}
+.player .strip b{width:18px;height:18px;font-size:.68em;cursor:pointer}
+.player .strip b.seen{background:var(--asoft);border-color:var(--accent);color:var(--accent2)}
+
+@media print{
+  .top,.toc,.pl-bar,.score,.btn,details.tocm{display:none!important}
+  body{background:#fff;color:#000;font-size:11.5pt;line-height:1.6}
+  .layout{display:block;padding:0;max-width:none}
+  .sec{break-inside:avoid;border:1px solid #ccc;box-shadow:none;margin:8px 0}
+  .sol,.qfb{display:block!important}
+  .code{background:#f4f4f4;color:#111;border:1px solid #ccc}
+  .code pre,.cl{color:#111}.code-h{background:#e8e8e8;color:#111}.code-h .ttl{color:#111}
+  a{color:#000;text-decoration:none}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .toc{position:static;max-height:none;order:-1}
+  .toc ol{columns:2;column-gap:12px}
+  body{font-size:16.8px}
+}
+/* CORE v1.0 END:css */
+</style>
+</head>
+<body data-module="m01">
+<header class="top">
+  <div class="top-in">
+    <div class="t-title">
+      <span class="chip">M01</span>
+      <strong>أساسيات جداول التجزئة</strong>
+      <span class="muted">Hash Tables · PDF p.1–6</span>
+    </div>
+    <div class="t-tools">
+      <button id="fsMinus" class="btn" aria-label="تصغير حجم الخط">A−</button>
+      <button id="fsPlus" class="btn" aria-label="تكبير حجم الخط">A+</button>
+      <button id="themeBtn" class="btn" aria-label="تبديل الوضع الليلي">🌙 داكن</button>
+    </div>
+  </div>
+  <div class="top-prog"><i id="scrollProg"></i></div>
+</header>
+
+<div class="layout">
+<nav class="toc" aria-label="فهرس الوحدة">
+  <div class="toc-h">فهرس الوحدة</div>
+  <ol>
+    <li><a href="#intro">🎯 أهداف الوحدة</a></li>
+    <li><a href="#p1"><b>p.1</b> خريطة المحاضرة</a></li>
+    <li><a href="#p2"><b>p.2</b> لماذا O(1)؟</a></li>
+    <li><a href="#p3"><b>p.3</b> Map ADT</a></li>
+    <li><a href="#p4"><b>p.4</b> الصناديق المرقّمة</a></li>
+    <li><a href="#p5"><b>p.5</b> key → h(key) → slot</a></li>
+    <li><a href="#p6"><b>p.6</b> 7 سجلات في 7 حقول</a></li>
+    <li><a href="#traps">🚨 رادار الأفخاخ</a></li>
+    <li><a href="#challenge">🎲 تحديات متدرجة</a></li>
+    <li><a href="#bughunt">🐞 Bug Hunt</a></li>
+    <li><a href="#summary">📌 الخلاصة</a></li>
+    <li><a href="#quiz">🧪 اختبار الوحدة</a></li>
+  </ol>
+  <div class="toc-prog">
+    تقدّمك في الوحدة
+    <div class="tbar"><i id="modProg"></i></div>
+    <span id="modProgTxt" class="muted">0%</span>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============ INTRO ============ -->
+<section class="sec" id="intro">
+  <h1>أساسيات جداول التجزئة <span class="mono ltr" style="font-size:.62em;color:var(--ink2)">Hash Table Basics</span></h1>
+  <div class="note ok" style="margin-top:0">
+    <span class="nh">🧩 نموذج zyBooks في هذه الوحدة</span>
+    كل قسم مرقّم (<span class="mono ltr">1.1</span> … <span class="mono ltr">1.10</span>) ويحتوي أنشطة مرقّمة:
+    <b>PARTICIPATION ACTIVITY</b> بسؤال و«Check» و«Show answer»، و<b>Animation</b> بزر Start وعدّاد
+    <span class="mono ltr">Step N of M</span> وشريط خطوات قابل للنقر وسرعة <span class="mono ltr">2x</span>،
+    و<b>CHALLENGE ACTIVITY</b> بخمسة مستويات وعلامات ✔. مؤشّر إتمام لكل قسم في الشريط أعلى كل قسم وفي الفهرس.
+  </div>
+  <p class="muted">الوحدة الأولى من سلسلة التجزئة (M01–M06) — تغطّي <strong>الشرائح 1–6</strong> من ملف
+  <span class="mono ltr">CS2015_Hash_Tables_v2 (33 pages)</span>. كل تعريف هنا مبنيّ على الشريحة نفسها، وأي إضافة من خارج الشرائح موسومة
+  <span class="tagx add">➕ إضافي (خارج الشرائح)</span>.</p>
+
+  <div class="grid2">
+    <div class="card tint">
+      <h3 style="margin-top:0">🎯 أهداف الوحدة (After this week you can …)</h3>
+      <ul>
+        <li>تشرح <strong>ما يفعله</strong> الجدول الهاشي ولماذا هو أسرع من المسح والبحث الثنائي.</li>
+        <li>تعدّد عمليات <strong>Map ADT</strong> الخمس وتكلفة كل واحدة.</li>
+        <li>تحسب <span class="mono ltr">h(key) = key % M</span> يدويًا وتحدّد الحقل (<span class="mono ltr">slot</span>).</li>
+        <li>تكتشف <strong>التصادم</strong> (<span class="mono ltr">collision</span>) في مثال السجلات السبعة.</li>
+        <li>تشرح معنى <strong>O(1) on average</strong> ومتى لا يتحقّق.</li>
+        <li>تنفّذ بحثًا بمقارنة واحدة وتفسّر لماذا لا نمسح بقية الحقول.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">📄 الصفحات المغطّاة</h3>
+      <div class="tw" style="margin-top:6px">
+        <table>
+          <thead><tr><th>الشريحة (PDF)</th><th>الموضوع</th></tr></thead>
+          <tbody>
+            <tr><td class="ltr">p.1</td><td>الغلاف وخريطة المحاضرة</td></tr>
+            <tr><td class="ltr">p.2</td><td>O(1) في المتوسط + CLOs</td></tr>
+            <tr><td class="ltr">p.3</td><td>Map ADT وتكلفة الطرق الساذجة</td></tr>
+            <tr><td class="ltr">p.4</td><td>الصناديق المرقّمة والقاعدة</td></tr>
+            <tr><td class="ltr">p.5</td><td>key → h(key) → slot + تعريف الجدول</td></tr>
+            <tr><td class="ltr">p.6</td><td>مثال محسوب: 7 سجلات في 7 حقول</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted" style="margin-bottom:0">التالي: M02 (دوال التجزئة، p.7–11) · M03 (chaining + λ، p.12–14, 25–26)
+      · M04 (linear probing، p.17–21) · M05 (quadratic + double، p.15–16, 22–24) · M06 (التعقيد والتطبيقات، p.27–33).</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h3 style="margin-top:0">📊 تقدّمك في هذه الوحدة (Completion)</h3>
+    <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center">
+      <div>
+        <div class="muted" style="font-size:.86em">الأنشطة المكتملة (PAs + Animations + Challenge + Quiz)</div>
+        <div class="tbar"><i id="introProg"></i></div>
+      </div>
+      <b id="introProgTxt" class="mono" style="font-size:1.05em">0%</b>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-top:10px">
+      <div>
+        <div class="muted" style="font-size:.86em">الأقسام التي مررت بها أثناء التمرير</div>
+        <div class="tbar"><i id="seenProg"></i></div>
+      </div>
+      <b id="seenProgTxt" class="mono" style="font-size:1.05em">0%</b>
+    </div>
+    <p class="muted" style="margin:8px 0 0;font-size:.86em">التخزين في <span class="mono ltr">localStorage</span> داخل
+    <span class="mono ltr">try/catch</span>: إن كان معطّلًا تعمل كل الأنشطة، ويبقى التقدّم في الذاكرة حتى تُغلق الصفحة.</p>
+  </div>
+
+  <div class="note warn">
+    <span class="nh">⚠️ خريطة الترقيم (شذوذ ملف التجزئة)</span>
+    ملف <span class="mono ltr">CS2015_Hash_Tables_v2</span> تذييلاته (footer) لا تطابق أرقام صفحات الـPDF بعد الشريحة 11:
+    تبدأ الاختلاقات من PDF 12 (تذييل 11) وتنقفز حتى PDF 15 (تذييل 19)، ولا يوجد تذييل 28، والصفحات 17 و21 و24 بلا رقم.
+    في هذه الوحدة (PDF 1–6) التذييل مطابق: الغلاف بلا رقم، ثم 2، 3، 4، 5، 6 — وكل <span class="mono ltr">data-slide</span> هنا
+    يستخدم <strong>رقم PDF</strong>، وستجد في كل وحدة لاحقة جدول ربط PDF ↔ footer.
+  </div>
+
+  <h3>كيف تستخدم هذه الوحدة؟</h3>
+  <ol>
+    <li><strong>اقرأ</strong> الأقسام بالترتيب p.1 → p.6؛ كل قسم يبدأ بصندوق تعريف إنجليزي ثم شرح عربي ثم قواعد.</li>
+    <li><strong>شغّل</strong> الـ Step Player: اضغط ◀ لتشاهد كل خطوة من التتبّع مع سببها بالعربية (أو استخدم <span class="kbd">←</span> <span class="kbd">→</span> <span class="kbd">Space</span>).</li>
+    <li><strong>جرّب</strong> الصندوق الحرّ (مفاتيحك و M الخاص بك)، ثم التحديات المتدرجة، ثم الاختبار في نهاية الوحدة.</li>
+  </ol>
+  <p><span class="pill">6 شرائح</span><span class="pill">2 Step Players</span><span class="pill">Sandbox</span>
+  <span class="pill">12 سؤالًا</span><span class="pill">7 أفخاخ</span><span class="pill">Bug Hunt</span><span class="pill">3 مستويات تحدّي</span></p>
+</section>
+
+<!-- ============ p.1 ============ -->
+<section class="sec" id="p1" data-slide="1">
+  <h2>خريطة المحاضرة <span class="tag slide">p.1</span></h2>
+
+  <div class="quote">
+    <span class="term" dir="ltr">Hash Tables — Hash functions · Collisions: chaining and open addressing · O(1) search and insert</span>
+    <p>العنوان الفرعي للشريحة يلخّص المحاضرة في ثلاث كلمات: <strong>دوال التجزئة</strong>، <strong>التصادمات</strong> (بسلسلة أو بعنونة مفتوحة)، و<strong>بحث وإدراج O(1)</strong>.</p>
+    <span class="src">المصدر: الشريحة p.1 — إعداد د. أريج السنّي ود. سعيد الطالحي، مقتبسة من Goodrich, Tamassia &amp; Goldwasser (2013), ch. 10 وKnuth (1998), §6.4.</span>
+  </div>
+
+  <p>هذه المحاضرة ليست مجموعة أفكار متفرّقة؛ هي <strong>حلّ لمشكلة واحدة</strong>: كيف نجد قيمة بمفتاحها دون أن نبحث؟
+  والحلّ يمرّ بثلاث مراحل لا يفهمها الطالب عادةً كوحدة واحدة:</p>
+  <ol>
+    <li><strong>الفكرة</strong>: نحوّل المفتاح إلى رقم حقل (<span class="mono ltr">index</span>)، فنذهب إليه مباشرة بدل البحث.</li>
+    <li><strong>العقبة</strong>: مفتاحان قد يعطيان الرقم نفسه؛ وهذا لا يمكن منعه، فيجب <em>إدارته</em>.</li>
+    <li><strong>الثمن</strong>: O(1) وعدٌ <em>في المتوسط</em>؛ يبقى صحيحًا فقط إذا بقيت كثافة الجدول (<span class="mono ltr">λ</span>) تحت السيطرة.</li>
+  </ol>
+
+  <div class="svgbox">
+    <svg class="dsvg" viewBox="0 0 760 300" role="img" aria-label="خريطة المحاضرة: ستة مواضيع وتوزيعها على الشرائح">
+      <text x="740" y="22" text-anchor="end" font-size="15" fill="#2A6F68" font-weight="700">خريطة المحاضرة (33 شريحة)</text>
+      <g font-size="13">
+        <rect x="560" y="40" width="180" height="34" rx="9" fill="#EFECE4" stroke="#E4DFD3"/><text x="730" y="62" text-anchor="end" fill="#262522">1 · المشكلة (p.2–3)</text>
+        <rect x="560" y="82" width="180" height="34" rx="9" fill="#EFECE4" stroke="#E4DFD3"/><text x="730" y="104" text-anchor="end" fill="#262522">2 · الفكرة (p.4–6)</text>
+        <rect x="560" y="124" width="180" height="34" rx="9" fill="#E6EFEC" stroke="#2A6F68"/><text x="730" y="146" text-anchor="end" fill="#1F5A54" font-weight="700">3 · دوال التجزئة (p.7–11)</text>
+        <rect x="560" y="166" width="180" height="34" rx="9" fill="#EFECE4" stroke="#E4DFD3"/><text x="730" y="188" text-anchor="end" fill="#262522">4 · التصادمات (p.10, 12–24)</text>
+        <rect x="560" y="208" width="180" height="34" rx="9" fill="#EFECE4" stroke="#E4DFD3"/><text x="730" y="230" text-anchor="end" fill="#262522">5 · λ وإعادة التجزئة (p.25–26)</text>
+        <rect x="560" y="250" width="180" height="34" rx="9" fill="#EFECE4" stroke="#E4DFD3"/><text x="730" y="272" text-anchor="end" fill="#262522">6 · التعقيد والتطبيقات (p.27–33)</text>
+      </g>
+      <g stroke="#2A6F68" stroke-width="1.6" fill="none" stroke-dasharray="4 4">
+        <path d="M560 57 H 470"/><path d="M560 99 H 470"/><path d="M560 141 H 470"/><path d="M560 183 H 470"/><path d="M560 225 H 470"/><path d="M560 267 H 470"/>
+      </g>
+      <g font-size="12.5" fill="#5C5852">
+        <text x="455" y="62" text-anchor="end">خطّي O(n) / ثنائي O(log n) وإدراج O(n)</text>
+        <text x="455" y="104" text-anchor="end">key → h(key) → slot</text>
+        <text x="455" y="146" text-anchor="end">code + compression · M أولي</text>
+        <text x="455" y="188" text-anchor="end">chaining · linear · quadratic · double</text>
+        <text x="455" y="230" text-anchor="end">λ = n / M · resize</text>
+        <text x="455" y="272" text-anchor="end">dict/set · Counter · anagrams</text>
+      </g>
+      <rect x="40" y="40" width="330" height="244" rx="12" fill="#FCFBF8" stroke="#E4DFD3"/>
+      <text x="355" y="66" text-anchor="end" font-size="13.5" font-weight="700" fill="#1F5A54">هذه الوحدة (M01)</text>
+      <g font-size="12.5" fill="#262522">
+        <text x="355" y="94" text-anchor="end">① تكلفة الطرق الساذجة: مسح O(n)، ثنائي O(log n)</text>
+        <text x="355" y="120" text-anchor="end">② Map ADT: خمس عمليات</text>
+        <text x="355" y="146" text-anchor="end">③ صندوق لكل مفتاح: قاعدة % 7</text>
+        <text x="355" y="172" text-anchor="end">④ key → h(key) → slot → array[i]</text>
+        <text x="355" y="198" text-anchor="end">⑤ تعريف الجدول الهاشي (O(1) متوسط)</text>
+        <text x="355" y="224" text-anchor="end">⑥ مثال: 7 سجلات في M = 7 + تصادمان</text>
+        <text x="355" y="250" text-anchor="end">⑦ بحث بمفتاح 7: حساب واحد ونظرة واحدة</text>
+        <text x="355" y="272" text-anchor="end" font-size="11.5" fill="#96551B">لا يظهر هنا: الدوال (M02) ولا التصادم (M03–M05)</text>
+      </g>
+    </svg>
+    <div class="legend">
+      <span><i class="sw a"></i> موضوع قادم في وحدة لاحقة</span>
+      <span><i class="sw c"></i> موضوع هذه الوحدة</span>
+      <span><i class="sw b"></i> تنبيه نطاق</span>
+    </div>
+  </div>
+
+  <h3>قواعد الوحدة (ثوابت لن تتغيّر)</h3>
+  <ul>
+    <li>الجدول <strong>مصفوفة ذات حجم ثابت M</strong> عند الإنشاء؛ تغييره لاحقًا اسمه <em>rehashing</em> (M03).</li>
+    <li>كل مفتاح له <strong>حقل بيت واحد</strong> <span class="mono ltr">home slot</span> يُحسب من المفتاح وحده.</li>
+    <li><strong>O(1)</strong> في هذه المحاضرة تعني <em>عدد عمليات حسابية ثابت + نظرة واحدة على حقل واحد</em>، لا "سرعة مضمونة".</li>
+    <li>حدود الوحدة: لا نعالج التصادم هنا — الشريحة p.6 تكتفي بعرض تجميع المتصادمَين في الحقل نفسه "مؤقتًا".</li>
+  </ul>
+
+  <div class="note ok">
+    <span class="nh">✅ تحقّق سريع (بلا حل مخفي)</span>
+    ما الفرق بين «<em>البحث</em>» و«<em>الحساب</em>» في عبارة الجدول الهاشي؟
+    البحث يحتاج مقارنات متعدّدة حتى يجد؛ الحساب يعطي المكان مباشرة، ثم تبقى <strong>نظرة واحدة</strong> على ذلك المكان.
+  </div>
+</section>
+
+<!-- ============ p.2 ============ -->
+<section class="sec" id="p2" data-slide="2">
+  <h2>لماذا نريد O(1)؟ — This week: finding things in O(1) <span class="tag slide">p.2</span></h2>
+
+  <div class="quote">
+    <span class="term" dir="ltr">O(1) on average</span>
+    <p>«This week: a structure where you go straight to the item — <strong>O(1)</strong>» — بنية نذهب إليها مباشرة بدل أن نبحث خلال العناصر.</p>
+    <span class="src">p.2 · CLO 1.2, 2.1, 2.2</span>
+  </div>
+
+  <h3>١) «Where we are» — أين كنّا قبل هذا الأسبوع</h3>
+  <ul>
+    <li><strong>list / linked list</strong>: نفحص العناصر واحدًا واحدًا → <span class="mono ltr">O(n)</span>.</li>
+    <li><strong>sorted list + binary search</strong>: البحث <span class="mono ltr">O(log n)</span>، لكن <strong>الإدراج</strong> <span class="mono ltr">O(n)</span> لأننا نُزيح العناصر.</li>
+    <li><strong>هذا الأسبوع</strong>: بنية نذهب فيها إلى العنصر مباشرة → <span class="mono ltr">O(1)</span>.</li>
+  </ul>
+
+  <div class="note warn">
+    <span class="nh">⚠️ الانتباه إلى الصياغة</span>
+    الشريحة تقول <strong>O(1)</strong> بلا قيد في سطر "This week"، وتقول <strong>on average</strong> في العنوان. الفرق جوهري:
+    متوسط الحالة = O(1)، أسوأ حالة = <span class="mono ltr">O(n)</span> (الشريحة p.27). لا تكتب في الامتحان "O(1) دائمًا".
+  </div>
+
+  <h3>٢) تكلفة كل طريقة (جدول المقارنة الأساسي)</h3>
+  <div class="tw">
+    <table>
+      <caption>الأرقام كما في p.2–p.3: البحث والإدراج في ثلاث بنى.</caption>
+      <thead><tr><th>البنية</th><th>البحث / look-up</th><th>الإدراج</th><th>الملاحظة من الشريحة</th></tr></thead>
+      <tbody>
+        <tr><td>list / linked list</td><td class="ltr">O(n)</td><td class="ltr">O(1) at head · O(n) بحثًا</td><td>«check items one by one»</td></tr>
+        <tr><td>sorted list + binary search</td><td class="ltr">O(log n)</td><td class="ltr">O(n)</td><td>«inserting in the middle is O(n)»</td></tr>
+        <tr><td><strong>hash table</strong></td><td class="ltr">O(1) average</td><td class="ltr">O(1) average</td><td>«go straight to the item»</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>٣) جدول Big-O الكامل (أفضل / متوسط / أسوأ / مساحة)</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>العملية</th><th>Best</th><th>Average</th><th>Worst</th><th>Space</th></tr></thead>
+      <tbody>
+        <tr><td>بحث خطي في قائمة</td><td class="ltr">O(1)</td><td class="ltr">O(n)</td><td class="ltr">O(n)</td><td class="ltr">O(1)</td></tr>
+        <tr><td>بحث ثنائي في قائمة مرتّبة</td><td class="ltr">O(1)</td><td class="ltr">O(log n)</td><td class="ltr">O(log n)</td><td class="ltr">O(1)</td></tr>
+        <tr><td>إدراج في قائمة مرتّبة</td><td class="ltr">O(1)</td><td class="ltr">O(n)</td><td class="ltr">O(n)</td><td class="ltr">O(1)</td></tr>
+        <tr><td><strong>hash: insert / search / delete</strong></td><td class="ltr">O(1)</td><td class="ltr">O(1)</td><td class="ltr">O(n)</td><td class="ltr">O(n + M)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted">الأسوأ <span class="mono ltr">O(n)</span> في الجدول الهاشي سببه أن كل المفاتيح قد تتجمّع في حقل واحد (تفصيله في p.11 وp.27).</p>
+
+  <div class="svgbox">
+    <svg class="dsvg" viewBox="0 0 720 210" role="img" aria-label="مقارنة عدد الخطوات لـ n يساوي 50000">
+      <text x="700" y="20" text-anchor="end" font-size="14" font-weight="700" fill="#1F5A54">n = 50 000 سجل: كم خطوة للبحث؟</text>
+      <g font-size="12.5">
+        <text x="700" y="56" text-anchor="end" fill="#262522">مسح خطي</text>
+        <rect x="360" y="42" width="330" height="22" rx="5" fill="#A23B32"/>
+        <text x="352" y="58" text-anchor="end" fill="#A23B32" font-weight="700">50 000</text>
+        <text x="700" y="104" text-anchor="end" fill="#262522">بحث ثنائي</text>
+        <rect x="686" y="90" width="4" height="22" rx="2" fill="#E9B44C"/>
+        <text x="678" y="106" text-anchor="end" fill="#96551B" font-weight="700">≈ 16</text>
+        <text x="700" y="152" text-anchor="end" fill="#262522">جدول تجزئة</text>
+        <rect x="688" y="138" width="2" height="22" rx="1" fill="#2A6F68"/>
+        <text x="680" y="154" text-anchor="end" fill="#2A6F68" font-weight="700">1</text>
+        <text x="700" y="192" text-anchor="end" font-size="11.5" fill="#5C5852">الشريحة p.5: «1 000 000 عنصر → 20 خطوة» للشجرة المتوازنة · p.10: «O(height)» للشجرة</text>
+      </g>
+    </svg>
+    <div class="legend">
+      <span><i class="sw d"></i> مسح O(n)</span>
+      <span><i class="sw b"></i> ثنائي O(log n)</span>
+      <span><i class="sw a"></i> تجزئة O(1)</span>
+    </div>
+  </div>
+
+  <h3>٤) لماذا لا يكفينا البحث الثنائي؟</h3>
+  <p>تخيّل <strong>سجل 50 000 طالب</strong> في الجامعة. البحث الثنائي يجد الطالب في ≈16 مقارنة، وهذا جيد؛ لكن
+  <em>تسجيل طالب جديد</em> يعني إزاحة كل من بعده في القائمة المرتّبة → <span class="mono ltr">O(n)</span>.
+  أي أننا ربحنا في البحث وخسرنا في الإدراج. الجدول الهاشي يشتري الاثنين معًا: لا مقارنات ولا إزاحة،
+  لأن مكان العنصر <strong>محسوب</strong> لا <strong>مُبحَث عنه</strong>.</p>
+
+  <div class="card">
+    <h3 style="margin-top:0">🏁 سباق: المسح × التجزئة <span class="tagx add">➕ إضافي (خارج الشرائح) — تجربة تفاعلية</span></h3>
+    <p class="muted" style="margin-top:0">الشريحة تعطي الأرقام فقط؛ هذه الأداة تجعل الفرق <em>مرئيًا</em>. أدخل n والمفتاح المطلوب.</p>
+    <div class="grid2">
+      <div>
+        <label class="f" for="raceN">عدد السجلات n</label>
+        <input type="number" id="raceN" value="1000" min="4" max="2000000" step="1">
+        <label class="f" for="raceK">المفتاح المطلوب (سيُوضع في موضع عشوائي من القائمة)</label>
+        <input type="number" id="raceK" value="731" min="1" step="1">
+        <div style="margin-top:8px"><button class="btn pri" id="raceGo">▶ ابدأ السباق</button></div>
+      </div>
+      <div>
+        <div id="raceOut" class="card" style="min-height:86px">
+          <span class="muted">اضغط «ابدأ السباق»…</span>
+        </div>
+      </div>
+    </div>
+    <div class="why">🎯 لماذا هذا المثال؟ لأنه يفصل بين «عملية واحدة» و«عدد من العمليات يتناسب مع n» — وهذا هو الفرق الامتحاني الوحيد بين O(1) وO(n)، وليس السرعة الفعلية للجهاز.</div>
+  </div>
+
+  <h3>٥) مخرجات التعلّم (CLOs) على الشريحة حرفيًا</h3>
+  <ul>
+    <li><strong>CLO 1.2 · 2.1 · 2.2</strong> — «After this week you can»:</li>
+    <li>Say what a hash function does and what makes a good one.</li>
+    <li>Work out <span class="mono ltr">hash(key) % M</span> by hand.</li>
+    <li>Handle collisions: chaining, and open addressing (linear, quadratic, double hashing).</li>
+    <li>Explain the load factor and when to resize.</li>
+    <li>Build a hash table in Python; count words; group anagrams.</li>
+  </ul>
+
+  <h3>٦) قائمة التنقّل في الشريحة (كما وردت)</h3>
+  <p class="muted">The problem · The idea · Hash functions · Collisions · Chaining · Open addressing · Load factor · How fast? · dict &amp; set · Lab 6
+  — وهي عشرة عناوين تقابل أقسام المحاضرة الستة في خريطة p.1.</p>
+
+  <div class="ex">
+    <div class="xh">📝 تمرين 1 — أي بنية تختار؟</div>
+    <p>نظام يحتاج <strong>إدراجًا متكرّرًا</strong> لمفاتيح جديدة و<strong>بحثًا متكرّرًا</strong> بمفتاح، ولا يحتاج ترتيبًا.
+    قارن بين «قائمة مرتّبة + بحث ثنائي» و«جدول تجزئة»، ثم قل أيّهما تختار ولماذا. ماذا لو أضفنا شرط «أريد المفاتيح مرتّبة»؟</p>
+    <button class="btn" data-toggle="sol1">أظهر الحل / إخفاء الحل</button>
+    <div class="sol" id="sol1">
+      <ol>
+        <li><strong>قائمة مرتّبة + بحث ثنائي</strong>: بحث <span class="mono ltr">O(log n)</span>، إدراج <span class="mono ltr">O(n)</span> (إزاحة).</li>
+        <li><strong>جدول تجزئة</strong>: بحث وإدراج <span class="mono ltr">O(1)</span> في المتوسط، لكن <strong>لا ترتيب</strong> للمفاتيح.</li>
+        <li><strong>الاختيار</strong>: الجدول الهاشي، لأن كلا العمليتين متكرّرتان والترتيب غير مطلوب.</li>
+        <li><strong>لو أُضيف شرط الترتيب</strong>: الجدول يفقد الأهلية، لأن p.27 تنصّ صريحًا أن «keys in order? — no»، فننتقل إلى شجرة (Weeks 9–11).</li>
+      </ol>
+      <div class="why">🎯 لماذا هذا المثال؟ لأنه يعلّم <em>معيار الاختيار</em> لا مجرّد الأرقام: التجزئة تربح حين لا تحتاج ترتيبًا؛ وإذا احتجته خسرت الميزة الأساسية.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ p.3 ============ -->
+<section class="sec" id="p3" data-slide="3">
+  <h2>ما نريده فعلًا: Map من مفاتيح إلى قيم <span class="tag slide">p.3</span></h2>
+
+  <div class="quote">
+    <span class="term" dir="ltr">Map / Dictionary / Associative array</span>
+    <p>«What we want: a map from keys to values» — بنية تخزّن أزواجًا (<span class="mono ltr">key</span>, <span class="mono ltr">value</span>) وتسمح بالإدراج والتحديث والحذف والاختبار والعدّ.</p>
+    <span class="src">p.3 · Goodrich et al. (2013), §10.1</span>
+  </div>
+
+  <h3>العمليات الخمس (جدول الشريحة حرفيًا)</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Operation</th><th>Python dict</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td class="ltr">map[k] = v</td><td class="ltr">d['ali'] = 90</td><td>insert or update</td></tr>
+        <tr><td class="ltr">map[k]</td><td class="ltr">d['ali']</td><td>look up (KeyError if absent)</td></tr>
+        <tr><td class="ltr">del map[k]</td><td class="ltr">del d['ali']</td><td>remove</td></tr>
+        <tr><td class="ltr">k in map</td><td class="ltr">'ali' in d</td><td>does the key exist?</td></tr>
+        <tr><td class="ltr">len(map)</td><td class="ltr">len(d)</td><td>number of pairs</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="svgbox">
+    <svg class="dsvg" viewBox="0 0 640 170" role="img" aria-label="ثلاثة أزواج مفتاح وقيمة">
+      <text x="620" y="20" text-anchor="end" font-size="13.5" font-weight="700" fill="#1F5A54">Keys → values (p.3)</text>
+      <g font-size="13">
+        <rect x="480" y="34" width="140" height="32" rx="8" fill="#E6EFEC" stroke="#2A6F68"/><text x="550" y="55" text-anchor="middle" fill="#1F5A54">'ali'</text>
+        <rect x="480" y="76" width="140" height="32" rx="8" fill="#E6EFEC" stroke="#2A6F68"/><text x="550" y="97" text-anchor="middle" fill="#1F5A54">'sara'</text>
+        <rect x="480" y="118" width="140" height="32" rx="8" fill="#E6EFEC" stroke="#2A6F68"/><text x="550" y="139" text-anchor="middle" fill="#1F5A54">'omar'</text>
+        <path d="M478 50 H 300" stroke="#5C5852" stroke-width="1.4" fill="none" marker-end="url(#ar)"/>
+        <path d="M478 92 H 300" stroke="#5C5852" stroke-width="1.4" fill="none" marker-end="url(#ar)"/>
+        <path d="M478 134 H 300" stroke="#5C5852" stroke-width="1.4" fill="none" marker-end="url(#ar)"/>
+        <rect x="160" y="34" width="140" height="32" rx="8" fill="#EFECE4" stroke="#E4DFD3"/><text x="230" y="55" text-anchor="middle">90</text>
+        <rect x="160" y="76" width="140" height="32" rx="8" fill="#EFECE4" stroke="#E4DFD3"/><text x="230" y="97" text-anchor="middle">85</text>
+        <rect x="160" y="118" width="140" height="32" rx="8" fill="#EFECE4" stroke="#E4DFD3"/><text x="230" y="139" text-anchor="middle">77</text>
+        <text x="300" y="26" text-anchor="middle" font-size="12" fill="#5C5852">key</text>
+        <text x="150" y="26" text-anchor="end" font-size="12" fill="#5C5852">value</text>
+      </g>
+      <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 z" fill="#5C5852"/></marker></defs>
+    </svg>
+    <div class="legend">
+      <span><i class="sw a"></i> المفتاح (ما نبحث به)</span>
+      <span><i class="sw c"></i> القيمة (ما نريده)</span>
+    </div>
+  </div>
+
+  <h3>الشرح العميق: المفتاح ليس موقعًا</h3>
+  <p>في المصفوفة نصل إلى العنصر بـ<strong>موضعه</strong> <span class="mono ltr">a[i]</span>. في الـ Map نصل إليه
+  بـ<strong>مفتاحه</strong> <span class="mono ltr">'ali'</span>. الفارق أن الموضع رقم صغير محدود، أما المفتاح فقد يكون
+  نصًّا أو رقمًا كبيرًا أو زوجًا. فكل ما نحتاجه هو <em>ترجمة</em> من عالم المفاتيح إلى عالم المواضع — وهذه الترجمة هي
+  موضوع المحاضرة كلها. ولهذا تبدأ الشريحة بـ«الحلّ الساذج» أولًا: إن خزّنّا الأزواج في قائمة ومسحناها، فالترجمة غير موجودة
+  والبحث <span class="mono ltr">O(n)</span>؛ وإن رتّبنا القائمة فالبحث <span class="mono ltr">O(log n)</span>
+  لكن الإدراج يزحزح العناصر <span class="mono ltr">O(n)</span>.</p>
+
+  <div class="note warn">
+    <span class="nh">⚠️ ملاحظة على الشريحة — الرقم 50 000</span>
+    الشريحة تقول: «A student-records system with 50 000 entries cannot afford a scan per look-up».
+    النصّ لا يذكر زمنًا، فلا تكتب في الامتحان «ثانية واحدة»؛ الصحيح أن نقول: مسح واحد لكل بحث = 50 000 مقارنة،
+    ومعه إدراج O(n) في القائمة المرتّبة. المطلوب O(1) للاثنين.
+  </div>
+
+  <h3>الكود: عمليات dict كما في الشريحة</h3>
+  <div class="code">
+    <div class="code-h"><span class="ttl">dict operations · p.3</span><button class="cp" data-copy="c1">📋 Copy</button></div>
+    <pre id="c1"><span class="cl"><span class="cn">1</span>d = {}                <span class="cm"># empty map</span></span>
+<span class="cl"><span class="cn">2</span>d[<span class="st">'ali'</span>] = <span class="nu">90</span>          <span class="cm"># insert or update</span></span>
+<span class="cl"><span class="cn">3</span>d[<span class="st">'ali'</span>]               <span class="cm"># look up -> 90</span></span>
+<span class="cl"><span class="cn">4</span><span class="st">'sara'</span> <span class="kw">in</span> d           <span class="cm"># False (key exists?)</span></span>
+<span class="cl"><span class="cn">5</span><span class="kw">del</span> d[<span class="st">'ali'</span>]           <span class="cm"># remove</span></span>
+<span class="cl"><span class="cn">6</span><span class="kw">len</span>(d)                <span class="cm"># number of pairs</span></span></pre>
+  </div>
+  <ul class="codenote">
+    <li><strong>السطر 1</strong> — قاموس فارغ؛ لا حجم محدّد لك، Python تدير الحجم داخليًا.</li>
+    <li><strong>السطر 2</strong> — <em>insert or update</em>: إن كان المفتاح موجودًا تُستبدل القيمة، ولا يُضاف زوج ثانٍ.</li>
+    <li><strong>السطر 3</strong> — <em>look up</em>: المفتاح الغائب يرفع <span class="mono ltr">KeyError</span> لا <span class="mono ltr">None</span>.</li>
+    <li><strong>السطر 4</strong> — الاختبار <span class="mono ltr">in</span> يعطي <span class="mono ltr">True/False</span> بلا استثناء.</li>
+    <li><strong>السطر 5</strong> — الحذف بالمفتاح لا بالموضع.</li>
+    <li><strong>السطر 6</strong> — <span class="mono ltr">len</span> = عدد الأزواج <em>n</em>، وليس عدد الحقول M.</li>
+  </ul>
+
+  <div class="card">
+    <h3 style="margin-top:0">🧮 حاسبة التكلفة <span class="tagx add">➕ إضافي (خارج الشرائح)</span></h3>
+    <p class="muted" style="margin-top:0">أدخل عدد السجلات لترى عدد العمليات في كل طريقة (المنطق من جدول p.2–p.3).</p>
+    <label class="f" for="costN">n = عدد السجلات</label>
+    <input type="number" id="costN" value="50000" min="1" max="100000000">
+    <button class="btn pri" id="costGo" style="margin-inline-start:8px">احسب</button>
+    <div id="costOut" style="margin-top:9px"></div>
+    <div class="why">🎯 لماذا هذا المثال؟ لأن الأرقام هنا تُظهر أن O(log n) لا يكفي وحده: الفارق بين 16 و50 000 واضح، لكن الفارق بين 16 و1 هو سبب وجود المحاضرة.</div>
+  </div>
+
+  <div class="ex">
+    <div class="xh">📝 تمرين 2 — <span class="mono ltr">len</span> أم M؟</div>
+    <p>جدول سعته <span class="mono ltr">M = 11</span> ويحتوي 7 أزواج. ماذا يعطي <span class="mono ltr">len(d)</span>؟ وماذا لو أعدنا إدراج
+    <span class="mono ltr">d['ali'] = 95</span> بعد أن كانت <span class="mono ltr">90</span>؟ وماذا يعطي <span class="mono ltr">len</span> بعده؟</p>
+    <button class="btn" data-toggle="sol2">أظهر الحل / إخفاء الحل</button>
+    <div class="sol" id="sol2">
+      <ol>
+        <li><span class="mono ltr">len(d) = 7</span> → عدد الأزواج، لا عدد الحقول.</li>
+        <li><span class="mono ltr">d['ali']</span> تصبح <span class="mono ltr">95</span>: عملية <em>update</em> لأن المفتاح موجود.</li>
+        <li><span class="mono ltr">len(d)</span> تبقى <span class="mono ltr">7</span> — لم يُضَف زوج جديد.</li>
+      </ol>
+      <div class="why">🎯 لماذا هذا المثال؟ لأنه يفرّق بين <em>عدد الحقول</em> (سعة البنية) و<em>عدد المفاتيح</em> (المحتوى) — وهذا الفرق هو أساس حساب λ في M03، وخطأ شائع في الامتحان.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ p.4 ============ -->
+<section class="sec" id="p4" data-slide="4">
+  <h2>بالكلام العادي: صناديق مرقّمة + قاعدة <span class="tag slide">p.4</span></h2>
+
+  <div class="quote">
+    <span class="term" dir="ltr">Hash function (the rule)</span>
+    <p>«The rule tells you, from the key alone, which box (slot) to open» — القاعدة: خُذ المفتاح، حوّله إلى رقم،
+    واحتفظ بالباقي بعد القسمة على 7. مثال الشريحة: <span class="mono ltr">'omar' → … → 3</span>.</p>
+    <span class="src">p.4</span>
+  </div>
+
+  <div class="svgbox">
+    <svg class="dsvg" viewBox="0 0 720 200" role="img" aria-label="سبعة صناديق مرقّمة من 0 إلى 6 وعلامات عمر في الصندوق 3">
+      <text x="700" y="20" text-anchor="end" font-size="13.5" font-weight="700" fill="#1F5A54">Rule: رقم المفتاح % 7 → رقم الصندوق</text>
+      <g>
+        <rect x="600" y="46" width="92" height="66" rx="8" fill="#EFECE4" stroke="#E4DFD3"/><text x="646" y="132" text-anchor="middle" font-size="13" fill="#5C5852">0</text>
+        <rect x="500" y="46" width="92" height="66" rx="8" fill="#EFECE4" stroke="#E4DFD3"/><text x="546" y="132" text-anchor="middle" font-size="13" fill="#5C5852">1</text>
+        <rect x="400" y="46" width="92" height="66" rx="8" fill="#EFECE4" stroke="#E4DFD3"/><text x="446" y="132" text-anchor="middle" font-size="13" fill="#5C5852">2</text>
+        <rect x="300" y="46" width="92" height="66" rx="8" fill="#FDF0DC" stroke="#C98A32" stroke-width="2"/><text x="346" y="132" text-anchor="middle" font-size="13" fill="#96551B" font-weight="700">3</text>
+        <rect x="200" y="46" width="92" height="66" rx="8" fill="#EFECE4" stroke="#E4DFD3"/><text x="246" y="132" text-anchor="middle" font-size="13" fill="#5C5852">4</text>
+        <rect x="100" y="46" width="92" height="66" rx="8" fill="#EFECE4" stroke="#E4DFD3"/><text x="146" y="132" text-anchor="middle" font-size="13" fill="#5C5852">5</text>
+        <rect x="0" y="46" width="92" height="66" rx="8" fill="#EFECE4" stroke="#E4DFD3"/><text x="46" y="132" text-anchor="middle" font-size="13" fill="#5C5852">6</text>
+        <text x="346" y="76" text-anchor="middle" font-size="12.5" fill="#96551B">Omar's</text>
+        <text x="346" y="96" text-anchor="middle" font-size="12.5" fill="#96551B">marks</text>
+        <path d="M660 160 H 40" stroke="#2A6F68" stroke-width="1.4" stroke-dasharray="5 4" fill="none"/>
+        <text x="660" y="180" text-anchor="end" font-size="12" fill="#2A6F68">البحث عن عمر = فتح الصندوق 3 فقط (لا فتح للصناديق 0،1،2،4،5،6)</text>
+      </g>
+    </svg>
+    <div class="legend">
+      <span><i class="sw c"></i> صندوق فارغ</span>
+      <span><i class="sw b"></i> صندوق مُستخدَم (بيت المفتاح)</span>
+      <span><i class="sw a"></i> مسار «لا بحث»</span>
+    </div>
+  </div>
+
+  <div class="grid3">
+    <div class="card tint">
+      <h4 style="margin-top:0">① To store — للتخزين</h4>
+      <ul>
+        <li>طبّق القاعدة على المفتاح → رقم الصندوق.</li>
+        <li>ضع الزوج <span class="mono ltr">(key, value)</span> في ذلك الصندوق.</li>
+        <li><strong>No searching.</strong></li>
+      </ul>
+    </div>
+    <div class="card tint">
+      <h4 style="margin-top:0">② To find — للإيجاد</h4>
+      <ul>
+        <li>طبّق <em>القاعدة نفسها</em> → رقم الصندوق نفسه.</li>
+        <li>افتح ذلك الصندوق وحده.</li>
+        <li><strong>Still no searching.</strong></li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:var(--warn)">
+      <h4 style="margin-top:0">③ The catch — الفخّ</h4>
+      <p style="margin:.2em 0">مفتاحان مختلفان قد يعطيان <strong>رقم الصندوق نفسه</strong>. هذا اسمه
+      <span class="mono ltr">collision</span>، والنصف الثاني من المحاضرة لمعالجته.</p>
+    </div>
+  </div>
+
+  <h3>الشرح العميق: لماذا «لا بحث» فكرة ثورية؟</h3>
+  <p>تخيّل موظف بريد أمامه 7 صناديق مرقّمة. لو أعطيته اسمًا فقط، سيضطر لفتح الصناديق واحدًا واحدًا حتى يجد.
+  أما لو أعطيته مع الاسم <em>قاعدة</em> تقول «عمر ← الصندوق 3»، فسيمدّ يده مباشرة. القاعدة نفسها هي كل الفرق بين
+  <span class="mono ltr">O(n)</span> و<span class="mono ltr">O(1)</span>.</p>
+  <p>ولاحظ شرطًا ضمنيًا في الشريحة: القاعدة يجب أن تكون <strong>حتمية</strong> (deterministic) — نفس الاسم يعطي نفس
+  الرقم دائمًا. لو تغيّر الرقم بين التخزين والبحث لضاع العنصر إلى الأبد: نضعه في صندوق 3 ثم نبحث عنه في صندوق 5.
+  وهذا بالضبط ما ستقنّنه الشريحة p.7–8 لاحقًا (deterministic + spread out).</p>
+
+  <h3>قواعد وثوابت</h3>
+  <ul>
+    <li>رقم الصندوق يجب أن يكون في <span class="mono ltr">0 … M−1</span>؛ هنا <span class="mono ltr">M = 7</span> فالأرقام 0..6.</li>
+    <li>عملية التخزين والبحث تستخدمان <strong>نفس الدالة</strong> بنفس M — تغيير أحدهما يفسد كل شيء.</li>
+    <li>التصادم ليس استثناءً ولا خطأً: هو نتيجة حتمية لأن عدد المفاتيح الممكنة أكبر من عدد الصناديق.</li>
+    <li>في هذا المثال <span class="mono ltr">'omar'</span> نصّ، لا رقم؛ فكيف صار 3؟ عبر مرحلتين (hash code ثم compression) — موضوع p.7.</li>
+  </ul>
+
+  <div class="card">
+    <h3 style="margin-top:0">🎰 آلة الصندوق <span class="tagx add">➕ إضافي (خارج الشرائح) — أداة تجريب</span></h3>
+    <p class="muted" style="margin-top:0">اكتب اسمًا لترى المرحلتين: تحويله إلى رقم (مجموع رموز الحروف) ثم باقي القسمة على 7.
+    الحساب هنا <em>تقريبي تعليمي</em>؛ الشريحة p.7 تبيّن أن <span class="mono ltr">hash()</span> في Python يعطي رقمًا كبيرًا مختلفًا.</p>
+    <label class="f" for="boxKey">المفتاح (حروف إنجليزية)</label>
+    <input type="text" id="boxKey" value="omar" maxlength="20">
+    <button class="btn pri" id="boxGo" style="margin-inline-start:8px">احسب الصندوق</button>
+    <div id="boxOut" style="margin-top:10px" class="ltr" dir="ltr"></div>
+    <div class="why">🎯 لماذا هذه الأداة؟ لأنها تُظهر أن «النص→رقم» ليس سحرًا: هو مجموع رموز ثم باقٍ — وهذا يمهد لسؤال p.5 الثاني: «كيف نحوّل أي مفتاح إلى 0..M−1؟».</div>
+  </div>
+
+  <div class="ex">
+    <div class="xh">📝 تمرين 3 — قاعدة غير حتمية</div>
+    <p>لو كانت القاعدة: «خذ المفتاح، وأضف إليه رقمًا عشوائيًا، ثم % 7». أين ينكسر النظام؟ اذكر الخطوتين بالتحديد.</p>
+    <button class="btn" data-toggle="sol3">أظهر الحل / إخفاء الحل</button>
+    <div class="sol" id="sol3">
+      <ol>
+        <li><strong>عند التخزين</strong>: يُحسب رقم عشوائي، فليكن 5 → يُوضع الزوج في الصندوق 5.</li>
+        <li><strong>عند البحث</strong>: يُحسب رقم عشوائي آخر، فليكن 2 → نفتح الصندوق 2 ولا نجد شيئًا، مع أن العنصر موجود.</li>
+        <li><strong>السبب الجذري</strong>: خُرقت خاصية «<em>Same key → same slot number, every time</em>» (p.8) التي بدونها لا يمكن إيجاد أي شيء مرة أخرى.</li>
+        <li><strong>الصياغة الامتحانية</strong>: الدالة يجب أن تكون <span class="mono ltr">deterministic</span>؛ العشوائية مسموحة فقط في <em>اختيار الدالة مرة واحدة</em> عند بدء التشغيل، لا في كل استدعاء.</li>
+      </ol>
+      <div class="why">🎯 لماذا هذا المثال؟ لأنه يفصل «التجزئة» عن «أي رقم»: كل خصائص الجدول الهاشي تنهار إذا فقدت الحتمية، حتى لو كانت الدالة سريعة وتوزّع جيدًا.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ p.5 ============ -->
+<section class="sec" id="p5" data-slide="5">
+  <h2>الفكرة: حوّل المفتاح إلى فهرس مصفوفة <span class="tag slide">p.5</span></h2>
+
+  <div class="quote">
+    <span class="term" dir="ltr">Hash table — definition</span>
+    <p>«An array of M slots plus a hash function h. Each (key, value) pair is stored in slot h(key), so search, insert and delete take <strong>O(1) on average</strong>.»</p>
+    <span class="src">p.5 — هذا هو التعريف الذي يُسأل عنه في الامتحان حرفيًا.</span>
+  </div>
+
+  <div class="svgbox">
+    <svg class="dsvg" viewBox="0 0 760 300" role="img" aria-label="مسار المفتاح إلى الحقل ثم المصفوفة، ومصفوفة من ثمانية حقول">
+      <g font-size="13">
+        <rect x="620" y="14" width="130" height="52" rx="9" fill="#1F5A54"/><text x="685" y="36" text-anchor="middle" fill="#fff" font-size="12">key</text><text x="685" y="54" text-anchor="middle" fill="#fff">'omar'</text>
+        <path d="M616 40 H 578" stroke="#C98A32" stroke-width="3" marker-end="url(#ar2)"/>
+        <rect x="440" y="14" width="134" height="52" rx="9" fill="#E9B44C"/><text x="507" y="36" text-anchor="middle" fill="#3A2A10" font-size="12">hash function</text><text x="507" y="54" text-anchor="middle" fill="#3A2A10" font-weight="700">h(key)</text>
+        <path d="M436 40 H 398" stroke="#C98A32" stroke-width="3" marker-end="url(#ar2)"/>
+        <rect x="268" y="14" width="126" height="52" rx="9" fill="#2A6F68"/><text x="331" y="36" text-anchor="middle" fill="#fff" font-size="12">slot (index)</text><text x="331" y="54" text-anchor="middle" fill="#fff" font-weight="700">3</text>
+        <path d="M264 40 H 226" stroke="#C98A32" stroke-width="3" marker-end="url(#ar2)"/>
+        <rect x="100" y="14" width="122" height="52" rx="9" fill="#262522"/><text x="161" y="36" text-anchor="middle" fill="#F6F4EE" font-size="12">array slot</text><text x="161" y="54" text-anchor="middle" fill="#F6F4EE" font-weight="700">[3]</text>
+        <text x="740" y="96" text-anchor="end" font-size="13" fill="#5C5852">Array of M slots (here M = 8):</text>
+        <g>
+          <rect x="660" y="112" width="76" height="44" rx="6" fill="#EFECE4" stroke="#E4DFD3"/><text x="698" y="172" text-anchor="middle" font-size="12" fill="#5C5852">0</text>
+          <rect x="580" y="112" width="76" height="44" rx="6" fill="#E6EFEC" stroke="#2A6F68"/><text x="618" y="140" text-anchor="middle" font-size="12.5">ali</text><text x="618" y="172" text-anchor="middle" font-size="12" fill="#5C5852">1</text>
+          <rect x="500" y="112" width="76" height="44" rx="6" fill="#EFECE4" stroke="#E4DFD3"/><text x="538" y="172" text-anchor="middle" font-size="12" fill="#5C5852">2</text>
+          <rect x="420" y="112" width="76" height="44" rx="6" fill="#FDF0DC" stroke="#C98A32" stroke-width="2"/><text x="458" y="140" text-anchor="middle" font-size="12.5" fill="#96551B" font-weight="700">omar</text><text x="458" y="172" text-anchor="middle" font-size="12" fill="#96551B">3</text>
+          <rect x="340" y="112" width="76" height="44" rx="6" fill="#EFECE4" stroke="#E4DFD3"/><text x="378" y="172" text-anchor="middle" font-size="12" fill="#5C5852">4</text>
+          <rect x="260" y="112" width="76" height="44" rx="6" fill="#EFECE4" stroke="#E4DFD3"/><text x="298" y="172" text-anchor="middle" font-size="12" fill="#5C5852">5</text>
+          <rect x="180" y="112" width="76" height="44" rx="6" fill="#E6EFEC" stroke="#2A6F68"/><text x="218" y="140" text-anchor="middle" font-size="12.5">sara</text><text x="218" y="172" text-anchor="middle" font-size="12" fill="#5C5852">6</text>
+          <rect x="100" y="112" width="76" height="44" rx="6" fill="#EFECE4" stroke="#E4DFD3"/><text x="138" y="172" text-anchor="middle" font-size="12" fill="#5C5852">7</text>
+        </g>
+        <rect x="400" y="196" width="350" height="86" rx="10" fill="#E6EFEC" stroke="#2A6F68"/>
+        <text x="738" y="218" text-anchor="end" font-size="12.5" font-weight="700" fill="#1F5A54">Insert and look-up are the same two steps</text>
+        <text x="738" y="240" text-anchor="end" font-size="12.5">1. Compute i = h(key).</text>
+        <text x="738" y="258" text-anchor="end" font-size="12.5">2. Go straight to slot i.</text>
+        <text x="738" y="276" text-anchor="end" font-size="12" fill="#5C5852">No scanning — O(1) if the function is cheap and the keys spread out.</text>
+        <rect x="20" y="196" width="360" height="86" rx="10" fill="#FBF1E3" stroke="#C98A32"/>
+        <text x="358" y="218" text-anchor="end" font-size="12.5" font-weight="700" fill="#96551B">Two questions for the rest of the lecture</text>
+        <text x="358" y="240" text-anchor="end" font-size="12">• How do we turn an arbitrary key into 0 … M−1?</text>
+        <text x="358" y="262" text-anchor="end" font-size="12">• What if two keys get the same slot?</text>
+      </g>
+      <defs><marker id="ar2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+        <path d="M0,0 L10,5 L0,10 z" fill="#C98A32"/></marker></defs>
+    </svg>
+    <div class="legend">
+      <span><i class="sw a"></i> المفتاح كمدخل</span>
+      <span><i class="sw b"></i> المرحلة الحسابية</span>
+      <span><i class="sw c"></i> حقل مستقرّ فيه مفتاح</span>
+      <span>🔶 الحقل 3 = بيت <span class="mono ltr">'omar'</span></span>
+    </div>
+  </div>
+
+  <h3>الشرح العميق: مرحلتان في سطر واحد</h3>
+  <p>السطر <span class="mono ltr">i = h(key) % M</span> يبدو عملية واحدة، لكنه في الحقيقة <strong>ترجمتان</strong>:
+  الأولى تحوّل المفتاح (أي نوع) إلى عدد صحيح ضخم، والثانية تضغط ذلك العدد إلى مجال الحقول. الشريحة p.5 تسأل السؤالين
+  وتترك الجوابين للشرائح التالية: p.7 (hash code + compression) وp.10 (التصادم).</p>
+  <p>ولاحظ التعريف بدقّة: «<em>array of M slots <u>plus</u> a hash function</em>» — الجدول ليس المصفوفة وحدها، بل
+  المصفوفة <em>مع</em> الدالة. مصفوفة بلا دالة ليست جدول تجزئة، ودالة بلا مصفوفة لا تخزّن شيئًا.</p>
+
+  <h3>قواعد وثوابت وحدود حالة</h3>
+  <ul>
+    <li><span class="mono ltr">0 ≤ i &lt; M</span> دائمًا: الباقي لا يخرج عن المجال (وهذا سبب استخدام <span class="mono ltr">%</span> لا القسمة العادية).</li>
+    <li>الخطوتان متطابقتان للإدراج والبحث — لهذا تُسمّى البنية «<em>self-indexing</em>» في بعض الكتب.</li>
+    <li>شرط O(1) صريح: الدالة <strong>رخيصة</strong> + المفاتيح <strong>متوزّعة</strong>. لو تجمّعت المفاتيح في حقل واحد سقط التعقيد.</li>
+    <li>الجدول لا يحفظ ترتيب المفاتيح؛ ولا يعطي «التالي بعد x» بسهولة.</li>
+    <li>الحجم M ثابت عند الإنشاء — تغييره لاحقًا يعني إعادة حساب كل الحقول (p.26).</li>
+  </ul>
+
+  <h3>Step Player: الخطوتان نفسها للإدراج والبحث <span class="tagx add">➕ إضافي (خارج الشرائح) — كود بيداغوجي يعكس p.5</span></h3>
+  <div class="player" id="pl-pipe" data-title="pipeline: key → h(key) → slot (p.5)"></div>
+
+  <h3>الجوابان القادمان (خريطة صغيرة)</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>السؤال على p.5</th><th>الإجابة في</th><th>الجواب بكلمة</th></tr></thead>
+      <tbody>
+        <tr><td>«كيف نحوّل مفتاحًا اعتباطيًا إلى 0 … M−1؟»</td><td class="ltr">p.7–9 (M02)</td><td>hash code ثم compression بـ <span class="mono ltr">% M</span>، وM أوّلي</td></tr>
+        <tr><td>«ماذا لو أخذ مفتاحان الحقل نفسه؟»</td><td class="ltr">p.10–24 (M03–M05)</td><td>chaining أو open addressing (linear / quadratic / double)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ex">
+    <div class="xh">📝 تمرين 4 — ثلاثة مفاتيح ومساحة فارغة</div>
+    <p>‏<span class="mono ltr">M = 8</span>، ونعلم أن <span class="mono ltr">h('ali') = 1</span>، <span class="mono ltr">h('sara') = 6</span>،
+    ثم جاء <span class="mono ltr">'noor'</span> بحيث <span class="mono ltr">h('noor') = 1</span>.
+    كم حقلًا حرًّا في الجدول؟ وهل يمكن تخزين <span class="mono ltr">'noor'</span> في الحقل 1؟</p>
+    <button class="btn" data-toggle="sol4">أظهر الحل / إخفاء الحل</button>
+    <div class="sol" id="sol4">
+      <ol>
+        <li>الحقول المستخدمة: 1 و6. إذن الفارغ <strong>6 حقول</strong> (0،2،3،4،5،7).</li>
+        <li><span class="mono ltr">'noor'</span> بيته الحقل 1، وهو <strong>مأخوذ</strong> بـ <span class="mono ltr">'ali'</span> → تصادم.</li>
+        <li>وجود 6 حقول فارغة <strong>لا يحلّ</strong> المشكلة تلقائيًا: القاعدة تقول «اذهب إلى الحقل 1»، ولا تقول «ابحث عن حقل فارغ».
+        الحلّ يحتاج <em>سياسة</em> إضافية (chaining أو probing) — وهذا لبّ الشريحة p.10.</li>
+      </ol>
+      <div class="why">🎯 لماذا هذا المثال؟ لأنه يقتل الفكرة الخاطئة الأكثر شيوعًا: «الجدول ممتلئ قليلًا إذن لا مشكلة». المشكلة ليست في عدد الحقول الفارغة بل في <em>عنوان</em> المفتاح الثابت.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ p.6 ============ -->
+<section class="sec" id="p6" data-slide="6">
+  <h2>أول مثال محسوب: 7 سجلات في 7 حقول <span class="tag slide">p.6</span></h2>
+
+  <div class="quote">
+    <span class="term" dir="ltr">home slot = h(key) = key % 7</span>
+    <p>حقل البيت (<span class="mono ltr">home slot</span>) هو الحقل الذي تحسبه الدالة من المفتاح. المثال من إدارة الأعمال (DSAP-L6).</p>
+    <span class="src">p.6</span>
+  </div>
+
+  <p><strong>السجلات (key, name):</strong>
+  <span class="mono ltr">(1, Ali) (3, Raad) (7, Abdullah) (25, Saad) (15, Saeed) (4, Waleed) (12, Sami)</span></p>
+
+  <div class="tw">
+    <table>
+      <caption>جدول الشريحة p.6 — الحساب يدويًا</caption>
+      <thead><tr><th>key</th><th>compute</th><th>home slot</th></tr></thead>
+      <tbody>
+        <tr><td class="ltr">1</td><td class="ltr">1 % 7 = 1</td><td>slot 1</td></tr>
+        <tr><td class="ltr">3</td><td class="ltr">3 % 7 = 3</td><td>slot 3</td></tr>
+        <tr><td class="ltr">7</td><td class="ltr">7 % 7 = 0</td><td>slot 0</td></tr>
+        <tr><td class="ltr">25</td><td class="ltr">25 % 7 = 4</td><td>slot 4</td></tr>
+        <tr><td class="ltr">15</td><td class="ltr">15 % 7 = 1</td><td>slot 1 — taken by 1 ✗ collision</td></tr>
+        <tr><td class="ltr">4</td><td class="ltr">4 % 7 = 4</td><td>slot 4 — taken by 25 ✗ collision</td></tr>
+        <tr><td class="ltr">12</td><td class="ltr">12 % 7 = 5</td><td>slot 5</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="svgbox">
+    <svg class="dsvg" viewBox="0 0 700 260" role="img" aria-label="الجدول بعد كل الإدراجات: سبعة حقول مع سجلات مشتركة في الحقلين 1 و4">
+      <text x="680" y="18" text-anchor="end" font-size="13" font-weight="700" fill="#1F5A54">Table after all insertions (collisions share a slot for now)</text>
+      <g font-size="12.5">
+        <rect x="500" y="34" width="46" height="26" rx="6" fill="#EFECE4" stroke="#E4DFD3"/><text x="523" y="52" text-anchor="middle" fill="#5C5852">0</text>
+        <rect x="330" y="34" width="164" height="26" rx="6" fill="#E6EFEC" stroke="#2A6F68"/><text x="486" y="52" text-anchor="end">7, Abdullah</text>
+        <rect x="500" y="66" width="46" height="26" rx="6" fill="#FDF0DC" stroke="#C98A32" stroke-width="2"/><text x="523" y="84" text-anchor="middle" fill="#96551B" font-weight="700">1</text>
+        <rect x="290" y="66" width="204" height="26" rx="6" fill="#FDF0DC" stroke="#C98A32"/><text x="486" y="84" text-anchor="end" fill="#96551B">1, Ali · 15, Saeed</text>
+        <rect x="500" y="98" width="46" height="26" rx="6" fill="#EFECE4" stroke="#E4DFD3"/><text x="523" y="116" text-anchor="middle" fill="#5C5852">2</text>
+        <rect x="330" y="98" width="164" height="26" rx="6" fill="#FCFBF8" stroke="#E4DFD3" stroke-dasharray="4 3"/><text x="486" y="116" text-anchor="end" fill="#8A857C" font-style="italic">فارغ</text>
+        <rect x="500" y="130" width="46" height="26" rx="6" fill="#EFECE4" stroke="#E4DFD3"/><text x="523" y="148" text-anchor="middle" fill="#5C5852">3</text>
+        <rect x="330" y="130" width="164" height="26" rx="6" fill="#E6EFEC" stroke="#2A6F68"/><text x="486" y="148" text-anchor="end">3, Raad</text>
+        <rect x="500" y="162" width="46" height="26" rx="6" fill="#FDF0DC" stroke="#C98A32" stroke-width="2"/><text x="523" y="180" text-anchor="middle" fill="#96551B" font-weight="700">4</text>
+        <rect x="270" y="162" width="224" height="26" rx="6" fill="#FDF0DC" stroke="#C98A32"/><text x="486" y="180" text-anchor="end" fill="#96551B">25, Saad · 4, Waleed</text>
+        <rect x="500" y="194" width="46" height="26" rx="6" fill="#EFECE4" stroke="#E4DFD3"/><text x="523" y="212" text-anchor="middle" fill="#5C5852">5</text>
+        <rect x="330" y="194" width="164" height="26" rx="6" fill="#E6EFEC" stroke="#2A6F68"/><text x="486" y="212" text-anchor="end">12, Sami</text>
+        <rect x="500" y="226" width="46" height="26" rx="6" fill="#EFECE4" stroke="#E4DFD3"/><text x="523" y="244" text-anchor="middle" fill="#5C5852">6</text>
+        <rect x="330" y="226" width="164" height="26" rx="6" fill="#FCFBF8" stroke="#E4DFD3" stroke-dasharray="4 3"/><text x="486" y="244" text-anchor="end" fill="#8A857C" font-style="italic">فارغ</text>
+        <text x="248" y="52" text-anchor="end" font-size="11.5" fill="#5C5852">7 % 7 = 0</text>
+        <text x="248" y="84" text-anchor="end" font-size="11.5" fill="#96551B">1 % 7 = 1 و 15 % 7 = 1</text>
+        <text x="248" y="148" text-anchor="end" font-size="11.5" fill="#5C5852">3 % 7 = 3</text>
+        <text x="248" y="180" text-anchor="end" font-size="11.5" fill="#96551B">25 % 7 = 4 و 4 % 7 = 4</text>
+        <text x="248" y="212" text-anchor="end" font-size="11.5" fill="#5C5852">12 % 7 = 5</text>
+      </g>
+    </svg>
+    <div class="legend">
+      <span><i class="sw a"></i> سجل في بيته بلا تصادم</span>
+      <span><i class="sw b"></i> سجلان في حقل واحد (تصادم)</span>
+      <span><i class="sw c"></i> حقل فارغ</span>
+    </div>
+  </div>
+
+  <div class="note ok">
+    <span class="nh">✅ البحث عن المفتاح 7 (كما في الشريحة)</span>
+    ‏<span class="mono ltr">7 % 7 = 0 → go to slot 0 → 'Abdullah'</span>. <strong>حساب واحد + نظرة واحدة = O(1)</strong>،
+    ولم نمسح الحقول الستة الأخرى.
+  </div>
+
+  <div class="note warn">
+    <span class="nh">⚠️ ملاحظة على الشريحة p.6 — «share a slot for now»</span>
+    الصورة تجمع <span class="mono ltr">(1, Ali)</span> مع <span class="mono ltr">(15, Saeed)</span> في الحقل 1، وتجمع
+    <span class="mono ltr">(25, Saad)</span> مع <span class="mono ltr">(4, Waleed)</span> في الحقل 4، بلا تحديد
+    <em>كيف</em> نبحث داخل الحقل المشترك. هذه ليست طريقة حلّ، بل <strong>عرض مؤقّت</strong> (نصّ الشريحة: for now).
+    الطريقة الفعلية إما سلسلة (chaining، p.12) أو تنقيب (probing، p.17+). ولا تكتب في الامتحان أن هذا «جدول صحيح»:
+    البحث عن 15 في الحقل 1 يحتاج فحص السجل الأول أيضًا، إذن التكلفة صارت O(طول المجموعة).
+  </div>
+
+  <h3>Step Player: تتبّع الإدراجات السبعة ثم البحث <span class="tag">تفاعلي</span></h3>
+  <p class="muted">كل خطوة تُبرز سطر الكود المقابل وتُحدّث حالة الجدول وتضيف صفًّا لجدول التتبّع، مع جملة عربية تشرح <em>لماذا</em>.
+  الوضع الافتراضي <b>مشاهدة</b>؛ فعّل «وضع التوقّع» ليوقفك المشغّل ويسألك عن الحقل قبل الكشف.</p>
+  <div class="player" id="pl-trace" data-title="trace: 7 records, M = 7 (p.6)"></div>
+  <div class="legend">
+    <span><i class="sw a"></i> الحقل الحالي (محسوب الآن)</span>
+    <span><i class="sw b"></i> السجل المُضاف في هذه الخطوة</span>
+    <span>🔹 السجلات السابقة تبقى في حقولها</span>
+  </div>
+
+  <div class="card" id="sandbox">
+    <h3 style="margin-top:0">🧪 صندوقك الحرّ — مفاتيحك و M الخاص بك</h3>
+    <div class="grid2">
+      <div>
+        <label class="f" for="sbKeys">المفاتيح (أرقام صحيحة مفصولة بفاصلة)</label>
+        <input type="text" id="sbKeys" value="1,3,7,25,15,4,12">
+        <label class="f" for="sbM">M (حجم الجدول) — بين 2 و12</label>
+        <input type="number" id="sbM" value="7" min="2" max="12">
+        <div style="margin-top:9px"><button class="btn pri" id="sbGo">▶ شغّل التتبع في المشغّل أعلاه</button>
+          <button class="btn" id="sbReset">استعادة مثال الشريحة</button></div>
+      </div>
+      <div>
+        <div id="sbOut" class="card" style="min-height:96px"><span class="muted">النتيجة ستظهر هنا وتُحمَّل في المشغّل أعلاه.</span></div>
+      </div>
+    </div>
+    <div class="why">🎯 لماذا الصندوق الحرّ؟ لأن حفظ «key % M» لا يكفي؛ الطالب الذي يجرّب <span class="mono ltr">M = 6</span> ويرى التصادمات تتغيّر يفهم أن الحقل نتيجة <em>دالة</em> لا خاصية ثابتة للمفتاح.</div>
+  </div>
+
+  <div class="card" id="selftest">
+    <h3 style="margin-top:0">🧷 اختبارات ذاتية للمولّد (JS ↔ الشرائح)</h3>
+    <div id="stBody" class="muted">تُشغَّل عند تحميل الصفحة…</div>
+  </div>
+
+  <div class="ex">
+    <div class="xh">📝 تمرين 5 — لماذا هذان المفتاحان بالذات؟</div>
+    <p>في مثال p.6 تصادم مفتاحان فقط (15 و4). برهن على أن بقية المفاتيح <strong>لا يمكن</strong> أن تتصادم مع بعضها،
+    ثم بيّن ماذا يحدث لو كان <span class="mono ltr">M = 5</span> بدل 7 (اذكر السجلات المتصادمة).</p>
+    <button class="btn" data-toggle="sol5">أظهر الحل / إخفاء الحل</button>
+    <div class="sol" id="sol5">
+      <ol>
+        <li><strong>البواقي:</strong> 1→1، 3→3، 7→0، 25→4، 15→1، 4→4، 12→5.</li>
+        <li>البواقي المكرّرة هي 1 (لـ1 و15) و4 (لـ25 و4) فقط؛ وكل باقٍ آخر يظهر مرّة واحدة، فلا تصادم.</li>
+        <li>سبب التكرار: 15 − 1 = 14 = 2×7 (مضاعف لـM)، و25 − 4 = 21 = 3×7. أي أن المفتاحين يختلفان بمضاعف للـM فيقعان في الحقل نفسه — قاعدة عامة: <span class="mono ltr">k₁ % M = k₂ % M ⇔ M | (k₁ − k₂)</span>.
+        <span class="tagx add">➕ إضافي (خارج الشرائح)</span></li>
+        <li><strong>لو M = 5:</strong> 1→1، 3→3، 7→2، 25→0، 15→0 (تصادم مع 25)، 4→4، 12→2 (تصادم مع 7).
+        فيصبح لدينا تصادمان: (15, 25) و(12, 7).</li>
+      </ol>
+      <div class="why">🎯 لماذا هذا المثال؟ لأنه يعلّم <em>تشخيص</em> التصادم رياضيًا لا بصريًا: التصادم يحدث حين يكون فرق المفتاحين مضاعفًا لـM، وهذا يفسّر لاحقًا لماذا يُفضّل M أوّلي (p.8).</div>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="xh">📝 تمرين 6 — بحث عن مفتاح غائب</div>
+    <p>في الجدول نفسه (<span class="mono ltr">M = 7</span> بعد السجلات السبعة): ابحث عن <span class="mono ltr">2</span> ثم عن <span class="mono ltr">15</span>.
+    كم «نظرة» تكلّف كل حالة؟ وماذا تستنتج عن وعد O(1)؟</p>
+    <button class="btn" data-toggle="sol6">أظهر الحل / إخفاء الحل</button>
+    <div class="sol" id="sol6">
+      <ol>
+        <li><strong>2 →</strong> ‏<span class="mono ltr">2 % 7 = 2</span>، الحقل 2 فارغ → <em>غير موجود</em> بعد <strong>نظرة واحدة</strong>
+        (هذا هو <span class="mono ltr">search(4) = 0 comparisons</span> في p.13 لاحقًا، أي صفر مقارنات مع مفاتيح).</li>
+        <li><strong>15 →</strong> ‏<span class="mono ltr">15 % 7 = 1</span>، الحقل 1 يحوي سجلين: نفحص <span class="mono ltr">(1, Ali)</span> فلا يطابق، ثم
+        <span class="mono ltr">(15, Saeed)</span> فيطابق → <strong>مقارنتان</strong>.</li>
+        <li><strong>الاستنتاج:</strong> الحساب ثابت دائمًا، لكن عدد المقارنات داخل الحقل يعتمد على عدد المتصادمين.
+        ولذلك نقول O(1) <em>في المتوسط</em>: طالما بقيت المجموعات قصيرة (λ صغيرة في M03) يبقى عدد المقارنات ثابتًا عمليًا.</li>
+      </ol>
+      <div class="why">🎯 لماذا هذا المثال؟ لأنه يفرّق بين «حساب الحقل» (ثابت) و«المقارنات داخل الحقل» (متغيّر)، وهذا التفريق هو مفتاح الإجابة الصحيحة عن أي سؤال تعقيد في التجزئة.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRAPS ============ -->
+<section class="sec" id="traps">
+  <h2>🚨 رادار الأفخاخ الامتحانية <span class="tag">M01</span></h2>
+  <p class="muted">كل فخّ هنا مستخرج من مقارنات الشرائح p.2–p.6 أو من صياغاتها الحرفية. الصيغة ثابتة:
+  ❌ الخطأ ← لماذا يفشل ← ✅ التصحيح.</p>
+
+  <div class="trap">
+    <div class="row x"><span class="mk">❌</span><span class="tx">«الجدول الهاشي يعطي <span class="mono ltr">O(1)</span> دائمًا».</span></div>
+    <div class="row y"><span class="mk">↳</span><span class="tx">يفشل لأن O(1) مشروطة بتوزّع المفاتيح؛ لو تجمّعت كلها في حقل واحد صار البحث <span class="mono ltr">O(n)</span>.</span></div>
+    <div class="row z"><span class="mk">✅</span><span class="tx">اكتب: <strong>O(1) average، وO(n) worst</strong> (p.5 + p.27).</span></div>
+  </div>
+
+  <div class="trap">
+    <div class="row x"><span class="mk">❌</span><span class="tx">«قائمة مرتّبة + بحث ثنائي هي الحلّ الأمثل لأنها <span class="mono ltr">O(log n)</span>».</span></div>
+    <div class="row y"><span class="mk">↳</span><span class="tx">يفشل لأن الإدراج في المنتصف <span class="mono ltr">O(n)</span> — تُدفع التكلفة عند كل إدراج (p.2–p.3).</span></div>
+    <div class="row z"><span class="mk">✅</span><span class="tx">قارن <em>العمليتين</em>: البحث <strong>و</strong>الإدراج. الجدول الهاشي يقدّم الاثنين O(1) متوسطًا.</span></div>
+  </div>
+
+  <div class="trap">
+    <div class="row x"><span class="mk">❌</span><span class="tx">«التصادم خطأ في الدالة يجب تصحيحه».</span></div>
+    <div class="row y"><span class="mk">↳</span><span class="tx">يفشل لأن عدد المفاتيح الممكنة أكبر بكثير من عدد الحقول، فالتصادم حتمي (p.10: 23 شخصًا/365 يومًا → احتمال &gt; 50%).</span></div>
+    <div class="row z"><span class="mk">✅</span><span class="tx">التصادم <strong>يُدار</strong> لا يُمنع: chaining أو open addressing.</span></div>
+  </div>
+
+  <div class="trap">
+    <div class="row x"><span class="mk">❌</span><span class="tx">حساب «<span class="mono ltr">7 % 7 = 7</span>» أو «الباقي دائمًا أصغر أو يساوي المقسوم عليه».</span></div>
+    <div class="row y"><span class="mk">↳</span><span class="tx">يفشل لأن الباقي دائمًا <strong>أصغر تمامًا</strong> من المقسوم عليه: <span class="mono ltr">7 % 7 = 0</span>.</span></div>
+    <div class="row z"><span class="mk">✅</span><span class="tx">‏<span class="mono ltr">0 ≤ k % M ≤ M − 1</span>؛ ولهذا المفتاح 7 يسكن الحقل 0 في p.6.</span></div>
+  </div>
+
+  <div class="trap">
+    <div class="row x"><span class="mk">❌</span><span class="tx">«‏<span class="mono ltr">slot = hash(key)</span> مباشرة».</span></div>
+    <div class="row y"><span class="mk">↳</span><span class="tx">يفشل لأن <span class="mono ltr">hash(key)</span> عدد ضخم قد يكون سالبًا أو أكبر من M بكثير؛ لا يصلح كفهرس.</span></div>
+    <div class="row z"><span class="mk">✅</span><span class="tx">مرحلتان: hash code ثم <strong>compression</strong> بـ <span class="mono ltr">% M</span> (p.5 ← p.7).</span></div>
+  </div>
+
+  <div class="trap">
+    <div class="row x"><span class="mk">❌</span><span class="tx">«‏<span class="mono ltr">len(map)</span> هو عدد الحقول M».</span></div>
+    <div class="row y"><span class="mk">↳</span><span class="tx">يفشل لأن <span class="mono ltr">len</span> تعدّ <strong>الأزواج</strong> لا السعة (p.3: «number of pairs»).</span></div>
+    <div class="row z"><span class="mk">✅</span><span class="tx"><span class="mono ltr">len(map) = n</span> وعدد الحقول <span class="mono ltr">M</span>، ونسبتهما هي <span class="mono ltr">λ = n/M</span> (M03).</span></div>
+  </div>
+
+  <div class="trap">
+    <div class="row x"><span class="mk">❌</span><span class="tx">«حقل المفتاح 15 هو 1 في أي جدول تجزئة».</span></div>
+    <div class="row y"><span class="mk">↳</span><span class="tx">يفشل لأن الحقل يعتمد على <strong>الدالة وM معًا</strong>: 15%7 = 1 لكن 15%11 = 4 و15%5 = 0.</span></div>
+    <div class="row z"><span class="mk">✅</span><span class="tx">الحقل دالة في (المفتاح، M)؛ ولهذا تتغيّر كل الحقول عند إعادة التجزئة (p.26).</span></div>
+  </div>
+</section>
+
+<!-- ============ CHALLENGE ACTIVITY ============ -->
+<section class="sec" id="challenge">
+  <h2>تحدي متدرّج — Jump to level <span class="tagx add">➕ إضافي (خارج الشرائح) — بأسلوب zyBooks</span></h2>
+  <p class="muted">خمسة مستويات مولّدة تلقائيًا، تصعب تدريجيًا. لا تُفتح المرحلة التالية إلا بعد إجابة صحيحة على الحالية.
+  الشريط المرقّم أعلاه هو تقدّمك (✔ = مستوى مُجتاز).</p>
+
+  <div class="ca">
+    <div class="ca-h"><span class="ca-n">CHALLENGE ACTIVITY 1.8.1</span><span>حقل المفتاح والتصادمات</span></div>
+    <div class="ca-top">
+      <span class="jump" id="caJump">Jump to level 1</span>
+      <div class="strip" id="caStrip" role="group" aria-label="مستويات التحدي 1 إلى 5"></div>
+      <span class="ca-state" id="caState">—</span>
+    </div>
+    <div class="ca-q" id="caQ">اضغط «سؤال جديد» للبدء.</div>
+    <div id="caForm"></div>
+    <div class="ca-actions">
+      <button class="btn pri" id="caCheck">Check</button>
+      <button class="btn" id="caTry">Try again</button>
+      <button class="btn" id="caNext" disabled>Next ▶</button>
+      <button class="btn" id="caNew">↻ سؤال جديد</button>
+      <button class="btn" id="caReset">من المستوى 1</button>
+    </div>
+    <div id="caFb" style="margin-top:8px"></div>
+  </div>
+
+  <div class="note">
+    <span class="nh">قاعدة المستويات</span>
+    المستويات ١–٢ حساب مباشر وتصادم ثنائي · ٣–٤ عدّ التصادمات وطول السلاسل في مجموعة مفاتيح · ٥ فخّ امتحاني
+    (مفتاح من مضاعفات M، وتغيير M). كل مستوى يعطيك سبب الإجابة لا رقمها فقط.
+  </div>
+</section>
+
+<!-- ============ BUG HUNT ============ -->
+<section class="sec" id="bughunt">
+  <h2>🐞 Bug Hunt — اصطَد السطر الخاطئ <span class="tag">p.31</span></h2>
+  <div class="note warn">
+    <span class="nh">⚠️ ملاحظة على النطاق</span>
+    الخطأ أدناه مأخوذ من شريحة «Common mistakes we will mark down in Lab 6» (p.31)، وهي مشمولة كاملة في <strong>M06</strong>.
+    نستخدم هنا الخطأ الثاني منها فقط لأنه يمسّ ادّعاء O(1) في هذه الوحدة؛ وسيُعاد ذكره في M03 وM06 مع تصريح التكرار.
+  </div>
+  <p>الكود التالي «يعمل» ويعطي النتيجة الصحيحة، لكنه <strong>يهدم سبب وجود الجدول الهاشي</strong>. اضغط على السطر المسؤول:</p>
+  <div class="code bughunt" id="bhCode">
+    <div class="code-h"><span class="ttl">ChainHashMap.get — نسخة فيها خطأ (p.31)</span><span class="muted">اضغط سطرًا</span></div>
+    <button class="ln" data-i="1"><span class="cn">1</span>def get(self, key):</button>
+    <button class="ln" data-i="2"><span class="cn">2</span>    i = self._index(key)          # slot = hash(key) % M</button>
+    <button class="ln" data-i="3"><span class="cn">3</span>    for chain in self._slots:     # ← افحص كل الحقول</button>
+    <button class="ln" data-i="4"><span class="cn">4</span>        for k, v in chain:</button>
+    <button class="ln" data-i="5"><span class="cn">5</span>            if k == key:</button>
+    <button class="ln" data-i="6"><span class="cn">6</span>                return v</button>
+    <button class="ln" data-i="7"><span class="cn">7</span>    raise KeyError(key)</button>
+  </div>
+  <div id="bhFb" style="margin-top:10px"></div>
+  <div class="why">🎯 لماذا هذا التمرين؟ لأن الخطأ لا يُظهر رسالة ولا نتيجة خاطئة — يُظهر فقط تعقيدًا O(n) بدل O(1). الطالب الذي يتعلّم قراءة الكود بهذه الطريقة ينجو في Lab 6.</div>
+</section>
+
+<!-- ============ SUMMARY ============ -->
+<section class="sec" id="summary">
+  <h2>📌 خلاصة الوحدة — ورقة واحدة <span class="tag">M01</span></h2>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>المفهوم</th><th>الصيغة / الرقم الدقيق</th><th>الشريحة</th></tr></thead>
+      <tbody>
+        <tr><td>Map ADT — العمليات</td><td class="ltr">map[k]=v · map[k] · del · k in map · len(map)</td><td class="ltr">p.3</td></tr>
+        <tr><td>تكلفة المسح</td><td class="ltr">O(n) — «check items one by one»</td><td class="ltr">p.2</td></tr>
+        <tr><td>تكلفة القائمة المرتّبة</td><td class="ltr">search O(log n) · insert O(n)</td><td class="ltr">p.2–3</td></tr>
+        <tr><td>الجدول الهاشي</td><td>‏array of M slots + hash function h؛ الزوج في <span class="mono ltr">h(key)</span></td><td class="ltr">p.5</td></tr>
+        <tr><td>قاعدة المثال</td><td class="ltr">home slot = h(key) = key % 7</td><td class="ltr">p.6</td></tr>
+        <tr><td>خطوتا الإدراج/البحث</td><td class="ltr">i = h(key) → go to slot i</td><td class="ltr">p.5</td></tr>
+        <tr><td>سجلات المثال وتصادماته</td><td>7 سجلات، M = 7، تصادم عند 15 (slot 1) و4 (slot 4)</td><td class="ltr">p.6</td></tr>
+        <tr><td>بحث 7</td><td>‏7 % 7 = 0 → slot 0 → 'Abdullah' — حساب واحد ونظرة واحدة</td><td class="ltr">p.6</td></tr>
+        <tr><td>وعد التعقيد</td><td class="ltr">O(1) average · O(n) worst</td><td class="ltr">p.5 · p.27</td></tr>
+        <tr><td>شرط O(1)</td><td>دالة رخيصة + مفاتيح موزّعة</td><td class="ltr">p.5</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid2">
+    <div class="card tint">
+      <h4 style="margin-top:0">ثلاث جمل تحفظها</h4>
+      <ol>
+        <li>الجدول = <strong>مصفوفة + دالة</strong>؛ والحقل مُحسوب لا مُبحَث عنه.</li>
+        <li>التصادم <strong>حتمي</strong> لأن عدد المفاتيح &gt; عدد الحقول؛ ويُدار لا يُمنع.</li>
+        <li>O(1) <strong>متوسّط</strong> ويبقى صحيحًا فقط إذا بقي التوزيع جيدًا وكثافة الجدول منخفضة.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h4 style="margin-top:0">أرقام لا تنساها</h4>
+      <ul>
+        <li><span class="mono ltr">M = 7</span> ومعها 7 سجلات → تصادمان فقط.</li>
+        <li>‏<span class="mono ltr">7 % 7 = 0</span> (لا 7).</li>
+        <li>بحث 7 = نظرة واحدة؛ بحث غائب في حقل فارغ = صفر مقارنات.</li>
+        <li>الحقل المشترك في p.6 = «for now» وليس حلًّا.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>✅ تحقق من فهمك</h3>
+  <div id="checkList"></div>
+
+  <details class="ai">
+    <summary>🖼️ برومبت صورة توضيحية (اختياري) + Copy</summary>
+    <div class="prompt" id="aiPrompt">Flat editorial illustration for a data-structures lecture, warm paper palette (#F6F4EE, #2A6F68, #E9B44C), no text.
+A wall of seven numbered pigeonholes (0..6). A hand reaches directly into pigeonhole 3 and pulls out a folder labelled with a small tag;
+the other six pigeonholes stay closed. Two small folders already squeeze into pigeonhole 1 to show a collision.
+Clean vector style, soft shadows, generous negative space, no gradients, no dark navy, no lettering.</div>
+    <div style="margin-top:8px"><button class="btn cp" data-copy="aiPrompt">📋 Copy</button></div>
+  </details>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section class="sec" id="quiz">
+  <h2>🧪 اختبار الوحدة — 12 سؤالًا مع تصحيح تلقائي <span class="tag">M01</span></h2>
+  <p class="muted">أسئلة اختيار من متعدّد، صواب/خطأ، تتبّع كود، وحساب. بعد التصحيح يظهر تفسير كل إجابة خاطئة،
+  وتُحفظ النتيجة في <span class="mono ltr">localStorage</span> (داخل try/catch) لبناء «مواضيعك الأضعف».</p>
+
+  <div class="card" id="weakPanel">
+    <h4 style="margin-top:0">📉 مواضيعك الأضعف</h4>
+    <div id="weakBody" class="muted">لم تُصحَّح أي محاولة بعد.</div>
+    <div class="muted" style="font-size:.82em;margin-top:4px">يُحفظ آخر 10 محاولات في <span class="mono ltr">localStorage</span>؛ وإن كان التخزين معطّلًا تُحفظ المحاولات في الذاكرة داخل هذه الصفحة فقط.</div>
+    <div style="margin-top:8px">
+      <button class="btn" id="onlyWrong">راجع الأخطاء فقط</button>
+      <button class="btn" id="showAll">أظهر كل الأسئلة</button>
+      <button class="btn" id="clearHist">مسح السجل</button>
+    </div>
+  </div>
+
+  <div id="quizWrap"></div>
+
+  <div class="score">
+    <span>النتيجة: <b class="big" id="scoreVal">—</b> <span id="scoreMsg" class="muted"></span></span>
+    <span style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn pri" id="gradeBtn">صحّح الإجابات</button>
+      <button class="btn" id="retryBtn">إعادة المحاولة</button>
+    </span>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+/* CORE v1.0 START:js1 — محرّك مشترك (StepPlayer + أدوات) */
+/* =====================================================================
+   CORE RUNTIME (يُعاد استخدامه في كل وحدات CS2015)
+   1) storage/theme  2) TOC+progress  3) copy  4) toggles
+   5) StepPlayer     6) quizzes/challenges  7) أدوات الوحدة
+   ===================================================================== */
+(function(){
+"use strict";
+const $ = (s,r)=> (r||document).querySelector(s);
+const $$ = (s,r)=> Array.from((r||document).querySelectorAll(s));
+const LS = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+const KEY = 'cs2015.'+(document.body.dataset.module||'x')+'.';
+
+/* ---------- 1) theme + font size ---------- */
+(function initTheme(){
+  const t = LS.get('cs2015.theme','light');
+  document.documentElement.setAttribute('data-theme', t);
+  const fs = LS.get('cs2015.fs',17.2);
+  document.documentElement.style.setProperty('--fs', fs+'px');
+  const tb = $('#themeBtn');
+  const paint = ()=> { tb.textContent = document.documentElement.getAttribute('data-theme')==='dark' ? '☀️ فاتح' : '🌙 داكن'; };
+  paint();
+  tb.addEventListener('click',()=>{
+    const next = document.documentElement.getAttribute('data-theme')==='dark' ? 'light':'dark';
+    document.documentElement.setAttribute('data-theme',next); LS.set('cs2015.theme',next); paint();
+  });
+  const setFs = d => {
+    let cur = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--fs'))||17.2;
+    cur = Math.min(22, Math.max(14, cur + d));
+    document.documentElement.style.setProperty('--fs', cur.toFixed(1)+'px'); LS.set('cs2015.fs', cur);
+  };
+  $('#fsPlus').addEventListener('click',()=>setFs(1));
+  $('#fsMinus').addEventListener('click',()=>setFs(-1));
+})();
+
+/* ---------- 2) TOC active + progress ---------- */
+(function initToc(){
+  const secs = $$('main .sec');
+  const links = $$('.toc a');
+  const seen = new Set(LS.get(KEY+'seen',[]));
+  const paint = ()=>{
+    const p = Math.round(seen.size/secs.length*100);
+    const sp = document.getElementById('seenProg'), spt = document.getElementById('seenProgTxt');
+    if(sp){ sp.style.width = p+'%'; } if(spt){ spt.textContent = p+'%'; }
+  };
+  paint();
+  const io = new IntersectionObserver(es=>{
+    es.forEach(e=>{
+      if(e.isIntersecting){
+        const id = e.target.id;
+        links.forEach(a=>a.classList.toggle('on', a.getAttribute('href')==='#'+id));
+        if(!seen.has(id)){ seen.add(id); LS.set(KEY+'seen',[...seen]); paint(); }
+      }
+    });
+  },{rootMargin:'-45% 0px -50% 0px'});
+  secs.forEach(s=>io.observe(s));
+  window.addEventListener('scroll',()=>{
+    const h = document.documentElement;
+    const p = h.scrollTop/(h.scrollHeight-h.clientHeight)*100;
+    $('#scrollProg').style.width = Math.min(100,Math.max(0,p))+'%';
+  },{passive:true});
+})();
+
+/* ---------- 3) copy buttons (with execCommand fallback) ---------- */
+function copyText(txt, btn){
+  const done = ()=>{ const o = btn.textContent; btn.textContent='✔ تم النسخ'; setTimeout(()=>{btn.textContent=o;},1500); };
+  const fallback = ()=>{
+    try{
+      const ta=document.createElement('textarea');
+      ta.value=txt; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.top='-1000px'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0, txt.length);
+      const ok = document.execCommand && document.execCommand('copy');
+      document.body.removeChild(ta);
+      if(ok) done(); else alert('تعذّر النسخ التلقائي. حدّد النصّ وانسخه يدويًا (Ctrl+C).');
+    }catch(e){ alert('تعذّر النسخ في هذا المتصفح. حدّد النصّ وانسخه يدويًا.'); }
+  };
+  if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(txt).then(done, fallback); }
+  else { fallback(); }
+}
+function textOf(id){
+  const el = document.getElementById(id); if(!el) return '';
+  if(el.tagName==='PRE'){ const c=el.cloneNode(true); Array.from(c.querySelectorAll('.cn')).forEach(n=>n.remove()); return c.textContent; }
+  return el.textContent;
+}
+document.addEventListener('click', e=>{
+  const b = e.target.closest('[data-copy]'); if(!b) return;
+  copyText(textOf(b.getAttribute('data-copy')), b);
+});
+
+/* ---------- 4) solution toggles ---------- */
+document.addEventListener('click', e=>{
+  const b = e.target.closest('[data-toggle]'); if(!b) return;
+  const box = document.getElementById(b.getAttribute('data-toggle')); if(!box) return;
+  box.classList.toggle('open');
+});
+
+/* =====================================================================
+   5) StepPlayer
+   ===================================================================== */
+let activePlayer = null;
+class StepPlayer{
+  constructor(root, cfg){
+    this.root = root; this.cfg = cfg; this.i = 0; this.timer = null;
+    this.answered = false; this.started = false; this.x2 = false;
+    root.classList.add('player','notstarted');
+    root.innerHTML = `
+      <div class="startovl">
+        <div style="text-align:center">
+          <button class="btn pri startbtn" style="font-size:1.02em;padding:8px 30px" aria-label="ابدأ الأنيميشن">▶ Start</button>
+          <div class="muted" style="font-size:.8em;margin-top:7px">Animation · <b class="tot">0</b> steps · ${cfg.title||''}</div>
+        </div>
+      </div>
+      <div class="pl-grid">
+        <div class="pl-code">
+          <div class="code-h"><span class="ttl">${cfg.title||''}</span><button class="cp" data-pl="copy">📋 Copy</button></div>
+          <pre class="cbody" dir="ltr"></pre>
+        </div>
+        <div class="pl-vis" style="overflow-x:auto"></div>
+      </div>
+      <div class="pl-note"><div class="why2">🎯 لماذا هذه الخطوة؟</div><div class="ntxt"></div></div>
+      <div class="pl-ask hide"><b class="qtxt"></b>
+        <div class="muted" style="font-size:.8em">أجب لتتابع — أو أطفئ «وضع التوقّع» لتشاهد بلا توقّف (الوضع الافتراضي: مشاهدة).</div>
+        <div class="opts"></div><div class="askfb"></div></div>
+      <div class="tr"></div>
+      <div class="pl-bar">
+        <span class="stepno mono ltr">Step 0 of 0</span>
+        <div class="strip" role="group" aria-label="خطوات الأنيميشن — اضغط خطوة للانتقال إليها"></div>
+        <button class="btn" data-a="prev" aria-label="خطوة للخلف">◀</button>
+        <button class="btn pri" data-a="next" aria-label="خطوة للأمام">▶❘</button>
+        <button class="btn" data-a="play" aria-label="تشغيل">▶</button>
+        <button class="btn" data-a="pause" aria-label="إيقاف">⏸</button>
+        <button class="btn" data-a="speed" aria-label="سرعة مضاعفة">1x</button>
+        <button class="btn" data-a="reset" aria-label="من البداية">⏮</button>
+        <label style="font-size:.8em;display:flex;gap:5px;align-items:center"><input type="checkbox" class="pred"> وضع التوقّع</label>
+      </div>`;
+    this.pre = $('pre.cbody', root); this.vis = $('.pl-vis', root); this.note = $('.ntxt', root);
+    this.askBox = $('.pl-ask', root); this.trBox = $('.tr', root);
+    this.strip = $('.strip', root); this.stepno = $('.stepno', root);
+    this.speedBtn = $('[data-a="speed"]', root); this.pred = $('.pred', root);
+    this.buildCode();
+    this.bind();
+    this.setSteps(cfg.steps, cfg.traceCols);
+    $('.tot', root).textContent = String(this.steps.length);
+  }
+  buildCode(){
+    const lines = (this.cfg.code||'').replace(/\s+$/,'').split('\n');
+    this.pre.innerHTML = lines.map((ln,idx)=>`<span class="cl" data-l="${idx+1}"><span class="cn">${idx+1}</span>${this.esc(ln)}</span>`).join('');
+  }
+  esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  setSteps(steps, cols){
+    this.steps = steps; this.cols = cols || []; this.i = 0; this.answered = false;
+    this.strip.innerHTML = steps.map((_,k)=>`<b data-s="${k}" title="الخطوة ${k+1}">${k+1}</b>`).join('');
+    Array.from(this.strip.children).forEach(b=>{
+      b.addEventListener('click', ()=>{ this.stop(); this.i = +b.getAttribute('data-s'); this.answered=false; this.render(); });
+    });
+    this.render();
+  }
+  bind(){
+    const root = this.root;
+    root.addEventListener('mouseenter', ()=>{ activePlayer = this; });
+    root.addEventListener('focusin', ()=>{ activePlayer = this; });
+    $('.startbtn', root).addEventListener('click', ()=>{ this.start(); });
+    $('[data-a="next"]',root).addEventListener('click', ()=>{ if(!this.started) this.start(); else this.next(); });
+    $('[data-a="prev"]',root).addEventListener('click', ()=>this.prev());
+    $('[data-a="reset"]',root).addEventListener('click', ()=>{ this.stop(); this.i=0; this.answered=false; this.render(); });
+    $('[data-a="play"]',root).addEventListener('click', ()=>this.play());
+    $('[data-a="pause"]',root).addEventListener('click', ()=>this.stop());
+    this.speedBtn.addEventListener('click', ()=>{
+      this.x2 = !this.x2;
+      this.speedBtn.textContent = this.x2 ? '2x' : '1x';
+      this.speedBtn.classList.toggle('pri', this.x2);
+    });
+    $('[data-pl="copy"]',root).addEventListener('click', (e)=>{ copyText(this.cfg.code||'', e.currentTarget); });
+  }
+  start(){
+    this.started = true;
+    this.root.classList.remove('notstarted'); this.root.classList.add('started');
+    this.i = 0; this.answered = false; this.render();
+    if(window.zbAnimStart) window.zbAnimStart(this.root.id);
+  }
+  next(){
+    if(this.askVisible() && !this.answered){ this.askBox.classList.add('shake'); return; }
+    if(this.i >= this.steps.length-1){ this.stop(); return; }
+    this.i++; this.answered=false; this.render();
+  }
+  prev(){ if(this.i>0){ this.i--; this.answered=false; this.render(); } }
+  play(){
+    if(!this.started) this.start();
+    this.stop();
+    const tick = ()=>{
+      if(this.i >= this.steps.length-1){ this.stop(); return; }
+      this.i++; this.answered = false; this.render();
+      const st = this.steps[this.i];
+      const blocked = this.pred.checked && st && st.ask;
+      this.timer = setTimeout(tick, blocked ? 999999 : (this.x2 ? 480 : 950));
+    };
+    this.timer = setTimeout(tick, this.x2 ? 480 : 950);
+    $('[data-a="play"]',this.root).textContent = '▶ يعمل…';
+  }
+  stop(){
+    if(this.timer){ clearTimeout(this.timer); this.timer=null; }
+    const b = $('[data-a="play"]',this.root); if(b) b.textContent='▶';
+  }
+  askVisible(){
+    const st = this.steps[this.i];
+    return !!(this.pred.checked && st && st.ask && !this.answered);
+  }
+  render(){
+    const st = this.steps[this.i] || {note:'', state:null};
+    this.stepno.textContent = `Step ${this.steps.length?this.i+1:0} of ${this.steps.length}`;
+    Array.from(this.strip.children).forEach((b,k)=>{
+      b.classList.toggle('seen', k<=this.i && k!==this.i);
+      b.classList.toggle('cur', k===this.i);
+    });
+    $$('.cl', this.pre).forEach(el=> el.classList.toggle('on', +el.getAttribute('data-l')===st.line));
+    this.vis.innerHTML = this.cfg.draw ? this.cfg.draw(st.state||{}) : '';
+    this.note.innerHTML = st.note || '';
+    if(this.cols.length){
+      let rows='';
+      for(let k=0;k<=this.i;k++){
+        const s2=this.steps[k]; if(!s2 || !s2.tr) continue;
+        rows += `<tr class="${k===this.i?'now':''}">`+s2.tr.map(c=>`<td>${c}</td>`).join('')+'</tr>';
+      }
+      this.trBox.innerHTML = `<table><thead><tr>${this.cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows||'<tr><td colspan="'+this.cols.length+'" class="muted">لم تُضَف صفوف بعد…</td></tr>'}</tbody></table>`;
+    } else { this.trBox.innerHTML=''; }
+    if(this.askVisible()){
+      this.askBox.classList.remove('hide');
+      $('.qtxt', this.askBox).textContent = st.ask.q;
+      const opts = $('.opts', this.askBox);
+      opts.innerHTML = st.ask.opts.map(o=>`<button class="btn" data-o="${o}">${o}</button>`).join('');
+      $('.askfb', this.askBox).textContent = '';
+      $('.askfb', this.askBox).className = 'askfb';
+      Array.from(opts.children).forEach(b=>{
+        b.addEventListener('click', ()=>{
+          const val = b.getAttribute('data-o');
+          const ok = String(val)===String(st.ask.ans);
+          Array.from(opts.children).forEach(x=>{ if(String(x.getAttribute('data-o'))===String(st.ask.ans)) x.classList.add('sel-ok'); });
+          if(!ok) b.classList.add('sel-bad');
+          const fb = $('.askfb', this.askBox);
+          fb.textContent = (ok?'✔ صحيح. ':'✘ ليس صحيحًا. ')+st.ask.why;
+          fb.className = 'askfb '+(ok?'ok':'bad');
+          this.answered = true;
+        });
+      });
+    } else { this.askBox.classList.add('hide'); }
+    if(this.started && this.i >= this.steps.length-1 && window.zbAnimDone) window.zbAnimDone(this.root.id);
+  }
+}
+
+/* ---------- data-structure views ---------- */
+function cloneSlots(s){ return s.map(c=>c.map(p=>({k:p.k,name:p.name}))); }
+function drawHash(st){
+  const slots = st.slots || [], M = slots.length, rh = 38, W = 440, H = M*rh + 12;
+  let s = `<svg class="dsvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="حالة جدول التجزئة، ${M} حقلًا">`;
+  s += `<text x="${W-6}" y="9" text-anchor="end" font-size="11" style="fill:var(--ink2)" transform="translate(0,-2)">M = ${M}</text>`;
+  for(let i=0;i<M;i++){
+    const y = 12 + i*rh, hl = st.hl===i;
+    s += `<rect x="356" y="${y}" width="52" height="28" rx="7" style="fill:${hl?'var(--accent)':'var(--surface)'};stroke:var(--border)"/>`;
+    s += `<text x="382" y="${y+19}" text-anchor="middle" font-size="13" style="fill:${hl?'#fff':'var(--ink2)'}">${i}</text>`;
+    let x = 348;
+    (slots[i]||[]).forEach(p=>{
+      const w = Math.max(90, 7.4*String(p.name).length + 46);
+      x -= w + 5;
+      const isNew = (st.newK!=null && p.k===st.newK);
+      s += `<rect x="${x}" y="${y}" width="${w}" height="28" rx="14" style="fill:${isNew?'#F3D9B0':'var(--asoft)'};stroke:${isNew?'#C98A32':'var(--accent)'}"/>`;
+      s += `<text x="${x+w/2}" y="${y+19}" text-anchor="middle" font-size="12" style="fill:var(--ink)">${p.k} · ${p.name}</text>`;
+    });
+    if(!(slots[i]||[]).length){ s += `<text x="340" y="${y+19}" text-anchor="end" font-size="11.5" style="fill:var(--ink2);opacity:.55">—</text>`; }
+  }
+  s += '</svg>';
+  return s;
+}
+function drawPipe(st){
+  const stage = st.stage||0;
+  const cells = ['key = '+ (st.key||'—'), 'h(key) = '+(st.h||'?'), 'i = h % M = '+(st.i!=null?st.i:'?'), 'slots['+(st.i!=null?st.i:'?')+'] = '+(st.v!=null?st.v:'?')];
+  let s = `<svg class="dsvg" viewBox="0 0 440 ${120+(st.slots? (st.slots.length*30+14):0)}" role="img" aria-label="مسار المفتاح إلى الحقل">`;
+  s += `<text x="432" y="14" text-anchor="end" font-size="11" style="fill:var(--ink2)">M = ${st.M||8}</text>`;
+  cells.forEach((c,idx)=>{
+    const y = 22 + idx*24, on = (stage>idx);
+    s += `<rect x="${250-(idx*0)}" y="${y}" width="180" height="20" rx="6" style="fill:${on?'var(--accent)':'var(--card)'};stroke:${on?'var(--accent)':'var(--border)'}"/>`;
+    s += `<text x="432" y="${y+14}" text-anchor="end" font-size="11" style="fill:${on?'#fff':'var(--ink2)'}">${c}</text>`;
+  });
+  if(st.slots){
+    const M = st.slots.length, top = 122;
+    for(let i=0;i<M;i++){
+      const x = 20 + i*30, y = top, hl = st.hl===i;
+      s += `<rect x="${x}" y="${y}" width="26" height="26" rx="4" style="fill:${hl?'var(--accent)':'var(--surface)'};stroke:var(--border)"/>`;
+      s += `<text x="${x+13}" y="${y+38}" text-anchor="middle" font-size="10" style="fill:var(--ink2)">${i}</text>`;
+      if((st.slots[i]||[]).length) s += `<text x="${x+13}" y="${y+17}" text-anchor="middle" font-size="9.5" style="fill:${hl?'#fff':'var(--ink)'}">${st.slots[i][0].name.slice(0,4)}</text>`;
+    }
+  }
+  s += '</svg>'; return s;
+}
+
+/* CORE v1.0 END:js1 */
+/* ---------- builders ---------- */
+function buildTrace(entries, M){
+  const slots = Array.from({length:M},()=>[]);
+  const snap = (hl,newK)=>({M, slots:cloneSlots(slots), hl:(hl==null?-1:hl), newK:newK==null?null:newK});
+  const steps = [];
+  steps.push({line:1, state:snap(), note:`نبدأ بجدول فارغ: ${M} حقلًا، ولا سجلات. كل ما نحتاجه دالة واحدة: h(key) = key % ${M}.`});
+  entries.forEach(it=>{
+    const i = ((it.k % M) + M) % M;
+    steps.push({line:3, state:snap(i), note:`المفتاح ${it.k}: نحسب ${it.k} % ${M} = <b>${i}</b>. لا مقارنة ولا مسح — الحقل نتيجة حساب.`,
+      ask:{q:`قبل الكشف: أي حقل سيأخذ المفتاح ${it.k}؟`, opts:Array.from({length:M},(_,z)=>z), ans:i, why:`${it.k} % ${M} = ${i} (والباقي دائمًا بين 0 و ${M-1}).`}});
+    const taken = slots[i].length>0;
+    const first = taken ? slots[i][0] : null;
+    slots[i].push({k:it.k,name:it.name});
+    steps.push({line: taken?5:6, state:snap(i,it.k),
+      note: taken
+        ? `الحقل ${i} كان مشغولًا بـ(${first.k}, ${first.name}) → <b>تصادم</b>. نضع (${it.k}, ${it.name}) في الحقل نفسه: هذا سلوك p.6 «collisions share a slot for now»، وليس حلًّا نهائيًا للتصادم.`
+        : `الحقل ${i} فارغ → نضع (${it.k}, ${it.name}) فيه مباشرة. انتهت العملية بحساب واحد.`,
+      tr:[it.k, `${it.k} % ${M} = ${i}`, i, taken?'✗ تصادم':'✓ فارغ', `slot ${i}`+(taken?' (مشترك)':'')]});
+  });
+  const sk = 7, si = ((sk%M)+M)%M, found = slots[si]||[];
+  steps.push({line:8, state:snap(si), note:`بحث عن المفتاح ${sk}: ${sk} % ${M} = <b>${si}</b> → نذهب إلى الحقل ${si} مباشرة (نفس الدالة، نفس النتيجة).`});
+  const looks = found.length ? found.findIndex(p=>p.k===sk)+1 : 1;
+  steps.push({line:9, state:snap(si), note:`الحقل ${si} يحوي ${found.map(p=>`(${p.k}, ${p.name})`).join(' · ')||'لا شيء'} → ${found.length? `نجد (${sk}, ${found[found.length-1].name}) بعد ${looks===1?'سجل واحد':looks+' سجلات'} فقط.`:'غير موجود.'} وبقية الحقول (${M-1}) لم تُلمس إطلاقًا: هذه هي <b>O(1)</b>.`});
+  return steps;
+}
+const TRACE_COLS = ['key','k % M','slot','الحالة','الموضع'];
+
+const P6_CODE =
+`slots = [[] for _ in range(M)]    # M حقلًا، كل حقل قائمة
+def place(key, name):
+    i = key % M                   # home slot = h(key)
+    if slots[i]:                  # الحقل مشغول؟
+        collision = True          # تصادم (p.6: share a slot for now)
+    slots[i].append((key, name))  # نضع السجل في الحقل i
+def find(key):
+    i = key % M                   # نفس الحساب تمامًا
+    return slots[i]               # نظرة واحدة على حقل واحد`;
+
+const P6_ENTRIES = [
+  {k:1,name:'Ali'},{k:3,name:'Raad'},{k:7,name:'Abdullah'},{k:25,name:'Saad'},
+  {k:15,name:'Saeed'},{k:4,name:'Waleed'},{k:12,name:'Sami'}
+];
+
+const plTrace = new StepPlayer($('#pl-trace'), {
+  title:'7 records · M = 7 · home slot = key % 7 (p.6)',
+  code:P6_CODE, steps:buildTrace(P6_ENTRIES,7), traceCols:TRACE_COLS, draw:drawHash
+});
+
+/* pipeline player (p.5) */
+const pipeBase = Array.from({length:8},()=>[]);
+pipeBase[1].push({k:'?',name:'ali'}); pipeBase[6].push({k:'?',name:'sara'});
+function pipeState(o){ return Object.assign({M:8, slots:cloneSlots(pipeBase), hl:-1, stage:0, key:"'omar'", h:'4 206 …', i:null, v:null}, o); }
+const PIPE_STEPS = [
+  {line:1, state:pipeState({stage:1}), tr:['1 · key',"نصّ: 'omar'"], note:"المفتاح هنا <b>نصّ</b> لا رقم: <span class='mono ltr'>'omar'</span>. في الجدول الحالي حقلان مشغولان: ali في 1 وsara في 6."},
+  {line:2, state:pipeState({stage:2}), tr:['2 · h(key)','4 206 … (رقم كبير)'], note:"المرحلة الأولى: <span class='mono ltr'>hash('omar')</span> يعطي عددًا صحيحًا ضخمًا (4 206 …). هذه وظيفة Python، وتفصيلها في p.7."},
+  {line:3, state:pipeState({stage:3, i:3}), tr:['3 · % M','4 206 … % 8 = 3'], note:"المرحلة الثانية: نضغط الرقم إلى مجال الحقول بـ <span class='mono ltr'>% M</span>. مع M = 8 صار الحقل <b>3</b>."},
+  {line:4, state:pipeState({stage:4, i:3, v:90, hl:3}), tr:['4 · insert','slots[3] = 90'], note:"الإدراج: نضع القيمة في الحقل 3. لا مسح لأي حقل آخر."},
+  {line:5, state:pipeState({stage:4, i:3, v:90, hl:3}), tr:['5 · look up','slots[3] = 90 (نفس الحقل)'], note:"البحث يستخدم <b>نفس الخطوتين</b>: نفس الدالة → نفس الحقل 3 → نفس القيمة. لهذا يسمّى الجدول «self-indexing»: مكان التخزين ومكان البحث شيء واحد."}
+];
+new StepPlayer($('#pl-pipe'), {
+  title:'pipeline: key → h(key) → slot (p.5)',
+  code:`key = 'omar'          # المفتاح (نصّ)
+h  = hash(key)         # المرحلة 1: رقم كبير (p.7)
+i  = h % M             # المرحلة 2: ضغط إلى 0..M-1
+slots[i] = 90          # INSERT
+v  = slots[i]          # LOOK UP — نفس الخطوتين`,
+  steps:PIPE_STEPS, traceCols:['المرحلة','ما يحدث'], draw:drawPipe
+});
+
+/* keyboard for the active player */
+document.addEventListener('keydown', e=>{
+  if(!activePlayer || /input|textarea|select/i.test(e.target.tagName)) return;
+  if(e.key==='ArrowLeft'){ e.preventDefault(); activePlayer.next(); }
+  else if(e.key==='ArrowRight'){ e.preventDefault(); activePlayer.prev(); }
+  else if(e.code==='Space'){ e.preventDefault(); activePlayer.stop(); activePlayer.next(); }
+});
+activePlayer = plTrace;
+
+/* =====================================================================
+   6) self-tests  →  badges
+   ===================================================================== */
+function slotsOf(keys,M){ return keys.map(k=>((k%M)+M)%M); }
+function collisionsOf(keys,M){ const seen={}, out=[]; keys.forEach(k=>{ const i=((k%M)+M)%M; if(seen[i]!==undefined) out.push(k); else seen[i]=k; }); return out; }
+function findLook(entries,M,k){
+  const slots=Array.from({length:M},()=>[]);
+  entries.forEach(e=>{ const i=((e.k%M)+M)%M; slots[i].push(e); });
+  const i=((k%M)+M)%M, c=slots[i].find(e=>e.k===k);
+  return {slot:i, name:c?c.name:null, looks:c?slots[i].indexOf(c)+1:1};
+}
+(function selfTests(){
+  const tests = [
+    {name:'حقول السجلات السبعة (M = 7)', slide:'p.6', got:()=>slotsOf([1,3,7,25,15,4,12],7).join(','), want:'1,3,0,4,1,4,5'},
+    {name:'المفاتيح المتصادمة فقط', slide:'p.6', got:()=>collisionsOf([1,3,7,25,15,4,12],7).join(' و '), want:'15 و 4'},
+    {name:'بحث المفتاح 7 → الحقل والاسم وعدد النظرات', slide:'p.6', got:()=>{const r=findLook(P6_ENTRIES,7,7); return `${r.slot} / ${r.name} / ${r.looks}`;}, want:'0 / Abdullah / 1'},
+    {name:'عدد السجلات n وعدد الحقول M', slide:'p.6', got:()=>`${P6_ENTRIES.length} / 7`, want:'7 / 7'},
+    {name:'المفتاح 15 في M = 11 (مقارنة عرضية)', slide:'p.6', got:()=>String(15%11), want:'4'}
+  ];
+  let html='', ok=0;
+  tests.forEach(t=>{
+    let got; try{ got=t.got(); }catch(e){ got='ERR'; }
+    const pass = String(got)===String(t.want);
+    if(pass) ok++;
+    html += `<div class="chk" style="margin:3px 0"><span>${pass?'✔':'✘'}</span>
+      <span>${t.name}: <span class="mono ltr">${got}</span>
+      ${pass?`<span class="tagx" style="color:var(--ok);border-color:var(--ok)">✔ مطابق للشريحة ${t.slide}</span>`
+            :`<span class="tagx" style="color:var(--bad);border-color:var(--bad)">متوقّع ${t.want}</span>`}</span></div>`;
+  });
+  html += `<p class="muted" style="margin:8px 0 0">نتيجة الاختبارات الذاتية: <b>${ok}/${tests.length}</b> — تُشغَّل تلقائيًا عند كل تحميل، وتقارن مخرجات المولّد بأرقام الشرائح لا العكس.</p>`;
+  $('#stBody').innerHTML = html;
+})();
+
+/* =====================================================================
+   7) sandbox
+   ===================================================================== */
+$('#sbGo').addEventListener('click', ()=>{
+  const raw = $('#sbKeys').value.trim();
+  let M = parseInt($('#sbM').value,10);
+  if(!(M>=2 && M<=12)){ $('#sbOut').innerHTML='<span class="bad" style="color:var(--bad)">M يجب أن يكون بين 2 و12.</span>'; return; }
+  const keys = raw.split(/[,،\s]+/).filter(Boolean).map(Number).filter(n=>Number.isFinite(n));
+  if(!keys.length){ $('#sbOut').innerHTML='<span style="color:var(--bad)">أدخل مفتاحًا واحدًا على الأقل.</span>'; return; }
+  const entries = keys.map(k=>({k, name:'k'+k}));
+  const steps = buildTrace(entries,M);
+  plTrace.setSteps(steps, TRACE_COLS);
+  const cols = collisionsOf(keys,M);
+  const used = new Set(slotsOf(keys,M)).size;
+  $('#sbOut').innerHTML = `<div style="font-size:.94em">
+    <div>المفاتيح: <span class="mono ltr">[${keys.join(', ')}]</span> · M = <b>${M}</b></div>
+    <div>حقول مستخدمة: <b>${used}</b> من ${M} · حقول فارغة: <b>${M-used}</b></div>
+    <div>تصادمات: <b style="color:var(--warn)">${cols.length}</b> ${cols.length?'→ '+cols.map(k=>`<span class="pill bad">${k}</span>`).join(''):''}</div>
+    <div class="muted" style="margin-top:6px">تم تحميل التتبّع في المشغّل أعلاه (${steps.length} خطوة). جرّب M آخر ولاحظ كيف تتغيّر التصادمات.</div></div>`;
+});
+$('#sbReset').addEventListener('click', ()=>{
+  $('#sbKeys').value='1,3,7,25,15,4,12'; $('#sbM').value='7';
+  plTrace.setSteps(buildTrace(P6_ENTRIES,7), TRACE_COLS);
+  $('#sbOut').innerHTML='<span class="muted">تمت استعادة مثال الشريحة p.6.</span>';
+});
+
+/* =====================================================================
+   8) race / cost / box machine
+   ===================================================================== */
+$('#raceGo').addEventListener('click', ()=>{
+  const n = Math.max(4, Math.min(2000000, parseInt($('#raceN').value,10)||1000));
+  const k = parseInt($('#raceK').value,10)||1;
+  const pos = (Math.abs(k*7919) % n) + 1;
+  const out = $('#raceOut');
+  out.innerHTML = `<div class="mono ltr" style="font-size:.9em">scan… / hash…</div>`;
+  let scan=0; const hashStep = 1;
+  const t = setInterval(()=>{
+    scan = Math.min(pos, scan + Math.ceil(pos/22));
+    const wp = pos? (scan/pos*100):0, wh = 100;
+    out.innerHTML = `<div style="font-size:.9em">
+      <div style="display:flex;justify-content:space-between"><span>المسح الخطي</span><b class="mono">${scan}</b></div>
+      <div class="tbar" style="margin:3px 0 8px"><i style="width:${Math.min(100,scan/Math.max(pos,1)*100)}%;background:var(--bad)"></i></div>
+      <div style="display:flex;justify-content:space-between"><span>الجدول الهاشي</span><b class="mono">${hashStep}</b></div>
+      <div class="tbar" style="margin:3px 0 8px"><i style="width:${wh}%;background:var(--accent)"></i></div>
+      ${scan>=pos?`<div class="note ok" style="margin:6px 0 0"><b>النتيجة:</b> المسح احتاج <b>${pos}</b> مقارنة، والجدول حساب واحد + نظرة واحدة. نسبة العمل = <span class="mono ltr">${pos} : 1</span>.</div>`:''}
+    </div>`;
+    if(scan>=pos) clearInterval(t);
+  }, 45);
+});
+$('#costGo').addEventListener('click', ()=>{
+  const n = Math.max(1, parseInt($('#costN').value,10)||1);
+  const lg = Math.ceil(Math.log2(n+1));
+  $('#costOut').innerHTML = `<div class="tw"><table>
+    <thead><tr><th>الطريقة</th><th>عدد العمليات</th><th>التعقيد</th></tr></thead><tbody>
+    <tr><td>مسح خطي</td><td class="ltr">${n.toLocaleString('en-US')}</td><td class="ltr">O(n)</td></tr>
+    <tr><td>بحث ثنائي (مرتّبة)</td><td class="ltr">${lg}</td><td class="ltr">O(log n)</td></tr>
+    <tr><td>إدراج في قائمة مرتّبة</td><td class="ltr">~${Math.ceil(n/2).toLocaleString('en-US')} إزاحة</td><td class="ltr">O(n)</td></tr>
+    <tr><td><strong>جدول تجزئة</strong></td><td class="ltr">1</td><td class="ltr">O(1) average</td></tr>
+    </tbody></table></div>`;
+});
+$('#boxGo').addEventListener('click', ()=>{
+  const s = ($('#boxKey').value||'').trim();
+  if(!s){ $('#boxOut').innerHTML='<span style="color:var(--bad)">اكتب كلمة أولًا.</span>'; return; }
+  const codes = Array.from(s).map(ch=>ch.charCodeAt(0));
+  const sum = codes.reduce((a,b)=>a+b,0);
+  const slot = ((sum%7)+7)%7;
+  $('#boxOut').innerHTML = `<div style="font-size:.92em">
+    <div>char codes: <span class="mono">[${codes.join(', ')}]</span></div>
+    <div>sum = <b class="mono">${sum}</b></div>
+    <div>${sum} % 7 = <b class="mono" style="color:var(--accent)">${slot}</b> → الصندوق <b>${slot}</b></div>
+    <div class="muted" style="margin-top:6px">هذه دالة تعليمية فقط؛ <span class="mono">hash('omar')</span> في Python رقم مختلف تمامًا (p.7).</div></div>`;
+});
+$('#boxGo').click();
+
+/* =====================================================================
+   10) bug hunt
+   ===================================================================== */
+(function bugHunt(){
+  const WRONG = 3;
+  const box = $('#bhCode'), fb = $('#bhFb');
+  let answered=false;
+  box.addEventListener('click', e=>{
+    const b = e.target.closest('.ln'); if(!b || answered) return;
+    const i = +b.getAttribute('data-i');
+    answered = true;
+    if(i===WRONG){
+      b.classList.add('chosen'); fb.innerHTML = `<div class="note ok">
+        <span class="nh">✔ أصبت — السطر 3 هو الخطأ</span>
+        <div><b>❌ Wrong:</b> <span class="mono ltr">for chain in self._slots:</span> يمرّ على <b>كل</b> الحقول، فيصبح البحث O(n) ويُلغي سبب وجود الجدول.</div>
+        <div><b>Why it fails:</b> الحقل محسوب مسبقًا في السطر 2 (<span class="mono ltr">i = self._index(key)</span>)؛ فحص بقية الحقول عمل زائد تمامًا ويعيد التعقيد إلى O(n).</div>
+        <div><b>✅ Fix:</b> <span class="mono ltr">for k, v in self._slots[i]:</span> — سلسلة واحدة فقط.</div>
+        <div class="muted">المصدر: p.31 — «Scanning all slots in get(): defeats the purpose → only scan slot _index(key)».</div></div>`;
+    } else {
+      b.classList.add('chosen');
+      const w = $('.ln[data-i="3"]', box); if(w) w.classList.add('fixed');
+      fb.innerHTML = `<div class="note bad">
+        <span class="nh">✘ ليس هذا السطر</span>
+        <div>السطر الذي يهدم التعقيد هو <b>3</b>: <span class="mono ltr">for chain in self._slots</span> — يمرّ على كل الحقول بدل حقل واحد.</div>
+        <div><b>✅ Fix:</b> <span class="mono ltr">for k, v in self._slots[i]:</span></div></div>`;
+    }
+  });
+})();
+
+/* =====================================================================
+   11) quiz engine + weak spots
+   ===================================================================== */
+const QUIZ = [
+  {topic:'Map', q:'أي تعبير يعطي <b>عدد الأزواج</b> المخزّنة في قاموس بايثون <span class="mono ltr">d</span>؟',
+   opts:['<span class="mono ltr">len(d)</span>','<span class="mono ltr">d.size()</span>','<span class="mono ltr">d.capacity</span>','<span class="mono ltr">len(d.keys)</span>'], a:0,
+   why:'p.3: <span class="mono ltr">len(map)</span> = «number of pairs». السعة M شيء داخلي لا يعرضه هذا التعبير.'},
+  {topic:'Cost', q:'ما تكلفة <b>الإدراج</b> في قائمة مرتّبة مع الحفاظ على الترتيب؟',
+   opts:['<span class="mono ltr">O(1)</span>','<span class="mono ltr">O(log n)</span>','<span class="mono ltr">O(n)</span>','<span class="mono ltr">O(n log n)</span>'], a:2,
+   why:'p.2–3: البحث الثنائي O(log n) لكن «inserting in the middle is O(n)» بسبب الإزاحة.'},
+  {topic:'Hash function', q:'ما قيمة <span class="mono ltr">15 % 7</span>؟',
+   opts:['<span class="mono ltr">1</span>','<span class="mono ltr">2</span>','<span class="mono ltr">7</span>','<span class="mono ltr">0</span>'], a:0,
+   why:'15 = 2×7 + 1 → الباقي 1. وهذا هو حقل المفتاح 15 في p.6.'},
+  {topic:'Hash function', q:'ما قيمة <span class="mono ltr">7 % 7</span>؟ (المفتاح 7 في p.6)',
+   opts:['<span class="mono ltr">7</span>','<span class="mono ltr">1</span>','<span class="mono ltr">0</span>','<span class="mono ltr">−7</span>'], a:2,
+   why:'الباقي دائمًا أصغر من المقسوم عليه: 7 % 7 = 0، ولهذا يسكن المفتاح 7 الحقل 0.'},
+  {topic:'Collision', q:'في مثال p.6، أي مفتاحين يتصادمان؟',
+   opts:['<span class="mono ltr">1</span> و<span class="mono ltr">7</span>','<span class="mono ltr">15</span> و<span class="mono ltr">4</span>','<span class="mono ltr">25</span> و<span class="mono ltr">12</span>','<span class="mono ltr">3</span> و<span class="mono ltr">4</span>'], a:1,
+   why:'15 % 7 = 1 (الحقل 1 محجوز بـ1)، و4 % 7 = 4 (الحقل 4 محجوز بـ25).' },
+  {topic:'Trace', q:'في p.6، كم حقلًا نفتح للبحث عن المفتاح 7؟',
+   opts:['حقل واحد','حقلان','ثلاثة حقول','سبعة حقول'], a:0,
+   why:'7 % 7 = 0 → الحقل 0 مباشرة، ونجد (7, Abdullah). «One computation, one look».'},
+  {topic:'Collision', q:'<b>صواب/خطأ:</b> «التصادم يمكن منعه بدالة تجزئة جيدة»',
+   opts:['صواب','خطأ'], a:1,
+   why:'p.10: عدد المفاتيح الممكنة أكبر بكثير من عدد الحقول، فالتصادم حتمي؛ الدالة الجيدة تؤجّله ولا تمنعه.'},
+  {topic:'Cost', q:'<b>صواب/خطأ:</b> «البحث في الجدول الهاشي مضمون O(1) في كل الحالات»',
+   opts:['صواب','خطأ'], a:1,
+   why:'p.5 تقول O(1) on average، وp.27 تعطي worst = O(n) إذا تجمّعت المفاتيح في حقل واحد.'},
+  {topic:'Map', q:'جدول سعته <span class="mono ltr">M = 11</span> وفيه 7 أزواج. ماذا يعطي <span class="mono ltr">len(d)</span>؟',
+   opts:['<span class="mono ltr">11</span>','<span class="mono ltr">7</span>','<span class="mono ltr">4</span>','<span class="mono ltr">18</span>'], a:1,
+   why:'عدد الأزواج = 7. أما 11 فهي السعة M، ونسبتهما لاحقًا هي λ = n/M.'},
+  {topic:'Trace', q:'ماذا يطبع هذا الكود؟<br><span class="mono ltr">M = 7<br>for k in [1, 15, 4, 25]: print(k % M, end=" ")</span>',
+   opts:['<span class="mono ltr">1 15 4 25</span>','<span class="mono ltr">1 1 4 4</span>','<span class="mono ltr">1 2 4 4</span>','<span class="mono ltr">0 1 4 7</span>'], a:1,
+   why:'1%7=1، 15%7=1، 4%7=4، 25%7=4. الأرقام 15 و25 تُختزل إلى 1 و4 — وهذا سبب التصادمين في p.6.'},
+  {topic:'Hash function', q:'ما الخطوتان اللتان تحوّلان <span class="mono ltr">\'omar\'</span> إلى الحقل 3؟',
+   opts:['المقارنة ثم الترتيب','hash code ثم compression بـ % M','القسمة ثم الضرب','البحث الثنائي ثم التجزئة'], a:1,
+   why:'p.5 + p.7: المرحلة الأولى تحوّل المفتاح إلى عدد صحيح ضخم، والثانية تضغطه إلى 0..M−1.'},
+  {topic:'Collision', q:'أي عبارة <b>صحيحة</b> عن حقل المفتاح؟',
+   opts:['يعتمد على المفتاح وحده','يعتمد على المفتاح و M والدالة','يساوي المفتاح دائمًا','ثابت لكل المفاتيح'], a:1,
+   why:'15 % 7 = 1 لكن 15 % 11 = 4: الحقل دالة في (المفتاح، M، الدالة) — ولهذا تتغيّر الحقول عند rehashing (p.26).'}
+];
+
+const quizWrap = $('#quizWrap');
+let graded = false, lastWrongIds = [], memHist = [];
+
+function renderQuiz(filterIds){
+  const list = QUIZ.map((q,i)=>({q,i})).filter(o=> !filterIds || filterIds.includes(o.i));
+  graded = false;
+  if(!list.length){
+    quizWrap.innerHTML = `<div class="note ok">لا توجد أخطاء سابقة — كل الأسئلة صحيحة في محاولتك الأخيرة ✔</div>`;
+    return;
+  }
+  quizWrap.innerHTML = list.map(({q,i})=>`
+    <div class="q" data-q="${i}">
+      <div class="qh"><span class="qn">Q${i+1}</span><span>${q.q}</span>
+        <span class="pill">${q.topic}</span></div>
+      ${q.opts.map((o,j)=>`<label data-o="${j}"><input type="radio" name="q${i}" value="${j}"> ${o}</label>`).join('')}
+      <div class="qfb" id="fb${i}"></div>
+    </div>`).join('');
+}
+quizWrap.addEventListener('change', e=>{
+  if(e.target.type!=='radio') return;
+  const qd = e.target.closest('.q'); if(!qd) return;
+  qd.querySelectorAll('label').forEach(l=>l.classList.remove('pick'));
+  const lab = e.target.closest('label'); if(lab) lab.classList.add('pick');
+});
+
+function gradeQuiz(){
+  if(graded) return;
+  graded = true;
+  const qs = Array.from(quizWrap.querySelectorAll('.q'));
+  let correct=0, wrong=[], topicCount={};
+  qs.forEach(qd=>{
+    const i = +qd.getAttribute('data-q'), q = QUIZ[i];
+    const picked = qd.querySelector('input:checked');
+    const val = picked? +picked.value : -1;
+    qd.querySelectorAll('label').forEach(l=>{
+      const j = +l.getAttribute('data-o');
+      if(j===q.a) l.classList.add('correct');
+      if(j===val && val!==q.a) l.classList.add('wrong');
+    });
+    const fb = qd.querySelector('.qfb');
+    if(val===q.a){ correct++; fb.innerHTML = `<b style="color:var(--ok)">✔ صحيح.</b> ${q.why}`; }
+    else {
+      wrong.push(i); topicCount[q.topic]=(topicCount[q.topic]||0)+1;
+      fb.innerHTML = `<b style="color:var(--bad)">✘ إجابة خاطئة${val<0?' (لم تختر)':''} — الصحيح: <span class="mono ltr">${String.fromCharCode(65+q.a)}</span></b>
+        <div>${q.why}</div>`;
+    }
+    fb.classList.add('show');
+  });
+  const total = qs.length;
+  $('#scoreVal').textContent = `${correct} / ${total}`;
+  const pct = total? Math.round(correct/total*100):0;
+  $('#scoreMsg').textContent = pct===100? '— ممتاز، الوحدة محفوظة.' : pct>=75? '— جيد؛ راجع الأخطاء فقط.' : pct>=50? '— تحتاج مراجعة قسمي p.4–p.6.' : '— أعد قراءة الوحدة ثم أعد المحاولة.';
+  lastWrongIds = wrong;
+  // persist
+  const rec = {t:new Date().toISOString().slice(0,16), score:correct, total, wrong, topics:topicCount};
+  const hist = LS.get(KEY+'quiz',[]);
+  hist.push(rec); LS.set(KEY+'quiz', hist.slice(-10));
+  memHist.push(rec); paintWeak();
+}
+
+function histAll(){
+  const stored = LS.get(KEY+'quiz',[]);
+  if(!memHist.length) return stored;
+  if(!stored.length) return memHist.slice(-10);
+  // ادمج بلا تكرار على (الوقت + النتيجة)
+  const seen = new Set(stored.map(h=>h.t+'|'+h.score+'|'+h.total));
+  return stored.concat(memHist.filter(h=>!seen.has(h.t+'|'+h.score+'|'+h.total))).slice(-10);
+}
+function paintWeak(){
+  const hist = histAll();
+  const body = $('#weakBody');
+  if(!hist.length){ body.innerHTML='<span class="muted">لم تُصحَّح أي محاولة بعد.</span>'; return; }
+  const agg={};
+  hist.forEach(h=>Object.entries(h.topics||{}).forEach(([k,v])=>{ agg[k]=(agg[k]||0)+v; }));
+  const last = hist[hist.length-1];
+  const rows = Object.entries(agg).sort((a,b)=>b[1]-a[1]);
+  body.innerHTML = `
+    <div style="font-size:.94em">آخر محاولة: <b>${last.score}/${last.total}</b> · <span class="muted">${last.t}</span> · عدد المحاولات المحفوظة: ${hist.length}</div>
+    <div style="margin-top:6px">${rows.length? rows.map(([k,v])=>`<span class="pill bad">${k} ×${v}</span>`).join('') : '<span class="pill" style="color:var(--ok);border-color:var(--ok)">لا مواضيع ضعيفة ✔</span>'}</div>
+    ${rows.length? `<div class="muted" style="margin-top:6px">ابدأ بـ: ${rows[0][0]} — أعد قراءة القسم المتعلق به ثم اضغط «راجع الأخطاء فقط».</div>`:''}`;
+}
+$('#gradeBtn').addEventListener('click', gradeQuiz);
+$('#retryBtn').addEventListener('click', ()=>{ renderQuiz(null); $('#scoreVal').textContent='—'; $('#scoreMsg').textContent=''; });
+$('#onlyWrong').addEventListener('click', ()=>{
+  const hist = histAll();
+  const wrong = hist.length? hist[hist.length-1].wrong : [];
+  if(!wrong.length){ quizWrap.innerHTML = `<div class="note warn">لا أخطاء مسجّلة بعد. صحّح الاختبار أولًا، أو لا توجد أخطاء في آخر محاولة ✔</div>`; return; }
+  renderQuiz(wrong);
+});
+$('#showAll').addEventListener('click', ()=>renderQuiz(null));
+$('#clearHist').addEventListener('click', ()=>{ LS.del(KEY+'quiz'); memHist=[]; paintWeak(); quizWrap.innerHTML=''; renderQuiz(null); });
+renderQuiz(null);
+paintWeak();
+
+/* =====================================================================
+   12) checklist
+   ===================================================================== */
+(function checklist(){
+  const items = [
+    'أستطيع كتابة تعريف الجدول الهاشي بالإنجليزية كما في p.5.',
+    'أعرف تكلفة البحث والإدراج في: مسح، قائمة مرتّبة، جدول تجزئة (p.2).',
+    'أعدّد عمليات Map ADT الخمس (p.3).',
+    'أحسب h(k) = k % M يدويًا بلا آلة، وأعرف أن 7 % 7 = 0 (p.6).',
+    'أشرح لماذا التصادم حتمي ولا يمكن منعه (p.10).',
+    'أنفّذ تتبّع السجلات السبعة وأحدّد الحقل المشترك (p.6).',
+    'أفسّر معنى «O(1) on average» وأذكر الحالة الأسوأ O(n) (p.5, p.27).',
+    'أشرح لماذا تجميع المتصادمَين في حقل واحد في p.6 ليس حلًّا نهائيًا.'
+  ];
+  const saved = LS.get(KEY+'check',[]);
+  $('#checkList').innerHTML = items.map((t,i)=>`
+    <label class="chk"><input type="checkbox" data-ci="${i}" ${saved.includes(i)?'checked':''}><span>${t}</span></label>`).join('')
+    + `<div class="muted" style="margin-top:6px" id="chkTxt"></div>`;
+  const paint=()=>{
+    const s = Array.from(document.querySelectorAll('[data-ci]:checked')).map(x=>+x.getAttribute('data-ci'));
+    LS.set(KEY+'check', s);
+    $('#chkTxt').textContent = `أنجزت ${s.length} من ${items.length} — ${s.length===items.length?'جاهز للامتحان ✔':'أكمل الباقي قبل الانتقال إلى M02'}`;
+  };
+  document.querySelectorAll('[data-ci]').forEach(c=>c.addEventListener('change', paint));
+  paint();
+})();
+})();
+</script>
+
+<script>
+/* CORE v1.0 START:js2a — مساعدات طبقة zyBooks */
+/* =====================================================================
+   zyBOOKS-STYLE LAYER (v2)
+   - ترقيم الأقسام والأنشطة (1.1 / 1.2.1 …)
+   - Participation Activities  (Check / Show answer / تفويت النقطة)
+   - Animation hooks           (Start → Step N of M → إتمام)
+   - Challenge Activity (5 مستويات + Jump to level + شريط ✔)
+   - تتبّع الإتمام لكل قسم + في الفهرس + في الشريط العلوي
+   ===================================================================== */
+(function(){
+"use strict";
+const $ = (s,r)=> (r||document).querySelector(s);
+const $$ = (s,r)=> Array.from((r||document).querySelectorAll(s));
+const LS = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } }
+};
+const KEY = 'cs2015.m01.zb';
+const ZBS = Object.assign({pa:{}, anim:{}, ca:{lv:0, passed:[]}, sandbox:false, quiz:false}, LS.get(KEY,{}));
+const save = ()=>{ LS.set(KEY, ZBS); paintAll(); };
+
+/* CORE v1.0 END:js2a */
+/* ---------- 1) section numbering + activity bars (محتوى) ---------- */
+const SECS = [
+  {id:'p1',        num:'1.1',  acts:['pa:1.1.1']},
+  {id:'p2',        num:'1.2',  acts:['pa:1.2.1']},
+  {id:'p3',        num:'1.3',  acts:['pa:1.3.1']},
+  {id:'p4',        num:'1.4',  acts:['pa:1.4.1']},
+  {id:'p5',        num:'1.5',  acts:['pa:1.5.1','anim:pl-pipe']},
+  {id:'p6',        num:'1.6',  acts:['pa:1.6.1','anim:pl-trace','sandbox']},
+  {id:'traps',     num:'1.7',  acts:[]},
+  {id:'challenge', num:'1.8',  acts:['ca:1.8.1']},
+  {id:'summary',   num:'1.9',  acts:[]},
+  {id:'quiz',      num:'1.10', acts:['quiz']}
+];
+/* CORE v1.0 START:js2b — إتمام الأنشطة والأشرطة */
+function actDone(a){
+  const [k,v] = a.split(':');
+  if(k==='pa')   return !!ZBS.pa[v];
+  if(k==='anim') return !!ZBS.anim[v];
+  if(k==='ca')   return (ZBS.ca.passed||[]).length >= 5;
+  if(k==='quiz') return !!ZBS.quiz;
+  if(k==='sandbox') return !!ZBS.sandbox;
+  return false;
+}
+const TOTAL_ACTS = SECS.reduce((n,s)=>n+s.acts.length,0);
+
+function buildSectionBars(){
+  SECS.forEach(sec=>{
+    const el = document.getElementById(sec.id); if(!el) return;
+    const h2 = el.querySelector('h2'); if(!h2) return;
+    if(!h2.querySelector('.seclabel')) h2.insertAdjacentHTML('afterbegin', `<span class="seclabel">${sec.num}</span>`);
+    if(el.querySelector('.zbbar')) return;
+    const bar = document.createElement('div');
+    bar.className='zbbar';
+    bar.dataset.sec = sec.num;
+    bar.innerHTML = `<span class="lbl">أنشطة القسم <b class="nm">${sec.num}</b>:</span>
+      <span class="zbdots"></span>
+      <span class="cnt muted"></span>`;
+    h2.insertAdjacentElement('afterend', bar);
+  });
+}
+function paintAll(){
+  // per-section
+  SECS.forEach(sec=>{
+    const el = document.getElementById(sec.id); if(!el) return;
+    const bar = el.querySelector('.zbbar'); if(!bar) return;
+    const n = sec.acts.length, doneN = sec.acts.filter(actDone).length;
+    const dots = bar.querySelector('.zbdots');
+    if(!n){ bar.querySelector('.cnt').innerHTML = '<span class="muted">قراءة فقط</span>'; dots.innerHTML=''; }
+    else {
+      dots.innerHTML = sec.acts.map(a=>`<i class="zbdot ${actDone(a)?'on':''}" title="${a}"></i>`).join('');
+      bar.querySelector('.cnt').textContent = `${doneN}/${n} مكتمل`;
+    }
+    // TOC tick
+    const link = document.querySelector(`.toc a[href="#${sec.id}"]`);
+    if(link){
+      let t = link.querySelector('.zbtick');
+      if(!t){ t=document.createElement('span'); t.className='zbtick'; link.appendChild(t); }
+      if(!n){ t.textContent=''; t.className='zbtick'; }
+      else if(doneN===n){ t.textContent='✓'; t.className='zbtick'; }
+      else if(doneN>0){ t.textContent=`${doneN}/${n}`; t.className='zbtick part'; }
+      else { t.textContent='○'; t.className='zbtick part'; }
+    }
+  });
+  // global
+  const doneAll = SECS.reduce((n,s)=>n+s.acts.filter(actDone).length,0);
+  const p = TOTAL_ACTS? Math.round(doneAll/TOTAL_ACTS*100) : 0;
+  const bp = document.getElementById('modProg'); if(bp) bp.style.width = p+'%';
+  const bt = document.getElementById('modProgTxt'); if(bt) bt.textContent = `${p}% · ${doneAll}/${TOTAL_ACTS}`;
+  const ip = document.getElementById('introProg'); if(ip) ip.style.width = p+'%';
+  const it = document.getElementById('introProgTxt'); if(it) it.textContent = p+'%';
+}
+buildSectionBars(); paintAll();
+
+/* CORE v1.0 END:js2b */
+/* activity headers for animation / tool / quiz (رقم النشاط فوق كل أداة) */
+const ACT_LABELS = [
+  ['#pl-pipe',  'ANIMATION 1.5.2', 'خطوتان للإدراج والبحث (p.5)'],
+  ['#pl-trace', 'ANIMATION 1.6.2', 'تتبّع 7 سجلات في M = 7 (p.6)'],
+  ['#sandbox',  'TOOL 1.6.3',      'صندوق حرّ: مفاتيحك و M الخاص بك'],
+  ['#quizWrap', 'QUIZ 1.10.1',     'اختبار الوحدة']
+];
+ACT_LABELS.forEach(([sel, num, title])=>{
+  const el2 = document.querySelector(sel); if(!el2 || el2.previousElementSibling?.dataset?.act) return;
+  const h = document.createElement('div'); h.className='pa-h'; h.dataset.act='1';
+  h.style.margin='16px 0 -6px';
+  h.innerHTML = `<span class="pa-n">${num}</span><span>${title}</span>`;
+  el2.parentNode.insertBefore(h, el2);
+});
+
+/* ---------- 2) Participation Activities ---------- */
+const PA = [
+ {num:'1.1.1', sec:'p1', title:'خريطة المحاضرة', items:[
+   {q:'كم جزءًا رئيسيًا في المحاضرة كما تُظهر خريطة p.1؟', opts:['4','5','6','7'], a:2,
+    why:'الأجزاء الستة: المشكلة · الفكرة · دوال التجزئة · التصادمات · λ وإعادة التجزئة · التعقيد والتطبيقات.'},
+   {q:'أي جزء يعالج سؤال «ماذا لو أخذ مفتاحان الحقل نفسه؟»', opts:['دوال التجزئة','التصادمات','λ','التعقيد'], a:1,
+    why:'p.5 يطرح السؤال، وp.10 يبدأ الإجابة: التصادمات (chaining / open addressing).'}
+ ]},
+ {num:'1.2.1', sec:'p2', title:'لماذا O(1)؟', items:[
+   {q:'البحث في قائمة غير مرتّبة (مسح خطي) يساوي:', opts:['O(1)','O(log n)','O(n)','O(n²)'], a:2,
+    why:'p.2: «list / linked list: check items one by one — O(n)».'},
+   {q:'البحث الثنائي في قائمة مرتّبة يكلّف O(log n). ما تكلفة <b>الإدراج</b> فيها؟', opts:['O(1)','O(log n)','O(n)','O(n log n)'], a:2,
+    why:'p.2–3: الإدراج في المنتصف يُزيح العناصر → O(n). لهذا لا يكفينا البحث الثنائي.'},
+   {q:'الجدول الهاشي يقدّم البحث والإدراج بمتوسط:', opts:['O(1)','O(log n)','O(n)','O(n²)'], a:0,
+    why:'p.5: O(1) on average للبحث والإدراج والحذف — وأسوأ حالة O(n) كما في p.27.'}
+ ]},
+ {num:'1.3.1', sec:'p3', title:'Map ADT', items:[
+   {q:'أدخلت 5 أزواج ثم حدّثت قيمة مفتاح موجود. ماذا يعطي <span class="mono ltr">len(d)</span>؟', opts:['4','5','6','11'], a:1,
+    why:'التحديث يستبدل القيمة لا يضيف زوجًا (p.3: insert or update) → يبقى 5.'},
+   {q:'ماذا يحدث عند قراءة <span class="mono ltr">d[\'x\']</span> والمفتاح غير موجود؟', opts:['يعيد None','يعيد 0','يرفع KeyError','يضيف مفتاحًا جديدًا'], a:2,
+    why:'p.3: «look up (KeyError if absent)». للاختبار بلا استثناء استخدم <span class="mono ltr">in</span> أو <span class="mono ltr">get</span>.'}
+ ]},
+ {num:'1.4.1', sec:'p4', title:'الصناديق المرقّمة', items:[
+   {q:'قاعدة p.4 مع 7 صناديق: المفتاح الرقمي 9 يسكن الصندوق:', opts:['0','1','2','9'], a:2,
+    why:'9 % 7 = 2 (لا 9 ولا 1). الباقي دائمًا بين 0 و6.'},
+   {q:'هل يمكن أن يعطي مفتاحان مختلفان الصندوق نفسه؟', opts:['لا، مستحيل','نعم، ويُسمّى تصادمًا','نعم، ويُسمّى خطأً برمجيًا','فقط إذا كانت الدالة خاطئة'], a:1,
+    why:'p.4 «The catch»: التصادم نتيجة حتمية، وp.10 تشرح لماذا (مفاتيح أكثر من صناديق).'}
+ ]},
+ {num:'1.5.1', sec:'p5', title:'key → h(key) → slot', items:[
+   {q:'رتّب الخطوتين: (أ) الضغط بـ % M (ب) تحويل المفتاح إلى عدد صحيح', opts:['أ ثم ب','ب ثم أ','أ فقط','ب فقط'], a:1,
+    why:'p.5 + p.7: أولًا hash code (رقم كبير)، ثانيًا compression بـ % M إلى 0…M−1.'},
+   {q:'مع <span class="mono ltr">M = 8</span>، مجال أرقام الحقول هو:', opts:['1 → 8','0 → 7','0 → 8','1 → 7'], a:1,
+    why:'الباقي من القسمة على 8 يأخذ 0..7 (p.5: «i is always in 0..7»).'}
+ ]},
+ {num:'1.6.1', sec:'p6', title:'مثال 7 سجلات (p.6)', items:[
+   {q:'في <span class="mono ltr">M = 7</span>، ما حقل المفتاح <span class="mono ltr">15</span>؟', opts:['1','2','5','7'], a:0,
+    why:'15 % 7 = 1. والحقل 1 محجوز بالمفتاح 1 → تصادم.'},
+   {q:'ما حقل المفتاح <span class="mono ltr">7</span>؟', opts:['7','1','0','لا حقل'], a:2,
+    why:'7 % 7 = 0 — الباقي لا يساوي المقسوم عليه أبدًا. وهذا فخّ متكرّر.'},
+   {q:'كم تصادمًا في السجلات السبعة؟', opts:['0','1','2','3'], a:2,
+    why:'تصادمان: 15 مع 1 في الحقل 1، و4 مع 25 في الحقل 4.'},
+   {q:'كم حقلًا نفتح للبحث عن المفتاح 7؟', opts:['حقل واحد','حقلان','ثلاثة','سبعة'], a:0,
+    why:'7 % 7 = 0 → الحقل 0 يحوي (7, Abdullah) مباشرة: «one computation, one look».'}
+ ]}
+];
+
+/* CORE v1.0 START:js2c — محرّكات PA/CA + hooks */
+function el(tag, cls, html){ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; }
+
+function mountPAs(){
+  PA.forEach(spec=>{
+    const sec = document.getElementById(spec.sec); if(!sec || sec.querySelector(`[data-pa="${spec.num}"]`)) return;
+    const box = el('div','pa');
+    box.dataset.pa = spec.num;
+    box.innerHTML = `<div class="pa-h"><span class="pa-n">PARTICIPATION ACTIVITY ${spec.num}</span><span>${spec.title}</span></div>`;
+    const solved = new Array(spec.items.length).fill(false);
+    const forfeited = new Array(spec.items.length).fill(false);
+
+    spec.items.forEach((it, idx)=>{
+      const wrap = el('div','pa-item');
+      wrap.innerHTML = `<div class="pa-q"><span class="pa-qn">${idx+1})</span><span>${it.q}</span></div>`;
+      const opts = el('div','pa-opts');
+      if(it.opts){
+        it.opts.forEach((o,j)=>{
+          const b = el('button','btn', o); b.type='button';
+          b.addEventListener('click', ()=>{
+            if(wrap.dataset.locked==='1') return;
+            Array.from(opts.children).forEach(x=>x.classList.remove('pick'));
+            b.classList.add('pick'); wrap.dataset.pick = String(j);
+          });
+          opts.appendChild(b);
+        });
+      } else {
+        const inp = el('input'); inp.type='number'; inp.placeholder='اكتب رقمًا'; inp.setAttribute('aria-label','إجابتك');
+        wrap.appendChild(opts);
+        opts.appendChild(inp);
+      }
+      if(it.opts) wrap.appendChild(opts);
+      const act = el('div','pa-act');
+      act.innerHTML = `<button class="btn" type="button" data-check>Check</button>
+        <button class="btn" type="button" data-show>Show answer</button>`;
+      const fb = el('div','pa-fb');
+      wrap.appendChild(act); wrap.appendChild(fb);
+      box.appendChild(wrap);
+
+      const getAns = ()=>{
+        const inp = wrap.querySelector('input');
+        if(inp) return inp.value.trim();
+        return wrap.dataset.pick != null ? wrap.dataset.pick : null;
+      };
+      const correctVal = ()=>{
+        const inp = wrap.querySelector('input');
+        if(inp) return String(it.a);
+        return String(it.a);
+      };
+      act.querySelector('[data-check]').addEventListener('click', ()=>{
+        const v = getAns();
+        if(v===null || v===''){ fb.className='pa-fb show bad'; fb.innerHTML='اختر إجابة أو اكتب قيمة أولًا.'; return; }
+        const ok = String(v)===correctVal();
+        fb.className = 'pa-fb show '+(ok?'ok':'bad');
+        if(ok){
+          fb.innerHTML = `<b>✔ Correct.</b> ${it.why}`;
+          wrap.dataset.locked='1';
+          if(it.opts) Array.from(opts.children).forEach((x,j)=>{ if(String(j)===correctVal()) x.classList.add('ok'); });
+          solved[idx]=true;
+          maybeDone();
+        } else {
+          fb.innerHTML = `<b>✘ Incorrect — Try again.</b> تلميح: أعِد الحساب من التعريف في القسم أعلاه، ثم اضغط Check مرة أخرى.`;
+        }
+      });
+      act.querySelector('[data-show]').addEventListener('click', ()=>{
+        const inp = wrap.querySelector('input');
+        if(inp){ inp.value = correctVal(); }
+        if(it.opts){
+          Array.from(opts.children).forEach((x,j)=>{ if(String(j)===correctVal()) x.classList.add('ok'); });
+        }
+        fb.className='pa-fb show';
+        fb.innerHTML = `<b>Answer: <span class="mono ltr">${it.opts ? it.opts[+correctVal()] : correctVal()}</span></b>
+          <span class="forfeit">لا نقطة لهذا السؤال بعد إظهار الإجابة</span><div class="ans">${it.why}</div>`;
+        wrap.dataset.locked='1';
+        forfeited[idx]=true; solved[idx]=true;
+        maybeDone();
+      });
+    });
+
+    function maybeDone(){
+      if(solved.every(Boolean)){
+        box.classList.add('border-ok');
+        if(!box.querySelector('.pa-donebadge')){
+          const b = el('div','muted', '<b style="color:var(--ok)">✔ اكتمل هذا النشاط</b>');
+          b.classList.add('pa-donebadge'); b.style.fontSize='.84em'; b.style.marginTop='8px';
+          box.appendChild(b);
+        }
+        ZBS.pa[spec.num] = true; save();
+      }
+    }
+    sec.appendChild(box);
+  });
+}
+mountPAs();
+
+/* ---------- 3) animation hooks ---------- */
+window.zbAnimStart = id => { /* بدأ المشاهدة — لا يُحسب إتمامًا */ };
+window.zbAnimDone  = id => { if(!ZBS.anim[id]){ ZBS.anim[id]=true; save(); } };
+
+/* ---------- 4) sandbox + quiz hooks ---------- */
+const sbGo = document.getElementById('sbGo');
+if(sbGo) sbGo.addEventListener('click', ()=>{ if(!ZBS.sandbox){ ZBS.sandbox=true; save(); } });
+const gradeBtn = document.getElementById('gradeBtn');
+if(gradeBtn) gradeBtn.addEventListener('click', ()=>{ if(!ZBS.quiz){ ZBS.quiz=true; save(); } });
+
+/* ---------- 5) Challenge Activity: 5 levels ---------- */
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const mod=(k,M)=>((k%M)+M)%M;
+function uniq(a){ return a.filter((x,i)=>a.indexOf(x)===i); }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+const CA_LEVELS = [
+ ()=>{ const M=rnd(5,11), k=rnd(10,99);
+   return {q:`المستوى 1 — حساب مباشر: ما حقل المفتاح <span class="mono ltr">${k}</span> في جدول <span class="mono ltr">M = ${M}</span>؟`,
+     kind:'num', a:mod(k,M), why:`${k} % ${M} = ${mod(k,M)} (الباقي بين 0 و ${M-1}).`}; },
+ ()=>{ const M=rnd(5,9), a=rnd(11,90), b=a+M*rnd(1,3);
+   return {q:`المستوى 2 — تصادم ثنائي: في <span class="mono ltr">M = ${M}</span>، هل يتصادم <span class="mono ltr">${a}</span> و<span class="mono ltr">${b}</span>؟`,
+     kind:'mcq', opts:shuffle(['نعم، يتصادمان','لا، حقلان مختلفان']), a:'نعم، يتصادمان',
+     why:`${a} % ${M} = ${mod(a,M)} و${b} % ${M} = ${mod(b,M)} → الحقل نفسه، لأن الفرق ${b-a} مضاعف لـ M.`}; },
+ ()=>{ const M=rnd(5,8), ks=shuffle(uniq(Array.from({length:M+2},()=>rnd(10,70)))).slice(0,M+2);
+   const c=(function(){const seen={},out=[];ks.forEach(k=>{const i=mod(k,M); if(seen[i]===undefined) seen[i]=1; else out.push(k);});return out;})();
+   return {q:`المستوى 3 — عدّ التصادمات: أدخل <span class="mono ltr">[${ks.join(', ')}]</span> بالترتيب في <span class="mono ltr">M = ${M}</span>. كم مفتاحًا يجد بيته مشغولًا؟`,
+     kind:'num', a:c.length, why:`الحقول: ${ks.map(k=>`${k}%${M}=${mod(k,M)}`).join(' · ')} → ${c.length} مفتاحًا اصطدم.`}; },
+ ()=>{ const M=rnd(5,8), ks=shuffle(uniq(Array.from({length:M+3},()=>rnd(10,99)))).slice(0,M+3);
+   const r=rnd(0,M-1), cnt=ks.filter(k=>mod(k,M)===r).length;
+   return {q:`المستوى 4 — الحقل المشترك: في <span class="mono ltr">M = ${M}</span> والمفاتيح <span class="mono ltr">[${ks.join(', ')}]</span>، كم سجلًا في الحقل <span class="mono ltr">${r}</span>؟`,
+     kind:'num', a:cnt, why:`نعدّ المفاتيح التي باقيها ${r}: ${ks.filter(k=>mod(k,M)===r).join(' و ')||'لا شيء'} → ${cnt}.`}; },
+ ()=>{ const M=rnd(4,9), k=M*rnd(2,9);
+   return {q:`المستوى 5 — فخّ: المفتاح <span class="mono ltr">${k}</span> مضاعف لـ <span class="mono ltr">M = ${M}</span>. ما حقله؟`,
+     kind:'mcq', opts:shuffle(uniq(['0', String(M), String(k), String(M-1)])), a:'0',
+     why:`${k} = ${k/M} × ${M} → الباقي 0. لا تخلط بين "الباقي" و"المقسوم عليه".`}; }
+];
+
+const ca = { lv:0, passed:new Set(ZBS.ca.passed||[]), cur:null, graded:false };
+const caQ=$('#caQ'), caForm=$('#caForm'), caFb=$('#caFb'), caStrip=$('#caStrip'),
+      caJump=$('#caJump'), caState=$('#caState'), caCheck=$('#caCheck'), caNext=$('#caNext'),
+      caTry=$('#caTry'), caNew=$('#caNew'), caReset=$('#caReset');
+
+function caPaint(){
+  caStrip.innerHTML = CA_LEVELS.map((_,k)=>
+    `<b data-l="${k}" class="${ca.passed.has(k)?'on':''} ${k===ca.lv?'cur':''}" title="المستوى ${k+1}">${ca.passed.has(k)?'✔':k+1}</b>`).join('');
+  Array.from(caStrip.children).forEach(b=>b.addEventListener('click',()=>{
+    const l=+b.getAttribute('data-l');
+    if(l<=Math.max(...[...ca.passed, -1])+1){ ca.lv=l; caNewQ(); }
+  }));
+  caJump.textContent = ca.passed.size >= CA_LEVELS.length ? 'Level 5/5 ✔' : `Jump to level ${ca.lv+1}`;
+  caNext.disabled = !ca.passed.has(ca.lv) || ca.lv >= CA_LEVELS.length-1;
+  caNext.textContent = ca.lv>=CA_LEVELS.length-1 ? 'Next ▶ (نهاية)' : 'Next ▶';
+}
+function caNewQ(){
+  ca.cur = CA_LEVELS[ca.lv]();
+  ca.graded = false; caFb.innerHTML=''; caState.textContent='—'; caState.className='ca-state';
+  caQ.innerHTML = ca.cur.q;
+  if(ca.cur.kind==='num'){
+    caForm.innerHTML = `<label class="f" for="caIn">إجابتك (رقم)</label>
+      <input type="number" id="caIn" aria-label="إجابة رقمية">`;
+    $('#caIn').addEventListener('keydown', e=>{ if(e.key==='Enter') caGrade(); });
+  } else {
+    caForm.innerHTML = `<div class="pa-opts" id="caOpts">${ca.cur.opts.map(o=>`<button class="btn" type="button" data-c="${o.replace(/"/g,'&quot;')}">${o}</button>`).join('')}</div>`;
+    Array.from(document.querySelectorAll('#caOpts [data-c]')).forEach(b=>b.addEventListener('click',()=>{
+      if(ca.graded) return;
+      Array.from(document.querySelectorAll('#caOpts [data-c]')).forEach(x=>x.classList.remove('pick'));
+      b.classList.add('pick'); caForm.dataset.pick = b.getAttribute('data-c');
+    }));
+  }
+  caPaint();
+}
+function caGrade(){
+  if(ca.graded) return;
+  const inp = document.getElementById('caIn');
+  const v = inp ? inp.value.trim() : (caForm.dataset.pick ?? '');
+  if(v===''){ caFb.innerHTML = '<div class="note warn" style="margin:6px 0 0">اكتب إجابة أو اختر خيارًا أولًا.</div>'; return; }
+  const ok = String(v)===String(ca.cur.a);
+  caState.textContent = ok ? 'Correct ✔' : 'Try again ✘';
+  caState.className = 'ca-state '+(ok?'ok':'no');
+  if(ok){
+    ca.graded = true;
+    ca.passed.add(ca.lv);
+    ZBS.ca.passed = [...ca.passed]; ZBS.ca.lv = ca.lv;
+    save(); caPaint();
+    caFb.innerHTML = `<div class="note ok" style="margin:6px 0 0"><b>✔ صحيح — المستوى ${ca.lv+1} مُجتاز.</b>
+      <div>${ca.cur.why}</div>${ca.lv<CA_LEVELS.length-1?'<div class="muted">اضغط Next للانتقال إلى المستوى التالي.</div>':'<div class="muted">أكملت المستويات الخمسة ✔</div>'}</div>`;
+  } else {
+    caFb.innerHTML = `<div class="note bad" style="margin:6px 0 0"><b>✘ ليس صحيحًا.</b>
+      <div>تلميح: ${ca.cur.kind==='num'?'احسب الباقي بعد القسمة على M، لا القسمة نفسها.':'قارن البواقي: إن تساوت، فالحقل واحد.'}</div>
+      <div class="muted">اضغط «Try again» لسؤال جديد في المستوى نفسه.</div></div>`;
+  }
+}
+caCheck.addEventListener('click', caGrade);
+caTry.addEventListener('click', ()=>{ if(!ca.graded) caNewQ(); });
+caNew.addEventListener('click', caNewQ);
+caNext.addEventListener('click', ()=>{
+  if(!ca.passed.has(ca.lv)) return;
+  if(ca.lv < CA_LEVELS.length-1){ ca.lv++; caNewQ(); }
+  else { caFb.innerHTML += '<div class="note ok" style="margin:6px 0 0"><b>✔ كل المستويات مُجتازة.</b></div>'; }
+});
+caReset.addEventListener('click', ()=>{
+  ca.lv=0; ca.passed.clear(); ZBS.ca.passed=[]; save(); caNewQ();
+});
+caPaint(); caNewQ();
+
+/* CORE v1.0 END:js2c */
+/* ---------- 6) zap ---------- */
+paintAll();
+})();
+</script>
+
+</body>
+</html>

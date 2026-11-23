@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CS2015 · دوال التجزئة والتصادم (7–11) — وحدة تفاعلية</title>
+<meta name="description" content="الوحدة 02 من CS2015: hash code والضغط، خصائص الدالة الجيدة، الطرق الأربع، حتمية التصادم، واستراتيجيات السبر (الشرائح 7–11 من 33).">
+<style id="core-css">
+/* CORE v1.1 START:css */
+/* =========================================================================
+   CS2015 · CORE v1.1 — مشترك في M01..M16 (بايت-ببايت)
+   لا يُسمح بأي تعديل هنا داخل ملفات الوحدات. أي تغيير = إصدار جديد.
+   ========================================================================= */
+:root{
+  --paper:#F6F4EE; --body:#FFFDF8; --ink:#22211E; --ink2:#5C5852;
+  --hair:#E2DDD1; --hair2:#D3CCBC; --surface:#F0ECE3; --surface2:#E9E4D9;
+  --accent:#2A6F68; --accent-ink:#1F5A54; --accent-soft:#E7EFEC;
+  --ok:#2E6B4F; --bad:#A23B32; --warn:#8A6114;
+  --ok-bg:#EAF2EC; --bad-bg:#F9EAE7; --warn-bg:#F8F0DF;
+  --code-bg:#1E222A; --code-ink:#E7E9E3; --code-dim:#7C8894;
+  --fs:17.2px; --r:10px; --sh:0 1px 2px rgba(34,33,30,.06);
+  --t:cubic-bezier(.2,.8,.2,1); --t-fast:240ms; --t-move:480ms;
+  --s1:8px; --s2:16px; --s3:24px; --s4:32px; --s5:48px; --s6:64px;
+}
+[data-theme="dark"]{
+  --paper:#171716; --body:#1C1C1A; --ink:#E7E3D9; --ink2:#A7A29A;
+  --hair:#302F2B; --hair2:#3B3A34; --surface:#212120; --surface2:#2A2926;
+  --accent:#6EB5AA; --accent-ink:#93CEC4; --accent-soft:#1F2C2A;
+  --ok:#86C6A5; --bad:#E2938A; --warn:#E0AA5E;
+  --ok-bg:#1B261F; --bad-bg:#2A1E1C; --warn-bg:#26200F;
+  --code-bg:#12150F; --code-ink:#E7E9E3; --code-dim:#6E7A72;
+  --sh:0 1px 2px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+@media (prefers-reduced-motion: no-preference){ html{scroll-behavior:smooth} }
+html{scroll-padding-top:72px}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:system-ui,"Segoe UI",Tahoma,"Geeza Pro","Noto Sans Arabic",Arial,sans-serif;
+  font-size:var(--fs);line-height:1.9;-webkit-text-size-adjust:100%}
+h1,h2,h3,h4{margin:0 0 var(--s2);line-height:1.35;font-weight:700;letter-spacing:-.01em}
+h1{font-size:2.4rem}
+h2{font-size:1.6rem}
+h3{font-size:1.25rem;font-weight:650}
+p{margin:0 0 var(--s2);max-width:74ch}
+ul,ol{margin:0 0 var(--s2);padding-inline-start:1.3em;max-width:74ch}
+li{margin:.15em 0}
+a{color:var(--accent-ink);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--accent) 40%,transparent)}
+a:hover{border-bottom-color:var(--accent)}
+strong{font-weight:700}
+small,.sm{font-size:.85em}
+.muted{color:var(--ink2)}
+.mono,code,kbd{font-family:ui-monospace,Consolas,Menlo,monospace;direction:ltr;unicode-bidi:isolate}
+code{font-size:.92em;background:var(--surface);padding:.05em .35em;border-radius:5px}
+hr{border:0;border-top:1px solid var(--hair);margin:var(--s4) 0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* icons */
+.ic{width:1.05em;height:1.05em;stroke:currentColor;stroke-width:1.75;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;display:inline-block;vertical-align:-.16em;flex:none}
+.iconbtn{display:inline-flex;align-items:center;gap:6px;background:none;border:1px solid var(--hair);
+  color:var(--ink);border-radius:var(--r);padding:5px 9px;font:inherit;font-size:.82em;cursor:pointer;
+  transition:background var(--t-fast) var(--t),border-color var(--t-fast) var(--t)}
+.iconbtn:hover{background:var(--surface);border-color:var(--hair2)}
+.iconbtn:active{transform:translateY(1px)}
+.iconbtn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+.iconbtn.only{padding:6px;gap:0}
+.iconbtn.done{color:var(--ok);border-color:var(--ok)}
+
+/* topbar */
+.topbar{position:sticky;top:0;z-index:60;display:flex;gap:var(--s2);align-items:center;justify-content:space-between;
+  padding:8px 20px;background:var(--paper);background:color-mix(in srgb,var(--paper) 86%,transparent);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--hair);flex-wrap:wrap}
+.topbar .who{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-size:.9em}
+.topbar .mid{font-weight:700}
+.topbar .tagm{font-family:var(--mono);font-size:.72em;letter-spacing:.06em;color:var(--ink2);text-transform:uppercase}
+.topbar .tools{display:flex;gap:6px;align-items:center}
+.thumbra{position:fixed;inset-inline:0;bottom:0;height:2px;background:transparent;z-index:70}
+.thumbra i{display:block;height:2px;width:0;background:var(--accent);transition:width .12s linear}
+
+/* shell + rail */
+.shell{max-width:1180px;margin:0 auto;padding:0 24px 96px;display:grid;
+  grid-template-columns:232px minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:start}
+.rail{position:sticky;top:64px;max-height:calc(100vh - 84px);overflow:auto;padding-top:var(--s4);font-size:.86em}
+.rail h2{font-size:.78em;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin-bottom:var(--s1)}
+.rail ol{list-style:none;margin:0;padding:0}
+.rail li{margin:0}
+.rail a{display:flex;gap:8px;align-items:baseline;padding:4px 8px;border-radius:6px;border:0;color:var(--ink2);line-height:1.5}
+.rail a:hover{background:var(--surface);color:var(--ink)}
+.rail a.on{color:var(--accent-ink);font-weight:700;background:var(--accent-soft)}
+.rail .n{font-family:var(--mono);font-size:.82em;opacity:.75;min-width:2.6em}
+.rail .tick{margin-inline-start:auto;font-size:.8em;color:var(--ok);font-family:var(--mono)}
+.rail .tick.part{color:var(--warn)}
+.rail .prog{margin-top:var(--s3);padding-top:var(--s2);border-top:1px solid var(--hair)}
+.bar{height:6px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:6px;width:0;background:var(--accent);border-radius:99px;transition:width var(--t-fast) var(--t)}
+
+/* editorial sections (flat) */
+main{min-width:0;padding-top:var(--s5)}
+.sec{display:grid;grid-template-columns:minmax(0,1fr) 76px;column-gap:var(--s3);
+  border-top:1px solid var(--hair);padding-block:var(--s5) var(--s6);scroll-margin-top:72px}
+.sec:first-of-type{border-top:0;padding-top:0}
+.sec>.num{grid-column:2;order:2;text-align:center;font-family:var(--mono);color:var(--hair2);line-height:1}
+.sec>.num b{display:block;font-size:2.4rem;font-weight:700;letter-spacing:-.03em}
+.sec>.num span{display:block;font-size:.7rem;margin-top:6px;color:var(--ink2);letter-spacing:.04em}
+.sec>.bd{grid-column:1;min-width:0}
+.sec .kick{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.sec h2{margin-bottom:var(--s3)}
+.slidep{font-family:var(--mono);font-size:.72em;color:var(--ink2);letter-spacing:.06em}
+
+.reveal{opacity:0;transform:translateY(8px)}
+.reveal.in{opacity:1;transform:none;transition:opacity 420ms var(--t),transform 420ms var(--t)}
+@media (prefers-reduced-motion: reduce){ .reveal{opacity:1;transform:none} }
+
+.aside{border-inline-start:2px solid var(--hair2);padding:2px 0 2px var(--s2);margin:var(--s3) 0;
+  color:var(--ink2);font-size:.94em;max-width:68ch}
+.aside b{color:var(--ink)}
+.aside.warn{border-inline-start-color:var(--warn)}
+.aside.ok{border-inline-start-color:var(--ok)}
+.aside.bad{border-inline-start-color:var(--bad)}
+.aside .k{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--ink);font-size:.92em}
+.fold{border-top:1px solid var(--hair);padding-top:var(--s2);margin:var(--s3) 0}
+.fold>summary{cursor:pointer;font-weight:650;font-size:.95em;display:flex;gap:8px;align-items:center;list-style:none}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary .ic{transition:transform var(--t-fast) var(--t)}
+.fold[open]>summary .ic{transform:rotate(180deg)}
+.quote{border-inline-start:3px solid var(--accent);padding:var(--s1) 0 var(--s1) var(--s2);margin:var(--s3) 0}
+.quote .term{display:block;font-family:var(--mono);font-size:.9em;color:var(--accent-ink);margin-bottom:2px}
+.quote p{margin:0;font-size:1.02em}
+.quote .src{display:block;margin-top:6px;font-size:.8em;color:var(--ink2)}
+
+/* tables */
+.tw{overflow-x:auto;margin:var(--s3) 0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+table{border-collapse:collapse;width:100%;font-size:.92em}
+caption{caption-side:top;text-align:start;font-size:.82em;color:var(--ink2);padding:6px 0}
+thead th{position:sticky;top:0;background:var(--paper);text-align:start;font-weight:700;font-size:.88em;
+  color:var(--ink2);border-bottom:1px solid var(--hair2);padding:8px 10px;white-space:nowrap;z-index:1}
+td{padding:8px 10px;border-bottom:1px solid var(--hair);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.ltr,th.ltr{direction:ltr;text-align:left;font-family:var(--mono)}
+td.c,th.c{text-align:center}
+.tw.tight td{padding:5px 9px}
+
+/* code */
+.code{position:relative;background:var(--code-bg);border-radius:var(--r);margin:var(--s3) 0;overflow:hidden;box-shadow:var(--sh)}
+.code .ch{display:flex;align-items:center;gap:10px;padding:7px 10px 7px 12px;border-bottom:1px solid #2A313A;color:#9FB0AD;font-size:.78em}
+.code .ch .ttl{font-family:var(--mono);direction:ltr;color:#C9D6D2}
+.code .ch .sp{margin-inline-start:auto}
+.code .cbody{position:relative;padding:10px 0}
+.code .cbody .hl{position:absolute;inset-inline:0;height:1.75em;top:10px;background:rgba(110,181,170,.16);
+  border-inline-start:3px solid #6EB5AA;pointer-events:none;transform:translateY(0);transition:transform var(--t-fast) var(--t),opacity var(--t-fast)}
+.code pre{margin:0;padding:0;overflow-x:auto;font-family:ui-monospace,Consolas,Menlo,monospace;font-size:.86em;line-height:1.75;color:var(--code-ink);direction:ltr;text-align:left}
+.code .ln{display:block;padding:0 14px;white-space:pre}
+.code .ln .cn{color:var(--code-dim);display:inline-block;width:2.2em;user-select:none;text-align:right;margin-inline-end:8px}
+.code .k{color:#C792EA}.code .s{color:#A5D6A7}.code .n{color:#F0B37E}.code .c{color:#7C8894;font-style:italic}.code .f{color:#8FD0E8}
+.codedots{display:flex;gap:4px}
+.codedots i{width:7px;height:7px;border-radius:50%;background:#39424D}
+
+/* activity blocks */
+.act,.anim{border-top:1px solid var(--hair2);padding-top:var(--s3);margin:var(--s5) 0 0}
+.act-h{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:var(--s2)}
+.act-k{font-family:var(--mono);font-size:.7em;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.act-k b{color:var(--ink);font-weight:700}
+.act-h h3{margin:0;font-size:1.05rem}
+.stage{position:relative;background:var(--body);border:1px solid var(--hair);border-radius:var(--r);
+  padding:var(--s3);overflow:hidden;min-height:260px;box-shadow:var(--sh)}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:var(--s2)}
+.stepno{font-family:var(--mono);font-size:.8em;color:var(--ink2);min-width:9.5em}
+.segstrip{display:flex;gap:3px;flex-wrap:wrap;flex:1;min-width:120px}
+.segstrip button{width:16px;height:16px;padding:0;border-radius:4px;border:1px solid var(--hair2);
+  background:var(--surface);cursor:pointer}
+.segstrip button.seen{background:var(--accent-soft);border-color:var(--accent)}
+.segstrip button.cur{background:var(--accent);border-color:var(--accent);outline:2px solid var(--accent);outline-offset:1px}
+.cap{min-height:3.2em;margin-top:var(--s2);font-size:.96em}
+.cap .why{display:block;font-size:.78em;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);margin-bottom:2px}
+.watch{display:flex;gap:var(--s3);flex-wrap:wrap;margin-top:var(--s2);padding-top:var(--s2);border-top:1px solid var(--hair)}
+.watch .w{display:flex;gap:7px;align-items:baseline;font-size:.86em}
+.watch .w span{color:var(--ink2);font-family:var(--mono);font-size:.86em}
+.watch .w b{font-family:ui-monospace,Consolas,monospace;direction:ltr;padding:0 5px;border-radius:5px}
+.watch .w b.flash{animation:wtf 420ms var(--t)}
+@keyframes wtf{0%{background:var(--accent-soft)}100%{background:transparent}}
+
+.chip{position:absolute;top:0;left:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:2px 10px;min-width:34px;border-radius:7px;
+  background:var(--accent-soft);border:1px solid var(--accent);color:var(--accent-ink);font-size:.74em;line-height:1.5;
+  font-family:ui-monospace,Consolas,monospace;white-space:nowrap;will-change:transform;z-index:3;box-shadow:var(--sh)}
+.chip.held{opacity:.3}
+.chip.bad{border-color:var(--bad);color:var(--bad);background:var(--bad-bg)}
+.chip.good{border-color:var(--ok);color:var(--ok);background:var(--ok-bg)}
+.slotrow{display:flex;gap:6px;flex-wrap:wrap}
+.slot{position:relative;min-width:72px;min-height:54px;border:1px solid var(--hair2);border-radius:8px;
+  background:var(--body);display:flex;flex-direction:column;align-items:center;padding:16px 4px 4px;font-size:.78em}
+.slot .ix{position:absolute;top:2px;inset-inline-start:6px;font-family:ui-monospace,monospace;font-size:.86em;color:var(--ink2)}
+.slot.hot{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft) inset}
+.slot .inc{font-family:ui-monospace,monospace;font-size:.94em}
+.slot.okpulse{animation:okp 520ms var(--t)}
+.slot.badfade{animation:bdf 620ms var(--t)}
+.slot.collide{animation:shk 380ms var(--t)}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}60%{transform:translateX(4px)}}
+@keyframes okp{0%{box-shadow:0 0 0 0 rgba(46,107,79,.45)}100%{box-shadow:0 0 0 10px rgba(46,107,79,0)}}
+@keyframes bdf{0%{background:var(--bad-bg)}100%{background:var(--body)}}
+.flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:var(--s3)}
+.node{border:1px solid var(--hair2);border-radius:8px;padding:6px 12px;font-size:.86em;background:var(--body);text-align:center;min-width:96px}
+.node.hot{border-color:var(--accent);color:var(--accent-ink);background:var(--accent-soft)}
+.node .lbl{display:block;font-size:.72em;color:var(--ink2)}
+.arrowline{flex:1;min-width:34px;height:12px}
+.arrowline path{stroke:var(--hair2);stroke-width:1.75;fill:none;stroke-linecap:round}
+.countup{font-family:ui-monospace,monospace;font-weight:700;color:var(--accent-ink)}
+
+/* participation / challenge */
+.pa-item{padding-top:var(--s2);margin-top:var(--s2);border-top:1px dashed var(--hair)}
+.pa-item:first-of-type{border-top:0;padding-top:0;margin-top:0}
+.pa-q{display:flex;gap:9px;font-size:.98em}
+.pa-qn{font-family:ui-monospace,monospace;color:var(--ink2);font-size:.85em;min-width:1.4em}
+.opts{display:flex;gap:8px;flex-wrap:wrap;margin-top:var(--s2)}
+.opt{font:inherit;font-size:.9em;background:var(--body);border:1px solid var(--hair2);border-radius:var(--r);
+  padding:5px 13px;cursor:pointer;transition:border-color var(--t-fast) var(--t),background var(--t-fast) var(--t)}
+.opt:hover{border-color:var(--ink2)}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink);font-weight:700}
+.opt.correct{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:var(--s2)}
+.btn{font:inherit;font-size:.88em;border:1px solid var(--accent);background:var(--accent);color:#fff;
+  border-radius:var(--r);padding:6px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;
+  transition:filter var(--t-fast) var(--t)}
+[data-theme="dark"] .btn{color:#10201D}
+.btn:hover{filter:brightness(1.07)}
+.btn.ghost{background:none;color:var(--ink);border-color:var(--hair2)}
+.btn.ghost:hover{background:var(--surface)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.fb{font-size:.92em;margin-top:var(--s2);padding-inline-start:var(--s2);border-inline-start:2px solid var(--hair2);display:none}
+.fb.show{display:block}
+.fb.ok{border-color:var(--ok)} .fb.bad{border-color:var(--bad)}
+.fb b.tag{display:inline-flex;gap:6px;align-items:center;margin-bottom:2px}
+.fb.ok b.tag{color:var(--ok)} .fb.bad b.tag{color:var(--bad)}
+.forfeit{font-size:.76em;color:var(--warn);border:1px solid var(--warn);border-radius:99px;padding:0 8px;margin-inline-start:6px}
+.lvstrip{display:flex;gap:5px;flex-wrap:wrap}
+.lvstrip .lv{width:26px;height:26px;display:grid;place-items:center;border-radius:7px;border:1px solid var(--hair2);
+  background:var(--surface);font-family:ui-monospace,monospace;font-size:.78em;color:var(--ink2);cursor:pointer}
+.lvstrip .lv.cur{outline:2px solid var(--accent);outline-offset:1px;color:var(--accent-ink)}
+.lvstrip .lv.pass{background:var(--ok);border-color:var(--ok);color:#fff}
+.lvstrip .lv.pass .ic{width:.9em;height:.9em;stroke:#fff}
+.jump{font-family:ui-monospace,monospace;font-size:.76em;border:1px solid var(--hair2);border-radius:99px;padding:1px 10px;color:var(--ink2)}
+.state{font-size:.82em;font-weight:700}
+.state.ok{color:var(--ok)} .state.bad{color:var(--bad)}
+
+/* quiz */
+.q{padding-top:var(--s3);margin-top:var(--s3);border-top:1px solid var(--hair)}
+.q-h{display:flex;gap:9px;align-items:baseline;flex-wrap:wrap}
+.q-n{font-family:ui-monospace,monospace;font-size:.82em;color:var(--ink2)}
+.q-meta{margin-inline-start:auto;font-size:.76em;color:var(--ink2);border:1px solid var(--hair);border-radius:99px;padding:0 8px}
+.qfb{display:none;margin-top:var(--s2);font-size:.92em;border-inline-start:2px solid var(--hair2);padding-inline-start:var(--s2)}
+.qfb.show{display:block}
+.qfb.ok{border-color:var(--ok)} .qfb.bad{border-color:var(--bad)}
+.scorebar{margin-top:var(--s4);display:flex;gap:var(--s2);align-items:center;justify-content:space-between;
+  flex-wrap:wrap;background:var(--ink);color:var(--paper);border-radius:var(--r);padding:8px 16px;font-size:.9em;z-index:20;box-shadow:var(--sh)}
+.scorebar .btn.ghost{color:var(--paper);border-color:color-mix(in srgb,var(--paper) 45%,transparent);background:none}
+.scorebar .btn.ghost:hover{background:color-mix(in srgb,var(--paper) 14%,transparent)}
+[data-theme="dark"] .scorebar .btn.ghost{color:var(--ink);border-color:var(--hair2)}
+[data-theme="dark"] .scorebar{background:var(--surface2);color:var(--ink);border:1px solid var(--hair)}
+.scorebar .big{font-family:ui-monospace,monospace;font-size:1.1em;font-weight:700}
+.pillrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.pill{font-size:.78em;border:1px solid var(--hair2);border-radius:99px;padding:0 9px;color:var(--ink2)}
+.pill.bad{border-color:var(--bad);color:var(--bad)}
+
+/* forms */
+label.fl{display:block;font-size:.84em;color:var(--ink2);margin:var(--s2) 0 4px}
+input[type=text],input[type=number],textarea{font:inherit;font-size:.92em;background:var(--body);color:var(--ink);
+  border:1px solid var(--hair2);border-radius:var(--r);padding:6px 11px;width:100%;max-width:320px}
+input[type=number]{max-width:120px}
+input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2)}
+@media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+.toolrow{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+.why{font-size:.86em;color:var(--ink2);border-inline-start:2px solid var(--hair2);padding-inline-start:var(--s2);margin-top:var(--s2)}
+
+@media print{
+  .topbar,.rail,.controls,.scorebar,.iconbtn,.btn,.thumbra{display:none!important}
+  body{background:#fff;color:#000;font-size:11pt;line-height:1.55}
+  .shell{display:block;padding:0;max-width:none}
+  .sec{display:block;break-inside:avoid;border-top:1px solid #ccc;padding:14px 0}
+  .sec>.num{display:none}
+  .fb,.qfb{display:block!important}
+  .code{background:#f5f5f5;color:#111;border:1px solid #ccc}
+  .code .cbody .hl{display:none}
+  .code pre,.code .ln{color:#111}
+  a{color:#000;border:0}
+  .stage{min-height:0}
+}
+@media(max-width:900px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;padding-top:var(--s3);order:-1;border-bottom:1px solid var(--hair);padding-bottom:var(--s3)}
+  .rail ol{columns:2;column-gap:16px}
+  .sec{grid-template-columns:minmax(0,1fr)}
+  .sec>.num{grid-column:1;order:-1;display:flex;gap:8px;align-items:baseline;text-align:start;margin-bottom:var(--s1)}
+  .sec>.num b{font-size:1.2rem}
+  .sec>.num span{margin:0}
+  body{font-size:16.6px}
+  h1{font-size:1.9rem} h2{font-size:1.35rem}
+}
+@media(prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+
+/* --- v1.1 additions: hero, defs, ask box, race bars, tree --- */
+.hero{padding:var(--s5) 0 var(--s4);border-bottom:1px solid var(--hair)}
+.hero .kick{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:var(--s2);font-size:.84em;color:var(--ink2)}
+.hero h1{margin-bottom:var(--s2)}
+.hero .lede{font-size:1.06em;color:var(--ink2);max-width:68ch}
+.hero .metaline{display:flex;gap:var(--s3);flex-wrap:wrap;margin-top:var(--s3);font-size:.84em;color:var(--ink2);font-family:var(--mono)}
+.progcard{margin-top:var(--s3);display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap;font-size:.86em;color:var(--ink2)}
+.progcard .bar{flex:1;min-width:160px}
+dl.defs{margin:var(--s3) 0;display:grid;grid-template-columns:auto 1fr;gap:4px var(--s2);font-size:.95em}
+dl.defs dt{font-family:var(--mono);font-size:.88em;color:var(--accent-ink);direction:ltr;text-align:left}
+dl.defs dd{margin:0}
+.pred{display:inline-flex;gap:7px;align-items:center;font-size:.82em;color:var(--ink2);cursor:pointer}
+.pred input{width:15px;height:15px;accent-color:var(--accent)}
+.askbox{margin-top:var(--s2);border-inline-start:2px solid var(--accent);padding-inline-start:var(--s2);font-size:.92em}
+.askq{font-weight:650;margin-bottom:6px}
+.askfb{display:none}.askfb.show{display:block;margin-top:8px}
+.askfb.ok b,.askfb.ok{color:var(--ok)}.askfb.bad{color:var(--bad)}
+.ca-q{font-size:1em;margin:var(--s2) 0 0}
+.racebars{display:flex;flex-direction:column;gap:8px;margin:var(--s2) 0}
+.rl{display:flex;gap:10px;align-items:center;font-size:.84em}
+.rl .nm{font-family:var(--mono);min-width:92px;color:var(--ink2);direction:ltr;text-align:left}
+.rl .track{flex:1;height:12px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.rl .fill{height:12px;width:0;background:var(--accent);border-radius:99px;transition:width 420ms var(--t)}
+.rl.b .fill{background:var(--warn)}
+.rl .vn{font-family:var(--mono);font-size:.86em;min-width:3.2em;text-align:end}
+.tree{width:100%;max-width:520px;height:auto;overflow:visible}
+.tree .n{fill:var(--body);stroke:var(--hair2);stroke-width:1.75}
+.tree .n.hot{fill:var(--accent-soft);stroke:var(--accent)}
+.tree .e{stroke:var(--hair2);stroke-width:1.75;fill:none}
+.tree text{font-family:ui-monospace,monospace;font-size:13px;fill:var(--ink);text-anchor:middle;dominant-baseline:middle}
+.legend{display:flex;gap:var(--s2);flex-wrap:wrap;font-size:.8em;color:var(--ink2);margin-top:var(--s1)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:5px;vertical-align:-1px}
+.kv{display:flex;gap:6px;flex-wrap:wrap;font-size:.86em;color:var(--ink2);margin-top:var(--s2)}
+.kv b{font-family:var(--mono);color:var(--ink);direction:ltr}
+.quote p,.quote .term,.quote .src{direction:ltr;text-align:left}
+.quote .term{margin-bottom:4px}
+.controls .segstrip{flex:2;min-width:140px}
+.controls .segstrip button{width:14px;height:20px}
+.code .ch .iconbtn{color:#A9B7B3;border-color:#39424D;background:none}
+.code .ch .iconbtn:hover{background:#232A32;color:#E7E9E3;border-color:#4B5661}
+.code .ch .iconbtn.done{color:#8FD0A9;border-color:#8FD0A9}
+.code .ch .iconbtn .ic{width:1.15em;height:1.15em}
+/* CORE v1.1 END:css */
+
+</style>
+<style id="views-css">
+/* VIEWS-HASH v2 START:css */
+/* =========================================================================
+   VIEWS-HASH v2 — طبقة عرض خاصة بموضوع جداول التجزئة (M01–M06)
+   تُضمَّن بعد CORE ولا تعدّله. أي تغيير هنا = views-hash v2.
+   ========================================================================= */
+.mc{display:grid;grid-template-columns:1fr;gap:var(--s2);margin:var(--s2) 0}
+.mc form{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+.mc .out{font-family:ui-monospace,Consolas,monospace;direction:ltr;text-align:left;font-size:.92em;
+  background:var(--surface);border-radius:8px;padding:10px 12px;line-height:1.9;white-space:pre-wrap}
+.mc .out b{color:var(--accent-ink)}
+.mc .row-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.m4{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:var(--s2);margin-top:var(--s2)}
+.m4 .cell{border:1px solid var(--hair);border-radius:var(--r);padding:10px 12px;background:var(--body)}
+.m4 .cell h4{margin:0 0 4px;font-size:.86em;color:var(--ink2);font-weight:650}
+.m4 .cell .v{font-family:ui-monospace,Consolas,monospace;direction:ltr;font-size:1.05em;color:var(--accent-ink)}
+.m4 .cell .f{font-family:ui-monospace,Consolas,monospace;direction:ltr;font-size:.76em;color:var(--ink2);display:block;margin-top:2px}
+.spread{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.spread .b{width:26px;height:26px;border-radius:6px;border:1px solid var(--hair2);display:grid;place-items:center;
+  font-family:ui-monospace,monospace;font-size:.72em;color:var(--ink2);background:var(--body)}
+.spread .b.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.spread .b.many{background:var(--warn-bg);border-color:var(--warn);color:var(--warn);font-weight:700}
+.bday{margin-top:var(--s1);font-size:.9em}
+/* VIEWS-HASH v2 END:css */
+/* VIEWS-CODENOTES v1 START:css */
+/* طبقة شرح الكود بالعربية: عمود ملاحظات بجانب كتلة الكود، ينطوي على الشاشات الضيقة.
+   لا تعدّل CORE. المصدر: <script type="text/plain" id="cn-XXX"> بصيغة «رقم السطر|الشرح». */
+.code.has-notes{display:grid;grid-template-columns:minmax(0,1fr) 288px}
+.code.has-notes>.ch{grid-column:1/-1}
+.code.has-notes>.cbody{grid-column:1;min-width:0}
+.code .cnotes{grid-column:2;min-width:0;direction:rtl;border-inline-start:1px solid #2A313A;background:#191D24;
+  color:#C9D6D2;font-size:.78em;line-height:1.7;overflow:auto;max-height:520px}
+.code .cn-d>summary{display:flex;align-items:center;gap:7px;padding:9px 12px;cursor:pointer;
+  color:#9FB0AD;border-bottom:1px solid #2A313A;list-style:none;font-weight:600}
+.code .cn-d>summary::-webkit-details-marker{display:none}
+.code .cn-d>summary .ic{width:1.05em;height:1.05em}
+.code .cn-d>summary:hover{background:#222831;color:#DCE6E2}
+.code .cn-list{padding:4px 0 8px}
+.code .cn-row{display:grid;grid-template-columns:2.1em minmax(0,1fr);gap:8px;
+  padding:5px 12px;border-bottom:1px solid rgba(255,255,255,.05);transition:background var(--t-fast) var(--t)}
+.code .cn-row:last-child{border-bottom:0}
+.code .cn-row>b{font-family:ui-monospace,Consolas,monospace;font-weight:400;color:#7C8894;text-align:right}
+.code .cn-row span{color:#C9D6D2}
+.code .cn-row.on{background:rgba(110,181,170,.16);border-radius:6px}
+.code .ln.has-note{cursor:pointer}
+.code .ln.has-note .cn{color:#8FD0E8}
+.code .ln.has-note:hover,.code .ln.on{background:rgba(110,181,170,.14)}
+@media (max-width:900px){
+  .code.has-notes{grid-template-columns:minmax(0,1fr)}
+  .code .cnotes{grid-column:1;border-inline-start:0;border-top:1px solid #2A313A;max-height:none}
+}
+@media (min-width:901px){
+  .code .cn-d>summary{display:none}
+}
+@media print{
+  .code.has-notes{grid-template-columns:minmax(0,1fr) 240px}
+  .code .cnotes,.code .cn-row span{color:#111;background:#fff;border-color:#ccc}
+  .code .cn-row b{color:#444}
+}
+/* VIEWS-CODENOTES v1 END:css */
+
+</style>
+</head>
+<body data-module="m02">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5l11 7.5-11 7.5z"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol>
+<symbol id="i-next" viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6"/></symbol>
+<symbol id="i-prev" viewBox="0 0 24 24"><path d="M10 6l6 6-6 6"/></symbol>
+<symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 2.3 6.4"/><path d="M4 5v5h5"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 5.5A1.5 1.5 0 0 0 13.5 4H6a2 2 0 0 0-2 2v7.5A1.5 1.5 0 0 0 5.5 15"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></symbol>
+<symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 4.5l8 14H4z"/><path d="M12 10v4M12 16.6v.1"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><path d="M12 11v5.2M12 7.9v.1"/></symbol>
+<symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9z"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.4"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><path d="M12 7.5V12l3 2"/></symbol>
+<symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 17h6M10 20h4"/><path d="M8.2 13.6a5.2 5.2 0 1 1 7.6 0c-.7.8-1.1 1.6-1.1 2.4h-5.4c0-.8-.4-1.6-1.1-2.4z"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.4"/><path d="M15.8 15.8L21 21"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 7h15M9.5 7V4.8h5V7M6.8 7l.9 11.2h8.6L17.2 7"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6.5h12M8 12h12M8 17.5h12M4 6.5v.1M4 12v.1M4 17.5v.1"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M19 12H5M10 7l-5 5 5 5"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.4"/><rect x="13" y="4" width="7" height="7" rx="1.4"/><rect x="4" y="13" width="7" height="7" rx="1.4"/><rect x="13" y="13" width="7" height="7" rx="1.4"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+</defs></svg>
+
+<div class="topbar">
+  <div class="who">
+    <span class="tagm">CS2015</span>
+    <span class="mid">دوال التجزئة والتصادم · Hash Functions &amp; Collisions</span>
+    <span class="sm muted">M02</span>
+  </div>
+  <div class="tools">
+    <button class="iconbtn only" id="fsMinus" type="button" aria-label="تصغير الخط">A&minus;</button>
+    <button class="iconbtn only" id="fsPlus" type="button" aria-label="تكبير الخط">A+</button>
+    <button class="iconbtn only" id="themeBtn" type="button" aria-label="تبديل الوضع"></button>
+    <a class="iconbtn only" href="#s27" aria-label="إلى الاختبار"><svg class="ic"><use href="#i-target"/></svg></a>
+  </div>
+</div>
+<div class="thumbra"><i id="scrollProg"></i></div>
+
+<div class="shell">
+<nav class="rail" aria-label="فهرس الوحدة">
+  <h2>الفهرس</h2>
+  <ol>
+    <li><a href="#s21"><span class="n">2.1</span>hash code ثم ضغط</a></li>
+    <li><a href="#s22"><span class="n">2.2</span>دالة جيدة</a></li>
+    <li><a href="#s23"><span class="n">2.3</span>الطرق الأربع</a></li>
+    <li><a href="#s24"><span class="n">2.4</span>التصادم حتمي</a></li>
+    <li><a href="#s25"><span class="n">2.5</span>استراتيجيات السبر</a></li>
+    <li><a href="#s26"><span class="n">2.6</span>تحدٍّ</a></li>
+    <li><a href="#s27"><span class="n">2.7</span>اختبار</a></li>
+  </ol>
+  <div class="prog">
+    <div class="sm muted" style="display:flex;justify-content:space-between;gap:8px"><span>إنجاز الأنشطة</span><span id="railProgTxt">0%</span></div>
+    <div class="bar" style="margin-top:6px"><i id="introProg"></i></div>
+  </div>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="kick">
+    <span class="tagm">Module 02 · Slides 7–11 of 33</span>
+    <span class="slidep">CS2015 · Hash Tables — Dr. Areej Alsini · Dr. Saeed Altalhi</span>
+  </div>
+  <h1>من المفتاح إلى الفهرس: مرحلتان، وثلاث طرق للسبر</h1>
+  <p class="lede">الشريحة 7 تقسّم الدالة إلى <b>hash code</b> ثم <b>compression</b>. الشرائح 8–9 تحكم على جودة الدالة وتعرض أربع طرق كلاسيكية. والشرائح 10–11 تعلن أنّ التصادم حتمي ثم تعطي العائلات الثلاث للسبر مع قاعدتَي العدّ. هذه الوحدة تغطي هذا النطاق فقط؛ ما قبلها في M01 وما بعدها في الوحدات التالية.</p>
+  <div class="metaline">
+    <span>5 شرائح (7–11)</span><span>7 أقسام</span><span>1 Participation</span><span>2 Tool</span><span>1 Challenge</span><span>10 أسئلة اختبار</span>
+  </div>
+  <div class="progcard">
+    <span>تقدّمك في أنشطة الوحدة:</span>
+    <div class="bar"><i id="introProg2"></i></div>
+    <span class="mono" id="introProgTxt">0%</span>
+  </div>
+</header>
+
+<!-- ================= 2.1 ================= -->
+<section class="sec reveal" id="s21">
+  <div class="num"><b>2.1</b><span>مرحلتان</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 7</span></div>
+    <h2>دالة التجزئة = hash code + compression</h2>
+    <div data-slide="7">
+      <div class="quote">
+        <span class="term">Hash function = hash code + compression</span>
+        <p>“‘omar’ → hash code: any integer → compress to 0 … M−1.”</p>
+        <span class="src">Hash Tables, slide 7 · Goodrich et al. (2013) §10.2.1</span>
+      </div>
+      <p>مرحلتان مستقلّتان: الأولى تُحوّل المفتاح — أيًّا كان نوعه — إلى عدد صحيح كبير، والثانية تضغط هذا العدد إلى نطاق الفهارس <span class="mono" dir="ltr">0 … M−1</span> بأخذ الباقي. الفصل مهم لأنه يجعل كل مرحلة قابلة للاختبار وحدها: هل الدالة سريعة؟ هل التوزيع جيد؟ في بايثون المرحلة الأولى جاهزة (<span class="mono" dir="ltr">hash(x)</span>) وتعمل للأعداد والنصوص والأزواج.</p>
+      <div class="code">
+        <div class="ch"><span class="codedots"><i></i><i></i><i></i></span><span class="ttl">slide7.py</span><span class="sp"></span><button class="iconbtn only" type="button" data-copy aria-label="نسخ"><svg class="ic"><use href="#i-copy"/></svg></button></div>
+        <div class="cbody" data-src="p7"></div>
+        <div class="cnotes" data-cn="p7"></div>
+      </div>
+      <script type="text/plain" id="src-p7">
+M = 8                  # table size
+key = 'omar'
+i = hash(key) % M      # stage 1 then 2  →  i in 0 .. 7</script>
+      <script type="text/plain" id="cn-p7">
+1|<span class="mono" dir="ltr">M = 8</span> — حجم الجدول: عدد الخانات التي ستُوزَّع عليها المفاتيح. تغييره يغيّر كل الخانات.
+2|<span class="mono" dir="ltr">key = 'omar'</span> — المفتاح نصّي؛ لكن التجزئة تعمل على أي نوع (أعداد، صفوف، نصوص).
+3|<span class="mono" dir="ltr">i = hash(key) % M</span> — مرحلتان في سطر: <span class="mono" dir="ltr">hash(key)</span> ينتج عددًا كبيرًا، و<span class="mono" dir="ltr">% M</span> يقتطعه إلى <span class="mono" dir="ltr">0 … 7</span>. الناتج هو <b>رقم الخانة</b>.
+      </script>
+
+      <div class="anim" data-anim="hashpipe" id="anim-hashpipe">
+        <div class="act-h">
+          <span class="act-k">Animation <b>2.1.1</b></span>
+          <h3>المسار الكامل: مفتاح ← رمز ← باقي ← خانة</h3>
+          <label class="pred"><input type="checkbox" class="predict"> وضع التوقّع</label>
+        </div>
+        <div class="stage" style="min-height:310px">
+          <div class="flow">
+            <div class="node" id="hp-key"><span class="lbl">key</span><span class="mono" id="hp-kv">omar</span></div>
+            <svg class="arrowline" viewBox="0 0 60 12" role="img" aria-hidden="true"><path id="hp-a1" d="M58 6H16"/><path d="M24 2l-8 4 8 4"/></svg>
+            <div class="node" id="hp-code"><span class="lbl">hash code</span><span class="mono" id="hp-cv">0</span></div>
+            <svg class="arrowline" viewBox="0 0 60 12" role="img" aria-hidden="true"><path id="hp-a2" d="M58 6H16"/><path d="M24 2l-8 4 8 4"/></svg>
+            <div class="node" id="hp-mod"><span class="lbl">% 8</span><span class="countup" id="hp-r">0</span></div>
+            <svg class="arrowline" viewBox="0 0 60 12" role="img" aria-hidden="true"><path id="hp-a3" d="M58 6H16"/><path d="M24 2l-8 4 8 4"/></svg>
+            <div class="node" id="hp-idx"><span class="lbl">index</span><span class="mono" id="hp-iv">—</span></div>
+          </div>
+          <div class="slotrow" style="margin-top:var(--s4)">
+            <div class="slot" id="h0"><i class="ix">0</i></div>
+            <div class="slot" id="h1"><i class="ix">1</i></div>
+            <div class="slot" id="h2"><i class="ix">2</i></div>
+            <div class="slot" id="h3"><i class="ix">3</i></div>
+            <div class="slot" id="h4"><i class="ix">4</i></div>
+            <div class="slot" id="h5"><i class="ix">5</i></div>
+            <div class="slot" id="h6"><i class="ix">6</i></div>
+            <div class="slot" id="h7"><i class="ix">7</i></div>
+          </div>
+          <div class="chip" data-chip="hc" data-home="hp-key" style="opacity:0"><span class="t">omar</span></div>
+        </div>
+        <div class="controls">
+          <button class="btn" type="button" data-a="start"><svg class="ic"><use href="#i-play"/></svg> Start</button>
+          <button class="btn ghost" type="button" data-a="prev"><svg class="ic"><use href="#i-prev"/></svg> السابق</button>
+          <button class="btn ghost" type="button" data-a="next"><svg class="ic"><use href="#i-next"/></svg> التالي</button>
+          <button class="btn ghost" type="button" data-a="play"><svg class="ic"><use href="#i-play"/></svg> تشغيل</button>
+          <button class="btn ghost" type="button" data-a="pause"><svg class="ic"><use href="#i-pause"/></svg> إيقاف</button>
+          <button class="btn ghost" type="button" data-a="reset"><svg class="ic"><use href="#i-reset"/></svg> إعادة</button>
+          <button class="btn ghost" type="button" data-a="speed" aria-label="سرعة عادية" aria-pressed="false">2x speed</button>
+          <div class="segstrip" aria-label="شريط الخطوات"></div>
+          <span class="stepno">Step 0 of 8</span>
+        </div>
+        <div class="askbox" hidden>
+          <div class="askq"></div>
+          <div class="askopts opts"></div>
+          <div class="askfb"></div>
+        </div>
+        <p class="cap"><span class="why">لماذا</span><span class="txt">اضغط Start: سنحسب رمز الكلمة من مجموع رموز حروفها، ثم نأخذ الباقي عند 8.</span></p>
+        <div class="watch">
+          <div class="w"><span>key</span><b data-w="k">—</b></div>
+          <div class="w"><span>code</span><b data-w="c">0</b></div>
+          <div class="w"><span>index = code % 8</span><b data-w="i">—</b></div>
+          <div class="w"><span>stage</span><b data-w="s">—</b></div>
+        </div>
+      </div>
+
+      <div id="host-modcalc" data-num="2.1.2"></div>
+
+      <div class="aside warn"><span class="k"><svg class="ic"><use href="#i-warn"/></svg> ملاحظة على الشريحة</span>
+        <p>الشريحة تكتب <span class="mono" dir="ltr">hash('omar') = 4 206 …</span> ثم <span class="mono" dir="ltr">4 206 … % 8 = 3</span>. الرقم مقتطع (لاحظ النقاط)، لأن <span class="mono" dir="ltr">4206 % 8 = 6</span> وليس 3. لا تحسب على الرقم المقتطع؛ احسب على رمزك الكامل كما يفعل المِعمل أعلاه.</p></div>
+
+      <div class="aside"><span class="k"><svg class="ic"><use href="#i-info"/></svg> قيد لا يُنسى</span>
+        <p>القوائم لا تصلح مفاتيح: <span class="mono" dir="ltr">TypeError: unhashable type</span>. السبب كما تصوغه الشريحة: القائمة قد تتغيّر بعد التخزين فيتغيّر رقم خانتها فلا تجدها أبدًا. البديل <span class="mono" dir="ltr">tuple</span> أو نص. و<span class="mono" dir="ltr">hash('omar')</span> يعطي رقمًا مختلفًا في كل تشغيل لبايثون (PEP 456) لكنه ثابت داخل التشغيل الواحد.</p></div>
+
+      <div class="fold"><details class="ex"><summary><svg class="ic"><use href="#i-bulb"/></svg> تمرين 2.1 — مرحلتان لا مرحلة <span class="ex-lbl">أظهر الحل</span></summary>
+        <p><b>السؤال:</b> لماذا لا نستخدم <span class="mono" dir="ltr">hash(key)</span> وحدها فهرسًا؟</p>
+        <p><b>الحل:</b> لأن ناتجها عدد صحيح كبير (قد يكون سالبًا أيضًا) لا يقع في <span class="mono" dir="ltr">0 … M−1</span>؛ فنضغطه بـ <span class="mono" dir="ltr">% M</span> فيصبح صالحًا كفهرس مصفوفة، وبذلك نفصل «جودة الرمز» عن «حجم الجدول».</p>
+      </details></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2.2 ================= -->
+<section class="sec reveal" id="s22">
+  <div class="num"><b>2.2</b><span>الجودة</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 8</span></div>
+    <h2>ما يجعل الدالة جيدة؟ ثلاث خصائص</h2>
+    <div data-slide="8">
+      <div class="quote">
+        <span class="term">What makes a hash function good?</span>
+        <p>“Fast · Deterministic · Spreads keys out — and a trick for the table size.”</p>
+        <span class="src">Hash Tables, slide 8</span>
+      </div>
+      <div class="tw"><table>
+        <caption>الخصائص الثلاث وأثر اختلالها</caption>
+        <thead><tr><th>الخاصية</th><th>المعنى</th><th>إن اختلّت</th></tr></thead>
+        <tbody>
+          <tr><td>Fast</td><td>سريعة الحساب</td><td>تخسر السرعة التي جئت من أجلها</td></tr>
+          <tr><td>Deterministic</td><td>المفتاح نفسه ← الخانة نفسها دائمًا</td><td>تخزّن ولا تجد</td></tr>
+          <tr><td>Spreads keys out</td><td>تستخدم المفتاح كله وتوزّع الخانات</td><td>تكدّس وتصادمات</td></tr>
+        </tbody>
+      </table></div>
+      <p><b>مثال الضغط السيّئ:</b> <span class="mono" dir="ltr">M = 10</span> مع المفاتيح <span class="mono" dir="ltr">10, 20, 30, 40</span> ← كلها في الخانة 0. و<b>الحيلة:</b> اجعل M عددًا أوليًا؛ مع <span class="mono" dir="ltr">M = 11</span> تصبح الخانات <span class="mono" dir="ltr">10, 9, 8, 7</span>.</p>
+      <div class="spread" aria-label="مقارنة التوزيع">
+        <span class="b many">0</span><span class="b">1</span><span class="b">2</span><span class="b">3</span><span class="b">4</span><span class="b">5</span><span class="b">6</span><span class="b">7</span><span class="b">8</span><span class="b">9</span>
+      </div>
+      <div class="legend"><span><i style="background:#8A6114"></i>M = 10: أربعة مفاتيح في خانة واحدة</span><span>M = 11: 10 · 9 · 8 · 7</span></div>
+      <p>البيانات غالبًا تأتي بأنماط (مضاعفات 10، الأعداد الزوجية…)؛ المقاس الأولي لا يشارك هذه الأنماط عاملًا مشتركًا، ولهذا يتوزّع الباقي.</p>
+      <div class="aside ok"><span class="k"><svg class="ic"><use href="#i-check"/></svg> فحص سريع من الشريحة</span>
+        <p>المفاتيح 10, 20, 30, 40 مع <span class="mono" dir="ltr">M = 10</span> ← كلها 0 (سيّئ). مع <span class="mono" dir="ltr">M = 11</span> ← 10, 9, 8, 7 (جيد). أي خاصية كُسرت؟ <b>Spreads keys out</b>، أما Fast وDeterministic فسليمتان.</p></div>
+    </div>
+    <div id="host-pa1"></div>
+  </div>
+</section>
+
+<!-- ================= 2.3 ================= -->
+<section class="sec reveal" id="s23">
+  <div class="num"><b>2.3</b><span>الطرق</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 9</span></div>
+    <h2>أربع طرق كلاسيكية لحساب h(k)</h2>
+    <div data-slide="9">
+      <div class="quote">
+        <span class="term">Four classic ways (integer keys)</span>
+        <p>“Division · Mid-square · Folding · Multiplication — the division method is the one we use.”</p>
+        <span class="src">Hash Tables, slide 9 · DSAP-L6; Knuth (1998) §6.4</span>
+      </div>
+      <div class="tw"><table>
+        <caption>القاعدة ومثال على كل طريقة</caption>
+        <thead><tr><th>الطريقة</th><th>القاعدة</th><th>مثال</th></tr></thead>
+        <tbody>
+          <tr><td>Division</td><td class="ltr">h(k) = k mod M</td><td class="ltr">M=7: 25 mod 7 = 4</td></tr>
+          <tr><td>Mid-square</td><td>ربّع k وخُذ الأرقام الوسطى</td><td class="ltr">123² = 15129 → “51” → 51 mod M</td></tr>
+          <tr><td>Folding</td><td>قسّم k أجزاءً واجمعها</td><td class="ltr">12 + 34 + 56 = 102 → 102 mod M</td></tr>
+          <tr><td>Multiplication</td><td class="ltr">⌊M·(k·A mod 1)⌋</td><td class="ltr">A=0.618, M=10, k=25 → 4</td></tr>
+        </tbody>
+      </table></div>
+      <p>المقرر يحتاج <b>القسمة</b>: أبسطها، وهي مجرد <span class="mono" dir="ltr">%</span>، وتعمل جيدًا مع M أولي. الثلاث الأخرى تُعرَف بالاسم فقط — وتظهر في أسئلة المقارنة لا في التنفيذ.</p>
+      <div id="host-methodlab" data-num="2.3.1"></div>
+      <div class="aside"><span class="k"><svg class="ic"><use href="#i-target"/></svg> لماذا هذا المثال؟</span>
+        <p>المفتاح <span class="mono" dir="ltr">123456</span> يُظهر الفرق بوضوح: القسمة تعطي 3، والطي يعطي 3 أيضًا، <span class="mono" dir="ltr">123456 % 11 = 3</span>، والطي <span class="mono" dir="ltr">12+34+56 = 102 % 11 = 3</span>، والمربّع المتوسط رقم آخر. جرّب في المِعمل أعلاه وغيّر k.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2.4 ================= -->
+<section class="sec reveal" id="s24">
+  <div class="num"><b>2.4</b><span>التصادم</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 10</span></div>
+    <h2>التصادمات لا مفرّ منها</h2>
+    <div data-slide="10">
+      <div class="quote">
+        <span class="term">Collisions are unavoidable</span>
+        <p>“Two different keys, same slot. We cannot prevent it — we must handle it.”</p>
+        <span class="src">Hash Tables, slide 10</span>
+      </div>
+      <p>مع <span class="mono" dir="ltr">M = 8</span>: <span class="mono" dir="ltr">h('ali') = 1</span>، <span class="mono" dir="ltr">h('sara') = 6</span>، ثم <span class="mono" dir="ltr">h('noor') = 1</span> ← الخانة مشغولة. السبب عددي لا برمجي: عدد المفاتيح الممكنة أكبر بكثير من عدد الخانات، فلا بد أن يتشارك بعضها. والشريحة تعطي الحدس الشهير: 23 تاريخ ميلاد في 365 خانة ← احتمال التطابق يتجاوز 50%.</p>
+      <div class="aside bad"><span class="k"><svg class="ic"><use href="#i-warn"/></svg> ما لا يقوله الحدس</span>
+        <p>«احتمال كبير» لا يعني «كثير من التصادمات»: التصادم المتوقّع عند 23 عنصرًا هو عنصر واحد على الأكثر، لكن ظهور واحد على الأقل صار أكثر احتمالًا من عدمه. لا تخلط بين «احتمال وجود تصادم» و«عدد التصادمات».</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2.5 ================= -->
+<section class="sec reveal" id="s25">
+  <div class="num"><b>2.5</b><span>السبر</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 11</span></div>
+    <h2>العائلات الثلاث وثلاث استراتيجيات سبر</h2>
+    <div data-slide="11">
+      <div class="quote">
+        <span class="term">Collision resolution</span>
+        <p>“When two keys hash to the same home slot, we probe for another free slot. Probe count includes the successful attempt. Always start at i = 0.”</p>
+        <span class="src">Hash Tables, slide 11</span>
+      </div>
+      <div class="tw"><table>
+        <caption>مصطلحات تسبق الحلول</caption>
+        <thead><tr><th>المصطلح</th><th>المعنى</th></tr></thead>
+        <tbody>
+          <tr><td>Probe</td><td>نظرة واحدة إلى خانة</td></tr>
+          <tr><td>Probing</td><td>تجربة خانات متتالية حتى نجد حرة</td></tr>
+          <tr><td>Chaining</td><td>كل خانة تحمل قائمة؛ المتصادمون يُضافون إليها</td></tr>
+          <tr><td>Open addressing</td><td>كل خانة تحمل مفتاحًا واحدًا؛ إن كانت مشغولة نبحث عن غيرها</td></tr>
+        </tbody>
+      </table></div>
+      <div class="tw"><table>
+        <caption>ثلاث استراتيجيات سبر + السلسلة (الشريحة 11)</caption>
+        <thead><tr><th>الاستراتيجية</th><th class="ltr">slot(k, i)</th><th>الفكرة</th></tr></thead>
+        <tbody>
+          <tr><td>Linear probing</td><td class="ltr">(h(k) + i) mod M</td><td>خانات متتالية</td></tr>
+          <tr><td>Quadratic probing</td><td class="ltr">(h(k) + i²) mod M</td><td>إزاحات مربّعة</td></tr>
+          <tr><td>Double hashing</td><td class="ltr">(h₁(k) + i·h₂(k)) mod M</td><td>خطوة خاصة بكل مفتاح</td></tr>
+          <tr><td>Separate chaining</td><td class="ltr">h(k) mod M</td><td>قائمة مرتبطة في الخانة</td></tr>
+        </tbody>
+      </table></div>
+      <p><b>قاعدتان تُحسب عليهما الدرجات:</b> عدّاد المحاولات <b>يشمل المحاولة الناجحة</b> (المفتاح الذي يدخل من أول مرة = محاولة واحدة لا صفر)، و<b>البداية دائمًا i = 0</b>.</p>
+      <div class="aside warn"><span class="k"><svg class="ic"><use href="#i-warn"/></svg> ملاحظة على الشريحة</span>
+        <p>الشريحة تكتب صيغة السلسلة <span class="mono" dir="ltr">(h(k) mod M</span> بقوس ناقص. الصواب: <span class="mono" dir="ltr">h(k) mod M</span> — خانة واحدة تحمل قائمة، ولا يوجد <span class="mono" dir="ltr">i</span> في السلسلة أصلًا.</p></div>
+      <div class="fold"><details class="ex"><summary><svg class="ic"><use href="#i-bulb"/></svg> تمرين 2.5 — عدّ المحاولات <span class="ex-lbl">أظهر الحل</span></summary>
+        <p><b>السؤال:</b> مفتاح خانته الأصلية 3 ووجدها فارغة — كم محاولة؟ ومفتاح خانته 3 مشغولة ثم 4 مشغولة ثم 5 فارغة؟</p>
+        <p><b>الحل:</b> الأول محاولة واحدة (i=0) لأن العدّ يشمل النجاح؛ والثاني ثلاث محاولات (i=0,1,2). لا تقل «صفر» ولا «محاولتان».</p>
+      </details></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2.6 ================= -->
+<section class="sec reveal" id="s26">
+  <div class="num"><b>2.6</b><span>تحدٍّ</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">نشاط تطبيقي · 5 مستويات · الشرائح 7–11</span></div>
+    <h2>تحدّي: أيّ خانة وأيّ محاولة؟</h2>
+    <p>خمسة مستويات: الباقي، الطرق الأربع، ثم تسلسل السبر الخطّي والتربيعي والمزدوج وعدّ المحاولات. المستوى الثاني يحتاج <b>حسابيًا</b> لا اسمًا.</p>
+    <div id="challenge"></div>
+    <div class="aside"><span class="k"><svg class="ic"><use href="#i-info"/></svg> كيف يُحتسب الإنجاز</span>
+      <p>يُسجَّل النشاط مكتملًا عند اجتياز المستويات الخمسة، ويُحفظ في المتصفح.</p></div>
+  </div>
+</section>
+
+<!-- ================= 2.7 ================= -->
+<section class="sec reveal" id="s27">
+  <div class="num"><b>2.7</b><span>اختبار</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">10 أسئلة على الشرائح 7–11 · تصحيح فوري</span></div>
+    <h2>الاختبار القصير</h2>
+    <p>أجب ثم اضغط <b>صحّح</b>. كل سؤال يشرح سببه بعد التصحيح، ونُسجّل المواضيع التي أخطأت فيها لتظهر في «مواضيعك الأضعف».</p>
+    <div id="quizList"></div>
+    <div class="scorebar">
+      <span>النتيجة: <span class="big" id="scoreVal">—</span> <span id="scoreMsg"></span></span>
+      <span class="acts" style="margin:0">
+        <button class="btn" type="button" id="gradeBtn">صحّح</button>
+        <button class="btn ghost" type="button" id="retryBtn">إعادة</button>
+        <button class="btn ghost" type="button" id="onlyWrong">راجع الأخطاء فقط</button>
+        <button class="btn ghost" type="button" id="showAll">كل الأسئلة</button>
+      </span>
+    </div>
+
+    <div id="weakBox" style="margin-top:var(--s4)">
+      <h3>مواضيعك الأضعف</h3>
+      <div id="weakBody"></div>
+      <button class="btn ghost" type="button" id="clearHist" style="margin-top:var(--s2)"><svg class="ic"><use href="#i-trash"/></svg> امسح السجل</button>
+      <p class="sm muted" style="margin-top:var(--s2)">يُحفظ آخر 10 محاولات في هذا المتصفح فقط (localStorage).</p>
+    </div>
+
+    <h3 style="margin-top:var(--s5)">تحقق من فهمك</h3>
+    <p class="sm muted">علّم ما أنجزته فعلًا؛ الحالة تُحفظ محليًا.</p>
+    <div id="checkList"></div>
+
+    <h3 style="margin-top:var(--s5)">فحوص ذاتية محسوبة</h3>
+    <p class="sm muted">تُحسب عند التحميل من بيانات الوحدة وتُقارن بأرقام الشرائح:</p>
+    <div id="selftests"></div>
+
+    <div class="aside ok" style="margin-top:var(--s4)"><span class="k"><svg class="ic"><use href="#i-arrow"/></svg> التالي</span>
+      <p>الوحدة 03 تبدأ من الشريحة 12: <b>السلسلة</b> — تعريفها، تتبّعها الكامل، وتنفيذها في بايثون.</p></div>
+  </div>
+</section>
+
+<footer class="sec" style="display:block;border-top:1px solid var(--hair);padding-top:var(--s3)">
+  <p class="sm muted">CS2015 · الوحدة 02 — دوال التجزئة والتصادم (الشرائح 7–11 من 33) · تغطية كاملة لكل شريحة في النطاق · بلا إنترنت.</p>
+</footer>
+</main>
+</div>
+
+<script>
+/* بيانات وحدة M02 — الشرائح 7–11 (Hash p.7–11) */
+(function(){
+const M = {};
+M.id = 'm02';
+M.range = [7,11];
+const mod = (a,b)=> ((a%b)+b)%b;
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const codeOf = s => { let n=0; for(const ch of String(s).toLowerCase()) n += ch.codePointAt(0); return n; };
+function linSlot(Mt,k,occ){ let i=0; while(i<Mt){ const s=mod(k+i,Mt); if(!occ.has(s)) return {s,i,probes:i+1}; i++; } return {s:-1,i:Mt,probes:Mt}; }
+function quadSlot(Mt,k,occ){ let i=0; while(i<Mt){ const s=mod(k+i*i,Mt); if(!occ.has(s)) return {s,i,probes:i+1}; i++; } return {s:-1,i:Mt,probes:Mt}; }
+function foldOf(k){ const s=String(Math.abs(k)); let sum=0, parts=[]; for(let i=0;i<s.length;i+=2){ const p=parseInt(s.slice(Math.max(0,s.length-i-2), s.length-i),10); parts.unshift(p); sum+=p; } return {sum,parts}; }
+function midOf(k){ const d=String(Math.abs(k*k)); return d.length>=4 ? parseInt(d.slice(Math.floor(d.length/2)-1, Math.floor(d.length/2)+1),10) : parseInt(d,10); }
+
+M.sections = [
+  {id:'s21', acts:['anim:hashpipe','tool:modcalc']},
+  {id:'s22', acts:['pa:2.2.1']},
+  {id:'s23', acts:['tool:methodlab']},
+  {id:'s24'},{id:'s25'},
+  {id:'s26', acts:['ca:1']},
+  {id:'s27', acts:['quiz']}
+];
+
+/* ---------- ANIMATION: المسار الكامل + تصادم sara ---------- */
+M.anims = { hashpipe: { steps: [
+  {cap:'المفتاح: <b>omar</b>. المرحلة الأولى تبدأ من نوع المفتاح، لا من رقمه.', lbl:{hc:'omar'}, css:[{id:'hc',t:1}],
+   watch:{k:'omar',c:'0',i:'—',s:'1'}, fx:['draw:hp-a1','draw:hp-a2','draw:hp-a3']},
+  {cap:'<b>hash code</b>: مجموع رموز الحروف — o=111, m=109, a=97, r=114 ← <b>431</b>.', pos:{hc:'hp-code'},
+   fx:['count:hp-cv:431'], set:[{id:'hp-cv',text:'431'}], watch:{c:'431',s:'1'}},
+  {cap:'المرحلة الثانية: <b>الضغط</b>. لا يمكن استخدام 431 فهرسًا في جدول من 8 خانات.', pos:{hc:'hp-code'},
+   watch:{s:'2'}},
+  {cap:'<b>431 % 8</b>: 8 × 53 = 424، والباقي <b>7</b>.', pos:{hc:'hp-mod'}, fx:['count:hp-r:7'],
+   set:[{id:'hp-r',text:'7'},{id:'hp-iv',text:'—'}], watch:{i:'7'}},
+  {cap:'الفهرس <b>7</b> دائمًا في المدى 0 … 7 مهما كبر الرمز.', pos:{hc:'hp-idx'},
+   set:[{id:'hp-iv',text:'7'}], watch:{i:'7'}},
+  {cap:'omar في الخانة 7. حسابان فقط، بلا مقارنة واحدة.', pos:{hc:'h7'}, fx:['pulse:h7:ok'], hot:['h7']},
+  {cap:'كلمة أخرى: <b>sara</b> — 115+97+114+97 = <b>423</b>.', lbl:{hc:'sara'},
+   set:[{id:'hp-kv',text:'sara'},{id:'hp-cv',text:'423'}], pos:{hc:'h7'}, watch:{k:'sara',c:'423',s:'1'}},
+  {cap:'423 % 8 = <b>7</b> أيضًا (8 × 52 = 416). الخانة نفسها ← <b>تصادم</b>: المفتاحان يريدان 7. الحل في الوحدات التالية.',
+   pos:{hc:'h7'}, fx:['shake:h7'], lbl:{hc:'sara · occupied'}, cls:{hc:'bad'}, hot:['h7'], watch:{i:'7'}}
+]}};
+
+/* ---------- PARTICIPATION ---------- */
+M.pas = [
+  {num:'2.2.1', sec:'s22', after:'host-pa1', title:'تحقّق: خصائص الدالة', items:[
+    {q:'أي خاصية كُسرت حين تقع المفاتيح <span class="mono" dir="ltr">10, 20, 30, 40</span> كلها في الخانة 0 مع <span class="mono" dir="ltr">M = 10</span>؟',
+     opts:['Fast','Deterministic','Spreads keys out'], a:2, why:'الحساب سريع وثابت، لكن التوزيع فشل لأن M يشارك البيانات عاملًا مشتركًا (10).'},
+    {q:'<span class="mono" dir="ltr">123² = 15129</span> — رقمان وسيطان بطريقة mid-square؟',
+     opts:['15','51','29','12'], a:1, why:'الأرقام الوسطى 51، ثم تُضغط بـ 51 % M.'},
+    {q:'أي هذه <b>ليست</b> من خصائص الدالة الجيدة على الشريحة 8؟',
+     opts:['Fast','Deterministic','تُرجع المفاتيح مرتّبة','Spreads keys out'], a:2,
+     why:'التجزئة لا تُرتّب شيئًا؛ الترتيب يحتاج شجرة، وهذا مذكور في الشريحة 23.'}
+  ]}
+];
+
+/* ---------- CHALLENGE ---------- */
+M.ca = { num:'2.1.1', title:'من المفتاح إلى الخانة ثم السبر', levels:[
+  ()=>{ const word = pick(['sara','noor','ali','raad']); const Mt = pick([8,11,13]);
+        const c = codeOf(word);
+        return {kind:'num', q:`<span class="mono" dir="ltr">M = ${Mt}</span>، ورمز الكلمة = مجموع رموز حروفها. المفتاح <span class="mono" dir="ltr">'${word}'</span> رمزه <span class="mono" dir="ltr">${c}</span> — ما فهرسه؟`,
+                a: mod(c,Mt), hint:`${c} % ${Mt}: اقسم ثم خُذ الباقي.`, why:`${c} = ${Mt}×${Math.floor(c/Mt)} + ${mod(c,Mt)} ← الفهرس ${mod(c,Mt)}.`}; },
+  ()=>{ const Mt=pick([7,11,13]); const k=pick([123,456,789,1234,5555]);
+        const m = midOf(k);
+        return {kind:'num', q:`بطريقة <b>mid-square</b>: <span class="mono" dir="ltr">k = ${k}</span>، و<span class="mono" dir="ltr">k² = ${k*k}</span>. الرقمان الوسيطان ثم <span class="mono" dir="ltr">% ${Mt}</span> — ما الناتج؟`,
+                a: mod(m,Mt), hint:`خذ الرقمين في وسط ${k*k} ثم % ${Mt}.`, why:`${k*k} → “${String(k*k).slice(Math.floor(String(k*k).length/2)-1, Math.floor(String(k*k).length/2)+1)}” ← ${m} % ${Mt} = ${mod(m,Mt)}.`}; },
+  ()=>{ const k=pick([123456,987654,246810]); const Mt=pick([11,13]);
+        const f = foldOf(k);
+        return {kind:'num', q:`بطريقة <b>folding</b> (كل رقمين جزءًا): <span class="mono" dir="ltr">k = ${k}</span> → ${f.parts.join(' + ')} = ${f.sum}. ما <span class="mono" dir="ltr">${f.sum} % ${Mt}</span>؟`,
+                a: mod(f.sum,Mt), hint:'اجمع الأجزاء ثم % M.', why:`${f.sum} % ${Mt} = ${mod(f.sum,Mt)}.`}; },
+  ()=>{ const k=pick([21,31,41]); const occ=new Set([1,2]); const r=quadSlot(10,k,occ);
+        return {kind:'num', q:`فحص تربيعي <span class="mono" dir="ltr">(h + i²) % 10</span>، والخانتان 1 و2 مشغولتان. المفتاح <span class="mono" dir="ltr">${k}</span> خانته 1 إلى أي خانة يذهب؟`,
+                a: r.s, hint:'i=0 ← 1، i=1 ← 2، i=2 ← 1+4 = 5.', why:`1+0² ✗، 1+1² ✗، 1+2² = 5 ✓ بعد ${r.probes} محاولات.`}; },
+  ()=>{ const k=pick([48,41,25]); const occ=new Set([8,9,0,1,2,3,5,6,7]);
+        const r=linSlot(10,k,occ);
+        return {kind:'num', q:`فحص خطّي <span class="mono" dir="ltr">M = 10</span>، الخانات المشغولة ${[...occ].sort((a,b)=>a-b).join(', ')}. كم <b>محاولة</b> يحتاج <span class="mono" dir="ltr">${k}</span>؟`,
+                a: r.probes, hint:'عدّ الخانات من الخانة الأصلية، والمحاولة الناجحة تُحسب.', why:`${k} % 10 = ${mod(k,10)} ← ${r.probes} محاولات حتى الخانة ${r.s}.`}; }
+]};
+
+/* ---------- QUIZ (10 أسئلة على 7–11) ---------- */
+M.quiz = [
+ {topic:'مرحلتان', q:'ما المرحلتان في دالة التجزئة؟',
+  opts:['ترتيب ثم بحث','hash code ثم ضغط بـ % M','مقارنة ثم إدراج','نسخ ثم توسيع'], a:1,
+  why:'الشريحة 7: الرمز أولًا (عدد صحيح كبير)، ثم الضغط إلى 0 … M−1.'},
+ {topic:'مرحلتان', q:'لماذا نضغط الرمز بـ <span class="mono" dir="ltr">% M</span>؟',
+  opts:['لتصغير المفتاح','ليصبح فهرسًا في نطاق 0 … M−1','لتسريع الطباعة','لتجنّب التصادم تمامًا'], a:1,
+  why:'الرمز قد يكون ضخمًا أو سالبًا؛ الباقي يضمن فهرسًا صالحًا، لكنه لا يمنع التصادم.'},
+ {topic:'الجودة', q:'المفاتيح 10, 20, 30, 40 مع <span class="mono" dir="ltr">M = 10</span> كلها في 0. أي خاصية كُسرت؟',
+  opts:['Fast','Deterministic','Spreads keys out','لا شيء'], a:2, why:'التوزيع؛ ولهذا نختار M أوليًا (11 ← 10, 9, 8, 7).'},
+ {topic:'الجودة', q:'أي M يعطي توزيعًا أفضل للمفاتيح 10, 20, 30, 40؟',
+  opts:['8','10','11','100'], a:2, why:'11 أولي ولا يشارك مضاعفات 10 عاملًا مشتركًا ← 10, 9, 8, 7.'},
+ {topic:'الطرق', q:'بطريقة mid-square للمفتاح 123: ما الخطوة بعد التربيع؟',
+  opts:['نأخذ أول رقمين','نأخذ الرقمين الوسطيين (51)','نجمع الأجزاء','نضرب في A'], a:1,
+  why:'123² = 15129 ← “51” ثم 51 % M.'},
+ {topic:'الطرق', q:'بطريقة folding للمفتاح 123456 (جزءان):',
+  opts:['<span class="mono" dir="ltr">12 + 34 + 56 = 102</span>','<span class="mono" dir="ltr">1 + 2 + 3 = 6</span>','<span class="mono" dir="ltr">123 + 456 = 579</span>','<span class="mono" dir="ltr">12 × 34 × 56</span>'], a:0,
+  why:'الشريحة 9: تُقسَّم إلى أجزاء متساوية 12 · 34 · 56 ثم تُجمع ← 102 % M.'},
+ {topic:'التصادم', q:'لماذا التصادم حتمي؟',
+  opts:['لأن بايثون بها خطأ','لأن عدد المفاتيح الممكنة أكبر من عدد الخانات','لأن M دائمًا زوجي','لأن الدالة غير حتمية'], a:1,
+  why:'الشريحة 10: كثرة المفاتيح الممكنة تفرض تشارك الخانات؛ و23 تاريخًا في 365 خانة تكفي لتجاوز 50%.'},
+ {topic:'السبر', q:'صيغة الفحص الخطّي هي:',
+  opts:['<span class="mono" dir="ltr">(h(k) + i) mod M</span>','<span class="mono" dir="ltr">(h(k) + i²) mod M</span>','<span class="mono" dir="ltr">h(k) mod M</span>','<span class="mono" dir="ltr">(h₁ + i·h₂) mod M</span>'], a:0,
+  why:'الخطّي يزيد 1 كل محاولة؛ التربيعي يزيد i²، والمزدوج يستخدم h₂، والسلسلة لا تزيد شيئًا.'},
+ {topic:'السبر', q:'المفتاح يجد خانته الأصلية فارغة من أول محاولة. كم محاولة تُحسب؟',
+  opts:['0','1','2','حسب حجم M'], a:1,
+  why:'قاعدة الشريحة 11: العدّ يشمل المحاولة الناجحة، والبداية i = 0.'},
+ {topic:'السبر', q:'أي استراتيجية تعطي خطوة مختلفة لكل مفتاح؟',
+  opts:['Linear','Quadratic','Double hashing','Chaining'], a:2,
+  why:'المزدوجة تستخدم h₂(k) فيختلف المسار بين مفتاحين لهما الخانة الأصلية نفسها — وهذا علاج التكدّس الثانوي.'}
+];
+
+/* ---------- tools (views-hash) ---------- */
+M.tools = [{id:'modcalc'}, {id:'methodlab'}];
+M.mount = [function(){
+  if(window.CSH && CSH.modCalc) CSH.modCalc('host-modcalc');
+  if(window.CSH && CSH.methodLab) CSH.methodLab('host-methodlab');
+  ['host-modcalc','host-methodlab'].forEach(id=>{
+    const host = document.getElementById(id); if(!host) return;
+    host.addEventListener('csh-used', e=>{
+      const st = window.CS && window.CS.ST; if(!st) return;
+      const key = (e.detail==='methodlab') ? 'methodlab' : 'modcalc';
+      if(!st.tool[key]){ st.tool[key] = true; window.CS.save(); }
+    });
+  });
+}];
+
+/* ---------- self tests (محسوبة) ---------- */
+M.selftests = [
+  {name:'mid-square(123) → middle digits', got:()=> midOf(123), want:51, slide:'9'},
+  {name:'folding(123456) → sum', got:()=> foldOf(123456).sum, want:102, slide:'9'},
+  {name:'25 % 7 (division)', got:()=> mod(25,7), want:4, slide:'9'},
+  {name:'⌊10·(25·0.618 mod 1)⌋ (multiplication)', got:()=> Math.floor(10*((25*0.618)%1)), want:4, slide:'9'},
+  {name:'10 % 11 · 20 % 11 · 30 % 11 · 40 % 11', got:()=> [10,20,30,40].map(k=>mod(k,11)).join(','), want:'10,9,8,7', slide:'8'},
+  {name:'4206 % 8 (الشريحة 7 مقتطعة)', got:()=> mod(4206,8), want:6, slide:'7'},
+  {name:"code('omar') = 111+109+97+114", got:()=> codeOf('omar'), want:431, slide:'7'}
+];
+
+M.checklist = [
+  'أفصل بين <b>hash code</b> و<b>compression</b> وأشرح دور كل منهما.',
+  'أذكر الخصائص الثلاث للدالة الجيدة وأشرح مثال M = 10 مقابل M = 11.',
+  'أطبّق الطرق الأربع (division, mid-square, folding, multiplication) على مفتاح صغير.',
+  'أشرح لماذا التصادم حتمي، وأفرّق بین السلسلة والعنونة المفتوحة.',
+  'أعدّ المحاولات بشكل صحيح (المحاولة الناجحة تُحسب، i يبدأ من 0).'
+];
+
+window.MODULE = M;
+})();
+
+</script>
+<script id="views-js">
+/* VIEWS-HASH v2 START:js */
+/* طبقة عرض للتجزئة: مِعمل الباقي (p7) ومِعمل الطرق الأربع (p9). لا تعدّل CORE. */
+(function(){
+"use strict";
+const CSH = window.CSH = window.CSH || {};
+const $ = (s,r)=>(r||document).querySelector(s);
+const mod = (a,b)=> ((a%b)+b)%b;
+
+/* ---- code helper: مجموع رموز الحروف (نفس الدالة المستخدمة في نص الوحدة) ---- */
+CSH.code = function(s){
+  const t = String(s).toLowerCase();
+  let n = 0; const parts = [];
+  for(const ch of t){ n += ch.codePointAt(0); parts.push(ch.codePointAt(0)); }
+  return {n, parts, text: String(s)};
+};
+
+/* ---- مِعمل الباقي: k = q·M + r (p7) ---- */
+CSH.modCalc = function(hostId){
+  const host = document.getElementById(hostId); if(!host) return;
+  host.innerHTML = `
+    <div class="act">
+      <div class="act-h"><span class="act-k">Tool <b>${host.dataset.num||'2.1.1'}</b></span><h3>مِعمل الباقي: من المفتاح إلى الخانة</h3></div>
+      <div class="mc">
+        <form onsubmit="return false">
+          <div><label class="fl">المفتاح (نص)</label><input type="text" class="k" value="omar" dir="ltr" style="max-width:150px"></div>
+          <div><label class="fl">M (عدد الخانات)</label><input type="number" class="m" value="8" min="2" max="97"></div>
+          <button class="btn go" type="button">احسب</button>
+        </form>
+        <div class="out" aria-live="polite"></div>
+      </div>
+    </div>`;
+  const out = $('.out', host), kin = $('input.k', host), min = $('input.m', host), go = $('button.go', host);
+  function run(){
+    const M = Math.max(2, Math.min(97, parseInt(min.value,10)||8));
+    const c = CSH.code(kin.value || 'omar');
+    const r = mod(c.n, M), q = Math.floor(c.n / M);
+    out.innerHTML =
+`key   = '${c.text}'          ← stage 1: hash code
+code  = ${c.parts.join(' + ')} = ${c.n}
+index = ${c.n} % ${M} = ${r}        (${c.n} = ${M} × ${q} + ${r})
+chosen slot: [${r}]   — always in 0 … ${M-1}`;
+  }
+  const used = ()=>{ host.dataset.used='1'; host.dispatchEvent(new CustomEvent('csh-used',{bubbles:true,detail:'modcalc'})); };
+  go && go.addEventListener('click', ()=>{ run(); used(); });
+  kin && kin.addEventListener('keydown', e=>{ if(e.key==='Enter'){ run(); used(); } });
+  min && min.addEventListener('change', ()=>{ run(); used(); });
+  run();
+};
+
+/* ---- مِعمل الطرق الأربع (p9) ---- */
+CSH.methodLab = function(hostId){
+  const host = document.getElementById(hostId); if(!host) return;
+  host.innerHTML = `
+    <div class="act">
+      <div class="act-h"><span class="act-k">Tool <b>${host.dataset.num||'2.3.1'}</b></span><h3>مِعمل الطرق الأربع</h3></div>
+      <p class="sm muted" style="margin:0 0 var(--s2)">الطريقة نفسها على مفتاحك — كل نتيجة تُضغط بـ <span class="mono" dir="ltr">% M</span>.</p>
+      <form onsubmit="return false" style="display:flex;gap:10px;align-items:end;flex-wrap:wrap">
+        <div><label class="fl">k (عدد صحيح)</label><input type="number" class="k" value="123456" dir="ltr" style="max-width:150px"></div>
+        <div><label class="fl">M</label><input type="number" class="m" value="11" min="2" max="997"></div>
+        <div><label class="fl">A (لطريقة الضرب)</label><input type="number" class="a" value="0.618" step="0.001" min="0.01" max="0.99" style="max-width:110px"></div>
+        <button class="btn go" type="button">احسب</button>
+      </form>
+      <div class="m4"></div>
+      <div class="mc"><div class="out" aria-live="polite"></div></div>
+    </div>`;
+  const cards = $('.m4', host), out = $('.out', host);
+  const kin=$('input.k',host), min=$('input.m',host), ain=$('input.a',host), go=$('button.go',host);
+  function run(){
+    const k = Math.trunc(parseFloat(kin.value)||0);
+    const M = Math.max(2, Math.min(997, parseInt(min.value,10)||11));
+    const A = Math.min(0.99, Math.max(0.01, parseFloat(ain.value)||0.618));
+    const div = mod(k, M);
+    const sq = Math.abs(k*k);
+    const digits = String(sq);
+    const mid = digits.length>=4 ? digits.slice(Math.floor(digits.length/2)-1, Math.floor(digits.length/2)+1) : digits.slice(0,1);
+    const midV = parseInt(mid,10)||0;
+    const s = String(Math.abs(k));
+    let foldSum = 0, parts = [];
+    for(let i=0;i<s.length;i+=2){ const p = parseInt(s.slice(i, i+2),10); parts.push(p); foldSum += p; }
+    const mult = Math.floor(M * ((k*A) % 1));
+    const cell = (t,f,v)=>`<div class="cell"><h4>${t}</h4><span class="v">${v}</span><span class="f">${f}</span></div>`;
+    cards.innerHTML =
+      cell('Division', `h = k mod M`, div) +
+      cell('Mid-square', `${sq} → “${mid}”`, mod(midV, M)) +
+      cell('Folding', `${parts.join(' + ')} = ${foldSum}`, mod(foldSum, M)) +
+      cell('Multiplication', `⌊${M}·(${k}·${A} mod 1)⌋`, mult);
+    out.innerHTML = `k = ${k},  M = ${M},  A = ${A}\n` +
+      `division      : ${k} mod ${M} = ${div}\n` +
+      `mid-square    : ${sq} → mid “${mid}” → ${midV} mod ${M} = ${mod(midV,M)}\n` +
+      `folding       : ${parts.join(' + ')} = ${foldSum} → ${foldSum} mod ${M} = ${mod(foldSum,M)}\n` +
+      `multiplication: ⌊${M}·(${k}·${A} mod 1)⌋ = ${mult}`;
+  }
+  const used = ()=>{ host.dataset.used='1'; host.dispatchEvent(new CustomEvent('csh-used',{bubbles:true,detail:'methodlab'})); };
+  go && go.addEventListener('click', ()=>{ run(); used(); });
+  [kin,min,ain].forEach(el=> el && el.addEventListener('change', ()=>{ run(); used(); }));
+  run();
+};
+})();
+/* VIEWS-HASH v2 END:js */
+/* VIEWS-CODENOTES v1 START:js */
+/* يبني عمود «شرح الأسطر بالعربية» لكل كتلة .code فيها .cnotes[data-cn].
+   المصدر في content.html: <script type="text/plain" id="cn-XXX"> سطر لكل ملاحظة بصيغة «رقم|الشرح». */
+(function(){
+"use strict";
+const WIDE = '(min-width:901px)';
+const isWide = ()=> window.matchMedia(WIDE).matches;
+
+function parse(src){
+  return String(src.textContent||'').replace(/^\n/,'').split('\n')
+    .map(l=>l.replace(/\s+$/,''))
+    .filter(l=>l.trim() && l.indexOf('|')>0)
+    .map(l=>{ const i=l.indexOf('|'); return {n:parseInt(l.slice(0,i),10), t:l.slice(i+1).trim()}; })
+    .filter(r=>r.n>0 && r.t);
+}
+
+function build(code){
+  const box = code.querySelector('.cnotes[data-cn]');
+  if(!box || box.dataset.ready==='1') return;
+  const src = document.getElementById('cn-'+box.dataset.cn);
+  if(!src) return;
+  const rows = parse(src); if(!rows.length) return;
+  box.dataset.ready = '1';
+  code.classList.add('has-notes');
+
+  const d = document.createElement('details'); d.className='cn-d'; d.open = isWide();
+  const sm = document.createElement('summary');
+  sm.innerHTML = '<svg class="ic" aria-hidden="true"><use href="#i-list"/></svg> شرح الأسطر بالعربية ('+rows.length+')';
+  const list = document.createElement('div'); list.className='cn-list';
+  rows.forEach(r=>{
+    const row = document.createElement('div');
+    row.className='cn-row'; row.dataset.l = String(r.n);
+    const b = document.createElement('b'); b.textContent = r.n;
+    const s = document.createElement('span'); s.innerHTML = r.t;
+    row.appendChild(b); row.appendChild(s); list.appendChild(row);
+  });
+  d.appendChild(sm); d.appendChild(list); box.appendChild(d);
+}
+
+function wire(code){
+  const rows = code.querySelectorAll('.cn-row');
+  if(!rows.length) return;
+  const lines = code.querySelectorAll('.ln');
+  const paint = (n,on)=> code.querySelectorAll('.cn-row[data-l="'+n+'"], .ln[data-l="'+n+'"]')
+    .forEach(x=>x.classList.toggle('on',on));
+  lines.forEach(ln=>{
+    const n = ln.dataset.l;
+    if(!code.querySelector('.cn-row[data-l="'+n+'"]')) return;
+    ln.classList.add('has-note');
+    ln.addEventListener('mouseenter',()=>paint(n,true));
+    ln.addEventListener('mouseleave',()=>paint(n,false));
+    ln.addEventListener('focus',()=>paint(n,true));
+    ln.addEventListener('blur',()=>paint(n,false));
+    ln.addEventListener('click',()=>paint(n,true));
+  });
+  rows.forEach(r=>{
+    const n = r.dataset.l;
+    r.addEventListener('mouseenter',()=>paint(n,true));
+    r.addEventListener('mouseleave',()=>paint(n,false));
+    r.addEventListener('click',()=>paint(n,true));
+  });
+}
+
+function init(){
+  document.querySelectorAll('.code').forEach(code=>{ build(code); wire(code); });
+  // على الشاشات الواسعة يبقى العمود ظاهرًا دائمًا
+  window.addEventListener('resize',()=>{
+    document.querySelectorAll('.cn-d').forEach(d=>{ if(isWide()) d.open = true; });
+  });
+}
+
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+})();
+/* VIEWS-CODENOTES v1 END:js */
+
+</script>
+<script id="core-js">
+/* CORE v1.1 START:js */
+/* =========================================================================
+   CS2015 · CORE v1.1 — محرّك مشترك (motion / PA / CA / quiz / completion)
+   يعتمد على window.MODULE الذي يوفّره ملف محتوى الوحدة.
+   ========================================================================= */
+(function(){
+"use strict";
+const $  = (s,r)=> (r||document).querySelector(s);
+const $$ = (s,r)=> Array.from((r||document).querySelectorAll(s));
+const RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const DUR = {move:480, fast:240, hold:600};
+const EASE = 'cubic-bezier(.2,.8,.2,1)';
+const KEY = 'cs2015.' + (document.body.dataset.module || 'x') + '.';
+const LS = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+const M = window.MODULE || {};
+const ST = Object.assign({pa:{},anim:{},tool:{},ca:{lv:0,passed:[]},quiz:false,seen:[]}, LS.get(KEY+'state',{}));
+const save = ()=>{ LS.set(KEY+'state', ST); paintProgress(); };
+function icon(name, cls){ return `<svg class="ic ${cls||''}" aria-hidden="true"><use href="#i-${name}"/></svg>`; }
+
+/* ---------------- theme + font ---------------- */
+(function theme(){
+  const t = LS.get('cs2015.theme','light');
+  document.documentElement.setAttribute('data-theme', t);
+  const fs = LS.get('cs2015.fs', 17.2);
+  document.documentElement.style.setProperty('--fs', fs+'px');
+  const b = $('#themeBtn');
+  const paint = ()=>{ if(!b) return; b.innerHTML = icon(document.documentElement.getAttribute('data-theme')==='dark'?'sun':'moon');
+    b.setAttribute('aria-label', document.documentElement.getAttribute('data-theme')==='dark'?'الوضع الفاتح':'الوضع الداكن'); };
+  paint();
+  b && b.addEventListener('click', ()=>{
+    const nx = document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',nx); LS.set('cs2015.theme',nx); paint();
+  });
+  const step = d=>{
+    let cur = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--fs'))||17.2;
+    cur = Math.min(22, Math.max(14, cur+d));
+    document.documentElement.style.setProperty('--fs', cur.toFixed(1)+'px'); LS.set('cs2015.fs',cur);
+  };
+  const a=$('#fsPlus'), m=$('#fsMinus');
+  a && a.addEventListener('click',()=>step(1));
+  m && m.addEventListener('click',()=>step(-1));
+})();
+
+/* ---------------- motion primitives ---------------- */
+const stageRectOf = el => el.getBoundingClientRect();
+function anim(el, frames, opt){
+  if(!el) return null;
+  if(RM){ const last=frames[frames.length-1]; if(last && last.transform) el.style.transform = last.transform; if(last && last.opacity!=null) el.style.opacity=last.opacity; return null; }
+  try{ return el.animate(frames, Object.assign({duration:DUR.move, easing:EASE, fill:'none'}, opt||{})); }catch(e){ return null; }
+}
+function placeChip(chip, targetEl, animate){
+  const stage = chip.closest('.stage'); if(!stage || !targetEl) return;
+  const s = stageRectOf(stage), r = stageRectOf(targetEl);
+  const x = r.left - s.left + r.width/2 - chip.offsetWidth/2;
+  const dy = parseInt(chip.dataset.dy||'0',10) || 0;
+  const y = r.top  - s.top  + r.height/2 - chip.offsetHeight/2 + 7 + dy;
+  const to = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+  const from = chip.style.transform || 'translate(0px, 0px)';
+  if(animate && !RM){ anim(chip, [{transform:from},{transform:to}], {duration:DUR.move}); }
+  chip.style.transform = to;
+}
+function flash(el, cls, ms){
+  if(!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
+  setTimeout(()=>el.classList.remove(cls), ms||DUR.hold);
+}
+function countTo(el, to, dur){
+  if(!el) return;
+  const from = parseInt(el.dataset.v||'0',10);
+  el.dataset.v = String(to);
+  if(RM){ el.textContent = String(to); return; }
+  const t0 = performance.now();
+  const tick = t=>{
+    const p = Math.min(1,(t-t0)/(dur||420));
+    const v = Math.round(from + (to-from)*(p<.5? 2*p*p : 1-Math.pow(-2*p+2,2)/2));
+    el.textContent = String(v);
+    if(p<1) requestAnimationFrame(tick); else el.textContent = String(to);
+  };
+  requestAnimationFrame(tick);
+}
+function drawPath(path){
+  if(!path || !path.getTotalLength) return;
+  const L = path.getTotalLength(); if(!L) return;
+  path.style.strokeDasharray = L; path.style.strokeDashoffset = RM?0:L;
+  if(!RM) anim(path, [{strokeDashoffset:L},{strokeDashoffset:0}], {duration:DUR.move+160});
+  path.style.strokeDashoffset = 0;
+}
+
+/* ---------------- code blocks: highlight + copy ---------------- */
+const KW = /\b(def|return|if|else|elif|for|while|in|not|and|or|None|True|False|class|import|from|raise|break|continue|lambda|print|len|range|append|pop|in)\b/g;
+function hlLine(txt){
+  let out='', i=0;
+  const re = /(#.*$)|("[^"]*"|'[^']*')|(\b\d+(?:\.\d+)?\b)|(\b(?:def|return|if|elif|else|for|while|in|not|and|or|None|True|False|class|import|from|raise|break|continue|lambda|print|len|range|append|pop)\b)/g;
+  let m, last=0;
+  const esc = s=> s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  while((m = re.exec(txt))){
+    out += esc(txt.slice(last, m.index));
+    const cls = m[1]?'c':m[2]?'s':m[3]?'n':'k';
+    out += `<span class="${cls}">${esc(m[0])}</span>`;
+    last = m.index + m[0].length;
+    if(m[0]==='') re.lastIndex++;
+  }
+  out += esc(txt.slice(last));
+  return out;
+}
+function buildCode(block){
+  const body = $('.cbody', block);
+  let raw = block.dataset.code || '';
+  if(!raw && body && body.dataset.src){
+    const src = document.getElementById('src-'+body.dataset.src);
+    raw = src ? src.textContent.replace(/^\n/,'').replace(/\s+$/,'') : '';
+  }
+  const lines = raw.replace(/\s+$/,'').split('\n');
+  const pre = document.createElement('pre');
+  pre.innerHTML = lines.map((ln,i)=>
+    `<span class="ln" data-l="${i+1}"><span class="cn">${i+1}</span>${hlLine(ln)||' '}</span>`).join('');
+  body.appendChild(pre);
+  const hlb = document.createElement('i'); hlb.className='hl'; body.insertBefore(hlb, pre);
+  const btn = $('[data-copy]', block);
+  if(btn) btn.addEventListener('click', ()=> copyText(raw, btn));
+}
+function copyText(txt, btn){
+  const done = ()=>{
+    if(!btn) return;
+    const old = btn.innerHTML;
+    btn.innerHTML = icon('check'); btn.classList.add('done');
+    btn.setAttribute('aria-label','تم النسخ');
+    setTimeout(()=>{ btn.innerHTML = old; btn.classList.remove('done'); btn.setAttribute('aria-label','نسخ'); }, 1500);
+  };
+  const fb = ()=>{
+    try{
+      const ta=document.createElement('textarea'); ta.value=txt; ta.setAttribute('readonly','');
+      ta.style.cssText='position:fixed;top:-1000px;opacity:0'; document.body.appendChild(ta);
+      ta.select(); ta.setSelectionRange(0,txt.length);
+      const ok=document.execCommand&&document.execCommand('copy'); document.body.removeChild(ta);
+      if(ok) done(); else if(btn){ btn.setAttribute('aria-label','تعذّر النسخ — حدّد النص يدويًا'); }
+    }catch(e){}
+  };
+  if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(txt).then(done, fb);
+  else fb();
+}
+$$('.code').forEach(buildCode);
+
+/* ---------------- reveal on scroll (once) ---------------- */
+(function reveal(){
+  const els = $$('.reveal');
+  if(!els.length) return;
+  if(!('IntersectionObserver' in window)){ els.forEach(e=>e.classList.add('in')); return; }
+  const io = new IntersectionObserver((es)=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {rootMargin:'0px 0px -8% 0px'});
+  els.forEach(e=>io.observe(e));
+})();
+
+/* ---------------- exercise toggles ---------------- */
+$$('details.ex').forEach(d=>{
+  const l=$('.ex-lbl',d); if(!l) return;
+  const p=()=>{ l.textContent = d.open ? 'إخفاء الحل' : 'أظهر الحل'; };
+  d.addEventListener('toggle',p); p();
+});
+
+/* ---------------- rail (TOC) + progress ---------------- */
+const SECTIONS = M.sections || [];
+function actDone(a){
+  const [k,v] = String(a).split(':');
+  if(k==='pa')   return !!ST.pa[v];
+  if(k==='anim') return !!ST.anim[v];
+  if(k==='tool') return !!ST.tool[v];
+  if(k==='ca')   return (ST.ca.passed||[]).length >= ((M.ca&&M.ca.levels&&M.ca.levels.length)||5);
+  if(k==='quiz') return !!ST.quiz;
+  return false;
+}
+const TOTAL_ACTS = SECTIONS.reduce((n,s)=>n+(s.acts||[]).length,0);
+function paintProgress(){
+  SECTIONS.forEach(s=>{
+    const link = $(`.rail a[href="#${s.id}"]`);
+    const n=(s.acts||[]).length, d=(s.acts||[]).filter(actDone).length;
+    if(link){
+      let t = $('.tick', link);
+      if(!t){ t=document.createElement('span'); t.className='tick'; link.appendChild(t); }
+      if(!n){ t.textContent=''; }
+      else if(d===n){ t.innerHTML = icon('check'); }
+      else if(d>0){ t.textContent = `${d}/${n}`; }
+      else { t.textContent = ''; }
+      t.className = 'tick' + ((n&&d<n)?' part':'');
+    }
+  });
+  const doneAll = SECTIONS.reduce((n,s)=>n+(s.acts||[]).filter(actDone).length,0);
+  const p = TOTAL_ACTS ? Math.round(doneAll/TOTAL_ACTS*100) : 0;
+  [['#introProg',p+'%'],['#introProg2',p+'%'],['#introProgTxt',`${p}%`],['#railProgTxt',`${p}% · ${doneAll}/${TOTAL_ACTS}`]].forEach(([sel,val])=>{
+    const el=$(sel); if(el){ if(el.tagName==='I') el.style.width=val; else el.textContent=val; } });
+}
+function paintRail(){
+  const links = $$('.rail a');
+  const io = new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){
+      links.forEach(a=>a.classList.toggle('on', a.getAttribute('href')==='#'+e.target.id));
+      if(ST.seen.indexOf(e.target.id)<0){ ST.seen.push(e.target.id); LS.set(KEY+'state',ST); }
+    }});
+  }, {rootMargin:'-45% 0px -50% 0px'});
+  $$('main .sec').forEach(s=>io.observe(s));
+}
+window.addEventListener('scroll', ()=>{
+  const h=document.documentElement;
+  const p = h.scrollTop/Math.max(1,(h.scrollHeight-h.clientHeight))*100;
+  const bar = $('#scrollProg'); if(bar) bar.style.width = Math.min(100,Math.max(0,p))+'%';
+}, {passive:true});
+paintRail(); paintProgress();
+
+/* ---------------- animation player ---------------- */
+/* حالة كل خطوة قابلة للاسترجاع: أي قفز للأمام أو للخلف يُعيد بناء الحالة من الصفر */
+class Anim {
+  constructor(root){
+    this.root = root;
+    this.id = root.dataset.anim;
+    const spec = (M.anims||{})[this.id];
+    if(!spec) return;
+    this.spec = spec;
+    this.steps = spec.steps || [];
+    this.i = -1; this.timer=null; this.playing=false; this.x2=false;
+    this.chips = $$('.chip', root);
+    this.hl = $('.hl', root);
+    this.capEl = $('.cap', root);
+    this.stepno = $('.stepno', root);
+    this.strip = $('.segstrip', root);
+    this.watchEl = $('.watch', root);
+    // لقطة الحالة الابتدائية (للعودة النظيفة)
+    this.ini = {
+      chips: this.chips.map(c=>({el:c, op:c.style.opacity, cls:c.className, html:c.innerHTML})),
+      texts: new Map()
+    };
+    this.bind(); this.layout(); this.buildStrip();
+    if(this.stepno) this.stepno.textContent = `Step 0 of ${this.steps.length}`;
+    this.root.classList.add('idle');
+  }
+  layout(){
+    this.chips.forEach(c=>{
+      const home = c.dataset.home ? document.getElementById(c.dataset.home) : null;
+      if(home) placeChip(c, home, false);
+    });
+  }
+  buildStrip(){
+    if(!this.strip) return;
+    this.strip.innerHTML = this.steps.map((_,k)=>
+      `<button type="button" data-s="${k}" aria-label="الخطوة ${k+1}"></button>`).join('');
+    $$('button', this.strip).forEach(b=>b.addEventListener('click',()=>{
+      this.pause(); this.goto(+b.dataset.s, +b.dataset.s > this.i);
+    }));
+  }
+  bind(){
+    const q = s=>$(s, this.root);
+    const on=(k,fn)=>{ const b=q(`[data-a="${k}"]`); b && b.addEventListener('click', fn); };
+    on('start', ()=>{ this.root.classList.remove('idle'); this.reset(); this.goto(0,false); });
+    on('next',  ()=>{ this.root.classList.remove('idle'); this.goto(Math.min(this.steps.length-1, this.i+1), true); });
+    on('prev',  ()=>{ this.goto(Math.max(0, this.i-1), false); });
+    on('play',  ()=> this.play());
+    on('pause', ()=> this.pause());
+    on('reset', ()=>{ this.pause(); this.reset(); this.i = -1;
+      if(this.stepno) this.stepno.textContent = `Step 0 of ${this.steps.length}`;
+      $$('button', this.strip||document.createElement('div')).forEach(b=>b.classList.remove('cur','seen'));
+      if(this.capEl) this.capEl.querySelector('.txt').textContent = this.capEl.dataset.base || '';
+      this.root.classList.add('idle'); });
+    on('speed', (e)=>{ this.x2=!this.x2;
+      e.currentTarget.setAttribute('aria-pressed', this.x2?'true':'false');
+      e.currentTarget.setAttribute('aria-label', this.x2?'سرعة مضاعفة مفعّلة':'سرعة عادية'); });
+    const pr = q('.predict');
+    if(pr) pr.addEventListener('change', ()=>{ this.root.dataset.predict = pr.checked?'1':'0'; });
+    this.root.dataset.predict = (pr && pr.checked) ? '1':'0';
+    this.root.addEventListener('mouseenter', ()=>{ window.__activeAnim=this; });
+    this.root.addEventListener('focusin', ()=>{ window.__activeAnim=this; });
+    if(this.capEl && !this.capEl.dataset.base) this.capEl.dataset.base = this.capEl.querySelector('.txt').textContent;
+  }
+  reset(){
+    this.ini.chips.forEach(c=>{
+      c.el.style.opacity = c.op; c.el.className = c.cls; c.el.innerHTML = c.html;
+      if(c.el.style.transform) c.el.style.transform='';
+    });
+    this.ini.texts.forEach((v,k)=>{ const el=document.getElementById(k); if(el) el.textContent = v; });
+    $$('.hot', this.root).forEach(e=>e.classList.remove('hot'));
+    this.layout();
+  }
+  play(){
+    this.root.classList.remove('idle');
+    if(this.playing) return;
+    if(this.i >= this.steps.length-1){ this.reset(); this.i=-1; }
+    this.playing = true;
+    const tick = ()=>{
+      if(!this.playing) return;
+      if(this.i >= this.steps.length-1){ this.pause(); return; }
+      this.goto(this.i+1, true);
+      const waiting = this.root.dataset.predict==='1' && this.steps[this.i] && this.steps[this.i].ask;
+      this.timer = setTimeout(tick, waiting ? 999999 : (this.x2 ? DUR.move*0.9 : DUR.move*1.7));
+    };
+    this.timer = setTimeout(tick, 120);
+  }
+  pause(){ this.playing=false; clearTimeout(this.timer); this.timer=null; }
+  el(id){ return document.getElementById(id) || this.root.querySelector(`[data-chip="${id}"]`); }
+  apply(st, animate){
+    // 1) chips
+    const pos = st.pos || {};
+    this.chips.forEach(chip=>{
+      const id = chip.dataset.chip;
+      const targetId = pos[id] || chip.dataset.home;
+      const target = targetId ? document.getElementById(targetId) : null;
+      if(target) placeChip(chip, target, animate);
+      else if(animate===false) placeChip(chip, document.getElementById(chip.dataset.home), false);
+      chip.classList.toggle('held', !pos[id]);
+    });
+    if(st.lbl) Object.keys(st.lbl).forEach(id=>{
+      const chip=this.chips.find(c=>c.dataset.chip===id); if(!chip) return;
+      const t=$('.t',chip);
+      if(t) t.innerHTML = st.lbl[id]; else chip.innerHTML = st.lbl[id];
+    });
+    if(st.cls) Object.keys(st.cls).forEach(id=>{
+      const chip=this.chips.find(c=>c.dataset.chip===id); if(!chip) return;
+      chip.classList.remove('bad','good'); if(st.cls[id]) chip.classList.add(st.cls[id]);
+    });
+    // 2) raw sets (text/classes)
+    if(st.set) st.set.forEach(o=>{
+      const el=this.el(o.id); if(!el) return;
+      if(!this.ini.texts.has(o.id)) this.ini.texts.set(o.id, el.textContent);
+      if(o.text!=null) el.textContent = o.text;
+      if(o.html!=null) el.innerHTML = o.html;
+      if(o.cls) o.cls.split(' ').forEach(c=>el.classList.add(c));
+      if(o.uncls) o.uncls.split(' ').forEach(c=>el.classList.remove(c));
+    });
+    // 3) css widths/opacities (سباق، إخفاء/إظهار)
+    if(st.css) st.css.forEach(o=>{
+      const el=this.el(o.id); if(!el) return;
+      if(!this.ini.texts.has('_css_'+o.id)) this.ini.texts.set('_css_'+o.id, el.style.cssText);
+      if(o.w!=null){
+        if(animate && !RM) anim(el,[{width:(el.style.width||'0%')},{width:o.w+'%'}],{duration:DUR.move});
+        el.style.width = o.w+'%';
+      }
+      if(o.t!=null){
+        if(animate && !RM) anim(el,[{opacity:(el.style.opacity||'1')},{opacity:o.t}],{duration:DUR.fast});
+        el.style.opacity = o.t;
+      }
+    });
+    // 4) code line
+    if(this.hl && st.line){
+      const ln = $(`.ln[data-l="${st.line}"]`, this.root);
+      if(ln){ this.hl.style.height = ln.offsetHeight+'px';
+        if(animate && !RM) anim(this.hl, [{transform:this.hl.style.transform||'none'},{transform:`translateY(${ln.offsetTop}px)`}], {duration:DUR.fast});
+        this.hl.style.transform = `translateY(${ln.offsetTop}px)`; }
+    }
+    // 5) watch panel
+    if(this.watchEl && st.watch){
+      Object.keys(st.watch).forEach(k=>{
+        const cell = $(`[data-w="${k}"]`, this.watchEl); if(!cell) return;
+        const v = String(st.watch[k]);
+        if(cell.textContent !== v){ cell.textContent = v; if(animate) flash(cell,'flash',420); }
+      });
+    }
+    // 6) caption
+    if(this.capEl && st.cap!=null){
+      const t = this.capEl.querySelector('.txt');
+      t.innerHTML = st.cap;
+      if(animate && !RM) anim(t,[{opacity:0},{opacity:1}],{duration:300});
+    }
+    // 7) marks
+    $$('.hot', this.root).forEach(e=>e.classList.remove('hot'));
+    (st.hot||[]).forEach(id=>{ const e=document.getElementById(id); e && e.classList.add('hot'); });
+  }
+  goto(n, forward){
+    if(n<0) n=0; if(n>=this.steps.length) n=this.steps.length-1;
+    if(n===this.i) return;
+    const back = n < this.i;
+    if(back || n > this.i+1){
+      this.reset();
+      for(let k=0;k<n;k++) this.apply(this.steps[k], false);
+    }
+    const st = this.steps[n];
+    this.apply(st, true);
+    if(forward && !back) (st.fx||[]).forEach(spec=>{
+      const [op, a, b] = String(spec).split(':');
+      if(op==='shake'){ flash($('#'+a, this.root),'collide',420); }
+      if(op==='pulse'){ flash($('#'+a, this.root), b==='bad'?'badfade':'okpulse',700); }
+      if(op==='count'){ countTo($('#'+a, this.root), +b, 420); }
+      if(op==='draw'){ drawPath($('#'+a, this.root)); }
+      if(op==='flash'){ flash($('#'+a, this.root),'okpulse',560); }
+    });
+    this.i = n;
+    if(this.stepno) this.stepno.textContent = `Step ${n+1} of ${this.steps.length}`;
+    if(this.strip) $$('button', this.strip).forEach((b,k)=>{
+      b.classList.toggle('cur', k===n); b.classList.toggle('seen', k<n);
+    });
+    if(st.ask && this.root.dataset.predict==='1') this.ask(st);
+    else { const box=$('.askbox',this.root); if(box) box.hidden = true; }
+    if(n===this.steps.length-1 && !ST.anim[this.id]){ ST.anim[this.id]=true; save(); }
+  }
+  ask(st){
+    const box = $('.askbox', this.root); if(!box) return;
+    box.hidden = false;
+    $('.askq', box).textContent = st.ask.q;
+    const opts = $('.askopts', box);
+    opts.innerHTML = st.ask.opts.map(o=>`<button class="opt" type="button" data-o="${o}">${o}</button>`).join('');
+    $('.askfb', box).textContent='';
+    $$('[data-o]', opts).forEach(b=>b.addEventListener('click', ()=>{
+      const ok = String(b.dataset.o)===String(st.ask.a);
+      $$('[data-o]', opts).forEach(x=>{ if(String(x.dataset.o)===String(st.ask.a)) x.classList.add('correct'); });
+      if(!ok) b.classList.add('wrong');
+      const fb=$('.askfb', box);
+      fb.textContent = (ok?'صحيح — ':'ليس صحيحًا — ')+st.ask.why;
+      fb.className = 'askfb fb show '+(ok?'ok':'bad');
+    }));
+  }
+}
+$$('.anim[data-anim]').forEach(el=>{
+  try{ const a=new Anim(el); (window.__anims=window.__anims||{})[el.dataset.anim]=a; }
+  catch(e){ if(window.console) console.warn('anim init',e); }
+});
+document.addEventListener('keydown', e=>{
+  const a = window.__activeAnim; if(!a || !a.steps) return;
+  if(/input|textarea|select/i.test(e.target.tagName)) return;
+  if(e.key==='ArrowLeft'){ e.preventDefault(); a.root.classList.remove('idle'); a.goto(Math.min(a.steps.length-1,a.i+1), true); }
+  if(e.key==='ArrowRight'){ e.preventDefault(); a.goto(Math.max(0,a.i-1), false); }
+  if(e.code==='Space'){ e.preventDefault(); a.playing? a.pause() : a.play(); }
+});
+
+/* ---------------- participation activities ---------------- */
+function mountPA(spec){
+  const pid = 'pa-' + String(spec.num).replace(/\./g,'-');
+  const host = document.getElementById(pid) || document.getElementById(spec.sec);
+  if(!host) return;
+  const box = document.createElement('div');
+  box.className='act'; box.id=pid;
+  box.innerHTML = `<div class="act-h"><span class="act-k">Participation Activity <b>${spec.num}</b></span><h3>${spec.title}</h3></div>`;
+  const solved = [], forfeit = [];
+  spec.items.forEach((it, idx)=>{
+    const w = document.createElement('div'); w.className='pa-item';
+    w.innerHTML = `<div class="pa-q"><span class="pa-qn">${idx+1}</span><span>${it.q}</span></div>`;
+    box.appendChild(w);
+    let picked = null;
+    if(it.opts){
+      const opts = document.createElement('div'); opts.className='opts';
+      it.opts.forEach((o,j)=>{
+        const b=document.createElement('button'); b.type='button'; b.className='opt'; b.textContent=o;
+        b.addEventListener('click', ()=>{ if(w.dataset.locked==='1') return;
+          $$('.opt',opts).forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); picked=j; });
+        opts.appendChild(b);
+      });
+      w.appendChild(opts);
+    } else {
+      const lab=document.createElement('label'); lab.className='fl'; lab.textContent='إجابتك (رقم)';
+      const inp=document.createElement('input'); inp.type='number'; inp.setAttribute('aria-label','إجابتك');
+      w.appendChild(lab); w.appendChild(inp);
+    }
+    const acts=document.createElement('div'); acts.className='acts';
+    acts.innerHTML = `<button class="btn" type="button" data-check>Check</button>
+      <button class="btn ghost" type="button" data-show>Show answer</button>`;
+    const fb=document.createElement('div'); fb.className='fb';
+    w.appendChild(acts); w.appendChild(fb);
+    const val = ()=> it.opts ? picked : (w.querySelector('input').value.trim());
+    const correct = ()=> String(it.a);
+    $('[data-check]',acts).addEventListener('click', ()=>{
+      const v = val();
+      if(v===null || v===''){ fb.className='fb show bad'; fb.innerHTML='<b class="tag">اختر إجابة أو اكتب قيمة أولًا</b>'; return; }
+      const ok = String(v)===correct();
+      fb.className='fb show '+(ok?'ok':'bad');
+      if(ok){
+        fb.innerHTML = `<b class="tag">${icon('check')} Correct</b><div>${it.why}</div>`;
+        w.dataset.locked='1'; solved[idx]=true;
+        if(it.opts) $$('.opt',w).forEach((x,j)=>{ if(String(j)===correct()) x.classList.add('correct'); });
+        if(solved.every(Boolean)){ ST.pa[spec.num]=true; save(); box.dataset.done='1'; }
+      } else {
+        fb.innerHTML = `<b class="tag">${icon('x')} Incorrect — Try again</b><div>أعِد الحساب من التعريف في القسم أعلاه ثم اضغط Check مرة أخرى.</div>`;
+      }
+    });
+    $('[data-show]',acts).addEventListener('click', ()=>{
+      const inp=w.querySelector('input'); if(inp) inp.value = correct();
+      if(it.opts) $$('.opt',w).forEach((x,j)=>{ if(String(j)===correct()) x.classList.add('correct'); });
+      fb.className='fb show';
+      fb.innerHTML = `<b class="tag">Answer: <span class="mono">${it.opts?it.opts[+correct()]:correct()}</span></b>
+        <span class="forfeit">لا نقطة بعد إظهار الإجابة</span><div>${it.why}</div>`;
+      w.dataset.locked='1'; solved[idx]=true; forfeit[idx]=true;
+      if(solved.every(Boolean)){ ST.pa[spec.num]=true; save(); box.dataset.done='1'; }
+    });
+  });
+  const anchor = document.getElementById(spec.after) || host;
+  anchor.appendChild(box);
+}
+(M.pas||[]).forEach(mountPA);
+
+/* ---------------- challenge activity ---------------- */
+function mountCA(spec){
+  const host = document.getElementById(spec.after) || document.getElementById('challenge');
+  if(!host) return;
+  const box=document.createElement('div'); box.className='act'; box.id='ca-'+String(spec.num).replace(/\./g,'-');
+  box.innerHTML = `
+    <div class="act-h"><span class="act-k">Challenge Activity <b>${spec.num}</b></span><h3>${spec.title}</h3></div>
+    <div class="controls" style="margin:0 0 var(--s2)">
+      <span class="jump" data-jump>Jump to level 1</span>
+      <div class="lvstrip" data-strip></div>
+      <span class="state" data-state>—</span>
+    </div>
+    <div class="ca-q" data-q></div>
+    <div data-form style="margin-top:var(--s2)"></div>
+    <div class="acts">
+      <button class="btn" type="button" data-check>Check</button>
+      <button class="btn ghost" type="button" data-try>Try again</button>
+      <button class="btn ghost" type="button" data-next disabled>Next ${icon('chevron-left')}</button>
+      <button class="btn ghost" type="button" data-reset>من المستوى 1</button>
+    </div>
+    <div class="fb" data-fb></div>`;
+  host.appendChild(box);
+  const ca = {lv:0, passed:new Set(ST.ca.passed||[]), cur:null, graded:false, pick:null};
+  const el = s=>$(s,box);
+  function paint(){
+    el('[data-jump]').innerHTML = ca.passed.size>=spec.levels.length
+      ? `${icon('check')} Level ${spec.levels.length}/${spec.levels.length}`
+      : `Jump to level ${ca.lv+1}`;
+    el('[data-strip]').innerHTML = spec.levels.map((_,k)=>
+      `<button type="button" class="lv ${ca.passed.has(k)?'pass':''} ${k===ca.lv?'cur':''}" data-l="${k}" aria-label="المستوى ${k+1}">${ca.passed.has(k)?icon('check'):k+1}</button>`).join('');
+    $$('[data-l]',box).forEach(b=>b.addEventListener('click',()=>{
+      const l=+b.dataset.l; if(l<=Math.max(-1,...[...ca.passed])+1){ ca.lv=l; newQ(); }
+    }));
+    el('[data-next]').disabled = !ca.passed.has(ca.lv) || ca.lv>=spec.levels.length-1;
+  }
+  function newQ(){
+    ca.cur = spec.levels[ca.lv]();
+    ca.graded=false; ca.pick=null;
+    el('[data-fb]').className='fb'; el('[data-fb]').innerHTML='';
+    el('[data-state]').textContent='—'; el('[data-state]').className='state';
+    el('[data-q]').innerHTML = ca.cur.q;
+    const f = el('[data-form]');
+    if(ca.cur.kind==='num'){
+      f.innerHTML = `<label class="fl">إجابتك (رقم)</label><input type="number" data-in aria-label="إجابة رقمية">`;
+      el('[data-in]').addEventListener('keydown', e=>{ if(e.key==='Enter') grade(); });
+    } else {
+      f.innerHTML = `<div class="opts">${ca.cur.opts.map(o=>`<button type="button" class="opt" data-c="${String(o).replace(/"/g,'&quot;')}">${o}</button>`).join('')}</div>`;
+      $$('[data-c]',f).forEach(b=>b.addEventListener('click',()=>{
+        if(ca.graded) return;
+        $$('[data-c]',f).forEach(x=>x.setAttribute('aria-pressed','false'));
+        b.setAttribute('aria-pressed','true'); ca.pick=b.dataset.c;
+      }));
+    }
+    paint();
+  }
+  function grade(){
+    if(ca.graded) return;
+    const inp=el('[data-in]');
+    const v = inp? inp.value.trim() : (ca.pick||'');
+    const fb=el('[data-fb]');
+    if(v===''){ fb.className='fb show bad'; fb.innerHTML='<b class="tag">اكتب إجابة أو اختر خيارًا</b>'; return; }
+    const ok = String(v)===String(ca.cur.a);
+    el('[data-state]').innerHTML = ok? icon('check')+' Correct' : icon('x')+' Try again';
+    el('[data-state]').className='state '+(ok?'ok':'bad');
+    if(ok){
+      ca.graded=true; ca.passed.add(ca.lv);
+      ST.ca.passed=[...ca.passed]; ST.ca.lv=ca.lv; save(); paint();
+      fb.className='fb show ok';
+      fb.innerHTML = `<b class="tag">${icon('check')} صحيح — المستوى ${ca.lv+1} مُجتاز</b><div>${ca.cur.why}</div>
+        ${ca.lv<spec.levels.length-1?'<div class="muted">اضغط Next للانتقال إلى المستوى التالي.</div>':'<div class="muted">أكملت المستويات كلها.</div>'}`;
+    } else {
+      fb.className='fb show bad';
+      fb.innerHTML = `<b class="tag">${icon('x')} ليس صحيحًا</b><div>${ca.cur.hint||'راجع الحساب ثم أعد المحاولة.'}</div>
+        <div class="muted">اضغط Try again لسؤال جديد في المستوى نفسه.</div>`;
+    }
+  }
+  el('[data-check]').addEventListener('click', grade);
+  el('[data-try]').addEventListener('click', ()=>{ if(!ca.graded) newQ(); });
+  el('[data-next]').addEventListener('click', ()=>{ if(ca.passed.has(ca.lv) && ca.lv<spec.levels.length-1){ ca.lv++; newQ(); } });
+  el('[data-reset]').addEventListener('click', ()=>{ ca.lv=0; ca.passed.clear(); ST.ca.passed=[]; save(); newQ(); });
+  paint(); newQ();
+}
+if(M.ca) mountCA(M.ca);
+
+/* ---------------- sandbox / tool hooks ---------------- */
+(M.tools||[]).forEach(t=>{
+  const btn = document.getElementById(t.btn); if(!btn) return;
+  btn.addEventListener('click', ()=>{
+    const host = document.getElementById(t.after) || document.getElementById('sandbox');
+    const a = (window.__anims||{})[t.anim];
+    if(a && a.steps) a.paint && a.paint();
+    if(!ST.tool[t.id]){ ST.tool[t.id]=true; save(); }
+  });
+});
+
+/* ---------------- quiz ---------------- */
+function mountQuiz(){
+  const wrap = document.getElementById('quizList'); if(!wrap || !(M.quiz||[]).length) return;
+  const Q = M.quiz;
+  let graded=false, lastWrong=[];
+  function render(filter){
+    graded=false;
+    const list = Q.map((q,i)=>({q,i})).filter(o=>!filter||filter.includes(o.i));
+    if(!list.length){ wrap.innerHTML='<p class="muted">لا أخطاء سابقة — كل الأسئلة صحيحة في محاولتك الأخيرة.</p>'; return; }
+    wrap.innerHTML = list.map(({q,i})=>`
+      <div class="q" data-q="${i}">
+        <div class="q-h"><span class="q-n">${i+1}</span><span>${q.q}</span><span class="q-meta">${q.topic}</span></div>
+        <div class="opts" data-opts>${q.opts.map((o,j)=>
+          `<button type="button" class="opt" data-o="${j}" aria-pressed="false">${o}</button>`).join('')}</div>
+        <div class="qfb"></div>
+      </div>`).join('');
+    $$('[data-opts]', wrap).forEach(row=>{
+      $$('.opt', row).forEach(b=>b.addEventListener('click', ()=>{
+        if(graded) return;
+        $$('.opt',row).forEach(x=>x.setAttribute('aria-pressed','false'));
+        b.setAttribute('aria-pressed','true');
+      }));
+    });
+  }
+  function grade(){
+    if(graded) return; graded=true;
+    const qs=$$('.q',wrap); let correct=0, wrong=[], topics={};
+    qs.forEach(qd=>{
+      const i=+qd.dataset.q, q=Q[i];
+      const sel=$('.opt[aria-pressed="true"]',qd);
+      const val = sel? +sel.dataset.o : -1;
+      $$('.opt',qd).forEach((b,j)=>{
+        if(j===q.a) b.classList.add('correct');
+        if(j===val && val!==q.a) b.classList.add('wrong');
+      });
+      const fb=$('.qfb',qd); fb.classList.add('show', val===q.a?'ok':'bad');
+      if(val===q.a){ correct++; fb.innerHTML=`<b class="tag">${icon('check')} صحيح</b><div>${q.why}</div>`; }
+      else { wrong.push(i); topics[q.topic]=(topics[q.topic]||0)+1;
+        fb.innerHTML=`<b class="tag">${icon('x')} خطأ${val<0?' (لم تختر)':''}</b><div>${q.why}</div>`; }
+    });
+    const total=qs.length, pct= total? Math.round(correct/total*100):0;
+    const sv=$('#scoreVal'), sm=$('#scoreMsg');
+    if(sv) sv.textContent=`${correct} / ${total}`;
+    if(sm) sm.textContent = pct===100?'— ممتاز':(pct>=75?'— جيد، راجع الأخطاء فقط':(pct>=50?'— راجع أقسام 1.4–1.6':'— أعد قراءة الوحدة'));
+    lastWrong=wrong;
+    const hist=LS.get(KEY+'quiz',[]);
+    hist.push({t:new Date().toISOString().slice(0,16),score:correct,total,wrong,topics});
+    LS.set(KEY+'quiz', hist.slice(-10));
+    if(!ST.quiz){ ST.quiz=true; save(); }
+    paintWeak();
+  }
+  function paintWeak(){
+    const body=$('#weakBody'); if(!body) return;
+    const hist=LS.get(KEY+'quiz',[]);
+    if(!hist.length){ body.innerHTML='<p class="muted">لم تُصحَّح أي محاولة بعد.</p>'; return; }
+    const agg={}; hist.forEach(h=>Object.entries(h.topics||{}).forEach(([k,v])=>agg[k]=(agg[k]||0)+v));
+    const rows=Object.entries(agg).sort((a,b)=>b[1]-a[1]);
+    const last=hist[hist.length-1];
+    body.innerHTML = `<p class="muted">آخر محاولة <b>${last.score}/${last.total}</b> · ${last.t} · المحاولات: ${hist.length}</p>
+      <div class="pillrow">${rows.length? rows.map(([k,v])=>`<span class="pill bad">${k} ×${v}</span>`).join('') : '<span class="pill">لا مواضيع ضعيفة</span>'}</div>`;
+  }
+  const on=(sel,fn)=>{ const b=$(sel); b && b.addEventListener('click',fn); };
+  on('#gradeBtn', grade);
+  on('#retryBtn', ()=>{ render(null); if($('#scoreVal'))$('#scoreVal').textContent='—'; });
+  on('#onlyWrong', ()=>{ const h=LS.get(KEY+'quiz',[]); const w=h.length?h[h.length-1].wrong:[]; render(w.length?w:[-1]); });
+  on('#showAll', ()=>render(null));
+  on('#clearHist', ()=>{ LS.del(KEY+'quiz'); paintWeak(); render(null); });
+  render(null); paintWeak();
+}
+mountQuiz();
+
+/* ---------------- self tests ---------------- */
+(function selfTests(){
+  const host=document.getElementById('selftests'); if(!host) return;
+  const list=M.selftests||[]; let ok=0;
+  host.innerHTML = list.map(t=>{
+    let got='ERR'; try{ got=t.got(); }catch(e){ got='ERR'; }
+    const pass = String(got)===String(t.want); if(pass) ok++;
+    return `<div class="pa-item" style="border-top:0;padding-top:4px;margin-top:0">
+      <span class="mono">${pass?icon('check'):icon('x')}</span> ${t.name}:
+      <span class="mono">${got}</span>
+      ${pass?`<span class="pill" style="border-color:var(--ok);color:var(--ok)">${icon('check')} مطابق للشريحة ${t.slide}</span>`
+            :`<span class="pill bad">متوقّع ${t.want}</span>`}</div>`;
+  }).join('') + `<p class="muted" style="margin-top:8px">النتيجة: <b>${ok}/${list.length}</b> — تُحسب عند تحميل الصفحة من بيانات الوحدة، لا من قيم ثابتة.</p>`;
+})();
+
+/* ---------------- checklist ---------------- */
+(function checklist(){
+  const host=document.getElementById('checkList'); if(!host || !M.checklist) return;
+  const saved=LS.get(KEY+'check',[]);
+  host.innerHTML = M.checklist.map((t,i)=>
+    `<label class="pa-item" style="display:flex;gap:10px;align-items:flex-start;border-top:0;padding-top:4px;margin-top:0">
+      <input type="checkbox" data-ci="${i}" ${saved.includes(i)?'checked':''} style="margin-top:.55em;width:16px;height:16px;accent-color:var(--accent)">
+      <span>${t}</span></label>`).join('')
+    + `<p class="muted" id="chkTxt" style="margin-top:8px"></p>`;
+  const paint=()=>{
+    const s=$$('[data-ci]:checked',host).map(x=>+x.dataset.ci);
+    LS.set(KEY+'check',s);
+    const t=$('#chkTxt'); if(t) t.textContent=`أنجزت ${s.length} من ${M.checklist.length}`;
+  };
+  $$('[data-ci]',host).forEach(c=>c.addEventListener('change',paint)); paint();
+})();
+
+/* expose a couple of helpers for module data */
+window.CS = {icon, countTo, drawPath, save, ST, LS, flash};
+
+/* module-specific mounts (sandbox tools etc.) */
+(M.mount||[]).forEach(f=>{ try{ f(); }catch(e){ if(window.console) console.warn('mount failed',e); } });
+})();
+/* CORE v1.1 END:js */
+
+</script>
+</body>
+</html>

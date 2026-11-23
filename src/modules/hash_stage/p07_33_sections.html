@@ -1,0 +1,666 @@
+<!-- ================= 1.5 ================= -->
+<section class="sec reveal" id="s15">
+  <div class="num"><b>1.5</b><span>الدالة</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشرائح 7 · 8 · 9</span></div>
+    <h2>دالة التجزئة = hash code ثم compression</h2>
+    <div data-slide="7">
+      <div class="quote">
+        <span class="term">Hash function = hash code + compression</span>
+        <p>“'omar' → hash code: any integer → compress to 0 … M−1.”</p>
+        <span class="src">Hash Tables, slide 7 · Goodrich et al. (2013) §10.2.1</span>
+      </div>
+      <p>مرحلتان: الأولى تُحوّل المفتاح إلى عدد صحيح كبير (مهما كان نوعه)، والثانية تضغط هذا العدد إلى نطاق الفهارس <span class="mono" dir="ltr">0 … M−1</span> بأخذ الباقي. في بايثون المرحلة الأولى جاهزة: <span class="mono" dir="ltr">hash(x)</span> تعمل للأعداد والنصوص والأزواج.</p>
+      <div class="code">
+        <div class="ch"><span class="codedots"><i></i><i></i><i></i></span><span class="ttl">slide7.py</span><span class="sp"></span><button class="iconbtn only" type="button" data-copy aria-label="نسخ"><svg class="ic"><use href="#i-copy"/></svg></button></div>
+        <div class="cbody" data-src="p7"></div>
+      </div>
+      <script type="text/plain" id="src-p7">
+M = 8                  # table size
+key = 'omar'
+i = hash(key) % M      # stage 1 then 2  →  i in 0 .. 7</script>
+      <p><b>قيد مهم:</b> القوائم لا تصلح كمفاتيح — <span class="mono" dir="ltr">TypeError: unhashable type</span>. السبب كما تصوغه الشريحة: القائمة قد تتغير بعد التخزين، فيتغير رقم خانتها، فلا تجدها أبدًا. البديل: <span class="mono" dir="ltr">tuple</span> أو نص.</p>
+      <div class="aside"><span class="k"><svg class="ic"><use href="#i-info"/></svg> تفصيل يُسأل عنه</span>
+        <p><span class="mono" dir="ltr">hash('omar')</span> يعطي رقمًا مختلفًا في كل تشغيل جديد لبايثون (بسبب PEP 456 وتعمية النص)، وهذا طبيعي ومقصود؛ لكنه <b>لا يتغير داخل التشغيل الواحد</b> — وهذا كل ما تحتاجه التجزئة.</p></div>
+    </div>
+    <div data-slide="8">
+      <h3 style="margin-top:var(--s4)">ما يجعل الدالة جيدة؟ ثلاث خصائص</h3>
+      <div class="tw"><table>
+        <caption>ثلاث خصائص + حيلة المقاس</caption>
+        <thead><tr><th>الخاصية</th><th>المعنى</th><th>إن اختلّت</th></tr></thead>
+        <tbody>
+          <tr><td>Fast</td><td>سريعة الحساب</td><td>تخسر السرعة التي جئت من أجلها</td></tr>
+          <tr><td>Deterministic</td><td>المفتاح نفسه ← الخانة نفسها دائمًا</td><td>تخزّن ولا تجد</td></tr>
+          <tr><td>Spreads keys out</td><td>تستخدم المفتاح كله وتوزّع الخانات</td><td>تكدّس وتصادمات</td></tr>
+        </tbody>
+      </table></div>
+      <p>مثال الشريحة على الضغط السيّئ: <span class="mono" dir="ltr">M = 10</span> مع المفاتيح <span class="mono" dir="ltr">10, 20, 30, 40</span> ← كلها في الخانة 0. والحيلة: <b>اجعل M عددًا أوليًا</b>. مع <span class="mono" dir="ltr">M = 11</span> تصبح الخانات <span class="mono" dir="ltr">10, 9, 8, 7</span> — موزّعة. البيانات غالبًا تأتي بأنماط (مضاعفات 10، أعداد زوجية)، والمقاس الأولي لا يشارك هذه الأنماط عاملًا مشتركًا.</p>
+    </div>
+    <div data-slide="9">
+      <h3 style="margin-top:var(--s4)">أربع طرق كلاسيكية لحساب h(k)</h3>
+      <div class="tw"><table>
+        <caption>DSAP-L6 · Knuth (1998) §6.4</caption>
+        <thead><tr><th>الطريقة</th><th>القاعدة</th><th>مثال</th></tr></thead>
+        <tbody>
+          <tr><td>Division</td><td class="ltr">h(k) = k mod M</td><td class="ltr">M=7: 25 mod 7 = 4</td></tr>
+          <tr><td>Mid-square</td><td>ربّع k وخُذ الأرقام الوسطى</td><td class="ltr">123² = 15129 → 51 → 51 mod M</td></tr>
+          <tr><td>Folding</td><td>قسّم k أجزاءً واجمعها</td><td class="ltr">12+34+56 = 102 → 102 mod M</td></tr>
+          <tr><td>Multiplication</td><td class="ltr">⌊M·(k·A mod 1)⌋</td><td class="ltr">A=0.618, M=10, k=25 → 4</td></tr>
+        </tbody>
+      </table></div>
+      <p>المقرر يحتاج <b>القسمة</b> فقط: أبسطها، وهي مجرد <span class="mono" dir="ltr">%</span>، وتعمل جيدًا مع M أولي. الثلاث الأخرى تُعرَف بالاسم فقط.</p>
+      <div class="aside ok"><span class="k"><svg class="ic"><use href="#i-check"/></svg> فحص سريع من الشريحة</span>
+        <p>المفاتيح 10, 20, 30, 40 مع <span class="mono" dir="ltr">M = 10</span> ← كلها 0 (سيّئ). مع <span class="mono" dir="ltr">M = 11</span> ← 10, 9, 8, 7 (جيد). أي خاصية كسرها <span class="mono" dir="ltr">M = 10</span>؟ <b>Spreads keys out</b>.</p></div>
+    </div>
+    <div id="host-pa1"></div>
+  </div>
+</section>
+
+<!-- ================= 1.6 ================= -->
+<section class="sec reveal" id="s16">
+  <div class="num"><b>1.6</b><span>التصادم</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحتان 10 و 11</span></div>
+    <h2>التصادمات لا مفرّ منها</h2>
+    <div data-slide="10">
+      <div class="quote">
+        <span class="term">Collisions are unavoidable</span>
+        <p>“Two different keys, same slot. We cannot prevent it — we must handle it.”</p>
+        <span class="src">Hash Tables, slide 10</span>
+      </div>
+      <p>مع <span class="mono" dir="ltr">M = 8</span>: <span class="mono" dir="ltr">h('ali') = 1</span>، <span class="mono" dir="ltr">h('sara') = 6</span>، ثم <span class="mono" dir="ltr">h('noor') = 1</span> ← الخانة مشغولة. لماذا لا مفرّ؟ لأن عدد المفاتيح الممكنة أكبر بكثير من عدد الخانات، فلا بد أن يتشارك بعضها. والشريحة تعطي الحدس الشهير: ضع 23 تاريخ ميلاد في 365 خانة، واحتمال وجود تطابق يتجاوز 50% (مفارقة أعياد الميلاد).</p>
+    </div>
+    <div data-slide="11">
+      <h3 style="margin-top:var(--s4)">عائلتا الحلول + ثلاث استراتيجيات سبر</h3>
+      <div class="tw"><table>
+        <caption>مصطلحات تسبق الحلول</caption>
+        <thead><tr><th>المصطلح</th><th>المعنى</th></tr></thead>
+        <tbody>
+          <tr><td>Probe</td><td>نظرة واحدة إلى خانة</td></tr>
+          <tr><td>Probing</td><td>تجربة خانات متتالية حتى نجد حرة</td></tr>
+          <tr><td>Chaining</td><td>كل خانة تحمل قائمة؛ المتصادمون يُضافون إليها</td></tr>
+          <tr><td>Open addressing</td><td>كل خانة تحمل مفتاحًا واحدًا؛ إن كانت مشغولة نبحث عن غيرها</td></tr>
+        </tbody>
+      </table></div>
+      <div class="tw"><table>
+        <caption>ثلاث استراتيجيات سبر (الشريحة 11)</caption>
+        <thead><tr><th>الاستراتيجية</th><th class="ltr">slot(k, i)</th><th>الفكرة</th></tr></thead>
+        <tbody>
+          <tr><td>Linear probing</td><td class="ltr">(h(k) + i) mod M</td><td>خانات متتالية</td></tr>
+          <tr><td>Quadratic probing</td><td class="ltr">(h(k) + i²) mod M</td><td>إزاحات مربّعة</td></tr>
+          <tr><td>Double hashing</td><td class="ltr">(h₁(k) + i·h₂(k)) mod M</td><td>خطوة خاصة بكل مفتاح</td></tr>
+          <tr><td>Separate chaining</td><td class="ltr">h(k) mod M</td><td>قائمة مرتبطة في الخانة</td></tr>
+        </tbody>
+      </table></div>
+      <p><b>قاعدتان تُحسب عليهما الدرجات:</b> عدّاد المحاولات <b>يشمل المحاولة الناجحة</b> (المفتاح الذي يدخل من أول مرة = محاولة واحدة، لا صفر)، و<b>البداية دائمًا i = 0</b>.</p>
+      <div class="aside warn"><span class="k"><svg class="ic"><use href="#i-warn"/></svg> ملاحظة على الشريحة</span>
+        <p>الشريحة 11 تكتب صيغة السلسلة <span class="mono" dir="ltr">(h(k) mod M</span> بقوس ناقص. الصيغة الصحيحة: <span class="mono" dir="ltr">h(k) mod M</span> — خانة واحدة تحمل قائمة، ولا يوجد <span class="mono" dir="ltr">i</span> في السلسلة أصلًا.</p></div>
+      <div class="fold"><details class="ex"><summary><svg class="ic"><use href="#i-bulb"/></svg> تمرين 1.6 — عدّ المحاولات <span class="ex-lbl">أظهر الحل</span></summary>
+        <p><b>السؤال:</b> مفتاح خانته الأصلية 3 ووجدها فارغة — كم محاولة سُجّلت؟ ومفتاح آخر خانته 3 مشغولة ثم 4 مشغولة ثم 5 فارغة؟</p>
+        <p><b>الحل:</b> الأول: محاولة واحدة (i=0) لأن العدّ يشمل النجاح. الثاني: ثلاث محاولات (i=0,1,2). لا تقل «صفر» ولا «محاولتان».</p>
+      </details></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.7 ================= -->
+<section class="sec reveal" id="s17">
+  <div class="num"><b>1.7</b><span>السلسلة</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشرائح 12 · 13 · 14</span></div>
+    <h2>الحل الأول: السلسلة — كل خانة قائمة صغيرة</h2>
+    <div data-slide="12">
+      <div class="quote">
+        <span class="term">Separate chaining</span>
+        <p>“Every slot keeps a list of ALL keys whose home slot it is. insert: add to chain i (replace if k is already there). get: scan chain i. delete: remove k from chain i.”</p>
+        <span class="src">Hash Tables, slide 12 · Goodrich et al. (2013) §10.2.2</span>
+      </div>
+      <p>الخانة لا تحمل مفتاحًا واحدًا بل <b>قائمة</b> (السلسلة). الذهاب إلى الخانة <span class="mono" dir="ltr">O(1)</span>، والمسح داخل قائمتها فقط بمقدار طولها. مع n مفتاحًا وM خانة، متوسط طول السلسلة ≈ <span class="mono" dir="ltr">n/M</span> — وهذا هو <b>معامل الحِمل λ</b>. أبقِ λ قريبًا من 1 أو أقل تبقَ السلاسل قصيرة والتكلفة <span class="mono" dir="ltr">O(1)</span>. الأسوأ (كل المفاتيح في سلسلة واحدة) <span class="mono" dir="ltr">O(n)</span> ولا يحدث إلا بدالة تجزئة سيّئة.</p>
+    </div>
+    <div data-slide="13">
+      <h3 style="margin-top:var(--s4)">تتبّع كامل: 9 مفاتيح في 7 خانات</h3>
+      <p>المفاتيح <span class="mono" dir="ltr">1, 5, 7, 12, 20, 29, 9, 22, 33</span> مع <span class="mono" dir="ltr">h(k) = k % 7</span>. الحساب: <span class="mono" dir="ltr">1%7=1</span> · <span class="mono" dir="ltr">5%7=5</span> · <span class="mono" dir="ltr">7%7=0</span> · <span class="mono" dir="ltr">12%7=5</span> taken · <span class="mono" dir="ltr">20%7=6</span> · <span class="mono" dir="ltr">29%7=1</span> taken · <span class="mono" dir="ltr">9%7=2</span> · <span class="mono" dir="ltr">22%7=1</span> taken · <span class="mono" dir="ltr">33%7=5</span> taken.</p>
+      <svg viewBox="0 0 620 170" style="width:100%;max-width:620px;height:auto;display:block" role="img" aria-label="سبع خانات، الخانة 0 فيها 7، الخانة 1 فيها 1 و29 و22، الخانة 2 فيها 9، الخانة 5 فيها 5 و12 و33، الخانة 6 فيها 20">
+        <g font-family="ui-monospace,monospace" font-size="12">
+          <g stroke="#D3CCBC" stroke-width="1.75" fill="none">
+            <rect x="4" y="10" width="80" height="34" rx="6"/><rect x="4" y="52" width="80" height="34" rx="6"/>
+            <rect x="4" y="94" width="80" height="34" rx="6"/><rect x="4" y="136" width="80" height="30" rx="6"/>
+          </g>
+          <text x="14" y="32" font-size="10" fill="#5C5852">slot 0</text><text x="54" y="32" fill="#22211E">7</text>
+          <text x="14" y="74" font-size="10" fill="#5C5852">slot 1</text><text x="54" y="74" fill="#22211E">1</text>
+          <text x="14" y="116" font-size="10" fill="#5C5852">slot 2</text><text x="54" y="116" fill="#22211E">9</text>
+          <text x="14" y="156" font-size="10" fill="#5C5852">slot 3</text><text x="54" y="156" font-size="10" fill="#5C5852">—</text>
+          <g stroke="#2A6F68" stroke-width="1.5" fill="#F0ECE3">
+            <rect x="96" y="52" width="72" height="34" rx="6"/><rect x="176" y="52" width="72" height="34" rx="6"/>
+            <rect x="256" y="52" width="72" height="34" rx="6"/>
+          </g>
+          <text x="132" y="74" text-anchor="middle" fill="#1F5A54">29</text>
+          <text x="212" y="74" text-anchor="middle" fill="#1F5A54">22</text>
+          <g stroke="#2A6F68" stroke-width="1.5" fill="#F0ECE3">
+            <rect x="96" y="136" width="72" height="30" rx="6"/>
+          </g>
+          <text x="132" y="156" text-anchor="middle" fill="#1F5A54">12</text><text x="212" y="156" fill="#5C5852" font-size="10">…</text>
+          <g stroke="#D3CCBC" stroke-width="1.75" fill="none">
+            <rect x="360" y="10" width="80" height="34" rx="6"/><rect x="360" y="52" width="80" height="34" rx="6"/>
+            <rect x="360" y="94" width="80" height="34" rx="6"/>
+          </g>
+          <text x="370" y="32" font-size="10" fill="#5C5852">slot 5</text><text x="410" y="32" fill="#22211E">5</text>
+          <text x="370" y="74" font-size="10" fill="#5C5852">slot 6</text><text x="410" y="74" fill="#22211E">20</text>
+          <text x="370" y="116" font-size="10" fill="#5C5852">slot 4</text><text x="410" y="116" font-size="10" fill="#5C5852">—</text>
+          <g stroke="#2A6F68" stroke-width="1.5" fill="#F0ECE3">
+            <rect x="452" y="10" width="72" height="34" rx="6"/><rect x="532" y="10" width="72" height="34" rx="6"/>
+          </g>
+          <text x="488" y="32" text-anchor="middle" fill="#1F5A54">12</text>
+          <text x="568" y="32" text-anchor="middle" fill="#1F5A54">33</text>
+        </g>
+      </svg>
+      <div class="legend"><span><i style="background:#2A6F68"></i>عضو في سلسلة (chain node)</span><span><i style="background:#D3CCBC"></i>خانة الرأس (slot head)</span></div>
+      <p style="margin-top:var(--s2)">القراءات المطلوبة من الجدول: <span class="mono" dir="ltr">n = 9</span> · <span class="mono" dir="ltr">M = 7</span> · <span class="mono" dir="ltr">λ = 9/7 ≈ 1.3</span> · أطول سلسلة = 3 · <span class="mono" dir="ltr">search(33)</span>: <span class="mono" dir="ltr">33 % 7 = 5</span> ← افحص 5 ثم 12 ثم 33 → <b>3 مقارنات</b> · <span class="mono" dir="ltr">search(4)</span>: <span class="mono" dir="ltr">4 % 7 = 4</span> ← خانة فارغة → <b>غير موجود، 0 مقارنات</b>.</p>
+    </div>
+    <div data-slide="14">
+      <h3 style="margin-top:var(--s4)">التنفيذ في بايثون</h3>
+      <div class="code">
+        <div class="ch"><span class="codedots"><i></i><i></i><i></i></span><span class="ttl">ChainHashMap — slide 13 · Lab 6 Task 1</span><span class="sp"></span><button class="iconbtn only" type="button" data-copy aria-label="نسخ"><svg class="ic"><use href="#i-copy"/></svg></button></div>
+        <div class="cbody" data-src="p13"></div>
+      </div>
+      <script type="text/plain" id="src-p13">
+class ChainHashMap:
+    def __init__(self, M=11):                 # M = table size
+        self._slots = [[] for _ in range(M)]  # empty chains
+        self._n = 0                           # number of keys stored
+    def _index(self, key):                    # key -> home slot
+        return hash(key) % len(self._slots)
+    def put(self, key, value):                # insert or update
+        chain = self._slots[self._index(key)]
+        for pair in chain:                    # key already there?
+            if pair[0] == key:
+                pair[1] = value               #   update its value
+                return
+        chain.append([key, value])            # no: add a new pair
+        self._n += 1
+    def get(self, key):                       # look up a value
+        chain = self._slots[self._index(key)]
+        for k, v in chain:                    # scan this chain only
+            if k == key:
+                return v                      # found it
+        raise KeyError(key)                   # not in the table</script>
+      <p>اقرأه كخطوتين: <span class="mono" dir="ltr">_index(key)</span> يحدّد الخانة، ثم حلقة قصيرة على تلك الخانة وحدها — لا على الجدول كله. في المعمل تُضاف: <span class="mono" dir="ltr">remove(key)</span>، <span class="mono" dir="ltr">__len__</span> و<span class="mono" dir="ltr">__contains__</span>، و<span class="mono" dir="ltr">_resize()</span> عند تجاوز λ = 0.75، واختبار بألف مفتاح عشوائي.</p>
+      <div class="aside warn"><span class="k"><svg class="ic"><use href="#i-warn"/></svg> Bug Hunt — خطأ في سطر واحد</span>
+        <p>في دالة <span class="mono" dir="ltr">get</span> كُتبت الحلقة <span class="mono" dir="ltr">for chain in self._slots:</span> بدلًا من <span class="mono" dir="ltr">for k, v in chain:</span>. النتيجة: مسح كل الجدول بدل السلسلة، وتكلفة <span class="mono" dir="ltr">O(n)</span> بدل <span class="mono" dir="ltr">O(1)</span>، ثم فشل التفكيك <span class="mono" dir="ltr">for k, v</span> لأن العنصر قائمة وليس زوجًا. الإصلاح: <span class="mono" dir="ltr">for k, v in self._slots[self._index(key)]:</span>.</p></div>
+      <div class="fold"><details class="ex"><summary><svg class="ic"><use href="#i-bulb"/></svg> تمرين 1.7 — احسب λ وأطول سلسلة <span class="ex-lbl">أظهر الحل</span></summary>
+        <p><b>السؤال:</b> أدخلت 14 مفتاحًا في 11 خانة بالسلسلة. ما λ؟ وكم متوسط طول السلسلة؟ وهل التكلفة O(1)؟</p>
+        <p><b>الحل:</b> <span class="mono" dir="ltr">λ = 14/11 ≈ 1.27</span>، ومتوسط الطول ≈ 1.27 عنصر لكل خانة. نعم، <span class="mono" dir="ltr">O(1)</span> في المتوسط لأن الطول ثابت لا ينمو مع n؛ ولو صار λ كبيرًا نكبّر الجدول.</p>
+      </details></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.8 ================= -->
+<section class="sec reveal" id="s18">
+  <div class="num"><b>1.8</b><span>خطّي</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشرائح 18 · 19 · 20 · 21 · 17</span></div>
+    <h2>الحل الثاني: العنونة المفتوحة بالفحص الخطّي</h2>
+    <div data-slide="18">
+      <div class="quote">
+        <span class="term">Linear probing</span>
+        <p>“Open addressing: one key per slot. slot = (home + i) % M, i = 0, 1, 2, … Search works the same way: start at home, stop when you find the key OR reach an empty slot.”</p>
+        <span class="src">Hash Tables, slide 14 · Goodrich et al. (2013) §10.2.2</span>
+      </div>
+      <p>لا قوائم إضافية: مصفوفة واحدة، مفتاح واحد لكل خانة. إن كانت الخانة الأصلية مشغولة نجرّب التالية، ثم التالية. مع <span class="mono" dir="ltr">M = 11</span>: أُدخلت <span class="mono" dir="ltr">18, 41, 22, 59, 32, 31</span> في خاناتها مباشرة، ثم <span class="mono" dir="ltr">44 % 11 = 0</span> ← الخانة 0 مشغولة (22) ← <span class="mono" dir="ltr">i=1</span> ← الخانة 1 حرة free. البحث يعمل بالطريقة نفسها: <span class="mono" dir="ltr">get(44)</span> من 0 ← 22 ≠ 44 ← 1 ← وجدته. <b>توقف عند المفتاح أو عند خانة فارغة</b> (فإن وصلت إلى فارغة فالمفتاح غير موجود).</p>
+      <p><b>لماذا نتحمّل هذا؟</b> لا قوائم ← ذاكرة أقل واستخدام أفضل للكاش. بايثون نفسها تستخدم العنونة المفتوحة في <span class="mono" dir="ltr">dict</span> و<span class="mono" dir="ltr">set</span> (بتسلسل فحص أذكى).</p>
+    </div>
+
+    <div class="anim" data-anim="probe" id="anim-probe">
+      <div class="act-h">
+        <span class="act-k">Animation <b>1.8.1</b></span>
+        <h3>إدخال 44 في جدول M = 11 ممتلئ جزئيًا</h3>
+        <label class="pred"><input type="checkbox" class="predict"> وضع التوقّع</label>
+      </div>
+      <div class="stage" style="min-height:290px">
+        <div class="slotrow" style="margin-top:var(--s2)">
+          <div class="slot" id="q0"><i class="ix">0</i><span class="inc">22</span></div>
+          <div class="slot" id="q1"><i class="ix">1</i><span class="inc"></span></div>
+          <div class="slot" id="q2"><i class="ix">2</i><span class="inc"></span></div>
+          <div class="slot" id="q3"><i class="ix">3</i><span class="inc"></span></div>
+          <div class="slot" id="q4"><i class="ix">4</i><span class="inc">59</span></div>
+          <div class="slot" id="q5"><i class="ix">5</i><span class="inc"></span></div>
+          <div class="slot" id="q6"><i class="ix">6</i><span class="inc"></span></div>
+          <div class="slot" id="q7"><i class="ix">7</i><span class="inc">18</span></div>
+          <div class="slot" id="q8"><i class="ix">8</i><span class="inc">41</span></div>
+          <div class="slot" id="q9"><i class="ix">9</i><span class="inc">31</span></div>
+          <div class="slot" id="q10"><i class="ix">10</i><span class="inc">32</span></div>
+        </div>
+        <div class="chip" data-chip="c44" data-home="q10" style="opacity:0"><span class="t">44</span></div>
+      </div>
+      <div class="controls">
+        <button class="btn" type="button" data-a="start"><svg class="ic"><use href="#i-play"/></svg> Start</button>
+        <button class="btn ghost" type="button" data-a="prev"><svg class="ic"><use href="#i-prev"/></svg> السابق</button>
+        <button class="btn ghost" type="button" data-a="next"><svg class="ic"><use href="#i-next"/></svg> التالي</button>
+        <button class="btn ghost" type="button" data-a="play"><svg class="ic"><use href="#i-play"/></svg> تشغيل</button>
+        <button class="btn ghost" type="button" data-a="pause"><svg class="ic"><use href="#i-pause"/></svg> إيقاف</button>
+        <button class="btn ghost" type="button" data-a="reset"><svg class="ic"><use href="#i-reset"/></svg> إعادة</button>
+        <button class="btn ghost" type="button" data-a="speed" aria-label="سرعة عادية" aria-pressed="false">2x speed</button>
+        <div class="segstrip" aria-label="شريط الخطوات"></div>
+        <span class="stepno">Step 0 of 6</span>
+      </div>
+      <div class="askbox" hidden>
+        <div class="askq"></div>
+        <div class="askopts opts"></div>
+        <div class="askfb"></div>
+      </div>
+      <p class="cap"><span class="why">لماذا</span><span class="txt">اضغط Start: الخانة 0 مشغولة، والفحص الخطّي يجرّب 0 ثم 1.</span></p>
+      <div class="watch">
+        <div class="w"><span>key</span><b data-w="k">—</b></div>
+        <div class="w"><span>i</span><b data-w="i">0</b></div>
+        <div class="w"><span>slot = (0+i)%11</span><b data-w="s">—</b></div>
+        <div class="w"><span>probes</span><b data-w="p">0</b></div>
+      </div>
+    </div>
+
+    <div data-slide="19">
+      <h3 style="margin-top:var(--s4)">مثال عدّ المحاولات (الشريحة 15)</h3>
+      <div class="tw"><table>
+        <caption>المفاتيح 11, 13, 15, 17, 25, 37, 38, 40, 41, 48 في M = 10</caption>
+        <thead><tr><th class="ltr">key</th><th class="ltr">home = k % 10</th><th class="ltr">slots tried</th><th class="c">probes</th></tr></thead>
+        <tbody>
+          <tr><td class="ltr">11</td><td class="ltr">1</td><td class="ltr">1</td><td class="c">1</td></tr>
+          <tr><td class="ltr">13</td><td class="ltr">3</td><td class="ltr">3</td><td class="c">1</td></tr>
+          <tr><td class="ltr">15</td><td class="ltr">5</td><td class="ltr">5</td><td class="c">1</td></tr>
+          <tr><td class="ltr">17</td><td class="ltr">7</td><td class="ltr">7</td><td class="c">1</td></tr>
+          <tr><td class="ltr">25</td><td class="ltr">5</td><td class="ltr">5, 6</td><td class="c">2</td></tr>
+          <tr><td class="ltr">37</td><td class="ltr">7</td><td class="ltr">7, 8</td><td class="c">2</td></tr>
+          <tr><td class="ltr">38</td><td class="ltr">8</td><td class="ltr">8, 9</td><td class="c">2</td></tr>
+          <tr><td class="ltr">40</td><td class="ltr">0</td><td class="ltr">0</td><td class="c">1</td></tr>
+          <tr><td class="ltr">41</td><td class="ltr">1</td><td class="ltr">1, 2</td><td class="c">2</td></tr>
+          <tr><td class="ltr">48</td><td class="ltr">8</td><td class="ltr">8, 9, 0, 1, 2, 3, 4</td><td class="c">7</td></tr>
+        </tbody>
+      </table></div>
+      <p>الجدول النهائي: <span class="mono" dir="ltr">0:40 · 1:11 · 2:41 · 3:13 · 4:48 · 5:15 · 6:25 · 7:17 · 8:37 · 9:38</span>. ماذا يُظهر الصف الأخير؟ الجدول ممتلئ بنسبة 90%، والمفتاح 48 احتاج 7 محاولات (شبه مسح كامل)، وكتلة واحدة طويلة دمجت الخانات 5–9 مع 0–4.</p>
+      <div class="aside bad"><span class="k"><svg class="ic"><use href="#i-warn"/></svg> القاعدة الرقمية</span>
+        <p>مع العنونة المفتوحة أبقِ <span class="mono" dir="ltr">λ ≤ 0.5</span>. عند نصف امتلاء: نحو <b>1.5 محاولة</b> للبحث الناجح و<b>2.5</b> للفاشل (Knuth, 1998).</p></div>
+    </div>
+    <div data-slide="21" class="aside"><span class="k"><svg class="ic"><use href="#i-list"/></svg> شريحة فاصلة 21</span>
+      <p>عنوان الشريحة: <b>Primary clustering</b> — وترسم الكتلة <span class="mono" dir="ltr">12, 22, 32, 42</span> في خانات 2–5 من M = 10 مع التعليق: «A continuous block of occupied slots attracts even more collisions».</p></div>
+    <div data-slide="20">
+      <h3 style="margin-top:var(--s4)">تحذيران: التكدّس والحذف</h3>
+      <p><b>1) Primary clustering:</b> سلسلة الخانات الممتلئة تجذب كل مفتاح يهبط في أي مكان منها، فتنمو الكتلة. العلاج: أبقِ الجدول أقل من نصف ممتلئ.</p>
+      <p><b>2) الحذف:</b> لا تفرّغ الخانة أبدًا. لو حذفت 44 من الخانة 1 وأفرغتها، فإن بحثًا لاحقًا عن 66 (خانته 0) سيتوقف عند الخانة الفارغة 1 ويقول «غير موجود» خطأً. الحل: اترك علامة <span class="mono" dir="ltr">AV</span> (كانت مستخدمة): البحث يتجاوزها، والإدخال يمكنه إعادة استخدامها.</p>
+      <div class="tw"><table>
+        <caption>السلسلة مقابل العنونة المفتوحة (الشريحة 16)</caption>
+        <thead><tr><th></th><th>Chaining</th><th>Open addressing</th></tr></thead>
+        <tbody>
+          <tr><td>الذاكرة</td><td>قائمة إضافية لكل خانة</td><td>المصفوفة فقط</td></tr>
+          <tr><td>λ المسموح</td><td>≤ 0.9 (نحو 1)</td><td>≤ 0.5</td></tr>
+          <tr><td>الحذف</td><td>سهل</td><td>يحتاج علامة</td></tr>
+          <tr><td>الكود</td><td>أبسط</td><td>أدقّ وأصعب</td></tr>
+          <tr><td>يُستخدم في</td><td>Java HashMap</td><td>Python dict/set</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div data-slide="17">
+      <p><b>التكدّس الأولي بالأرقام (الشريحة 17):</b> المفاتيح 12, 22, 32, 42 كلها خانتها 2 في M = 10. المحاولات: 1 ثم 2 ثم 3 ثم 4 — والجدول النهائي كتلة متّصلة <span class="mono" dir="ltr">2,3,4,5</span>. الكتلة تجذب غيرها، فيطول كل فحص لاحق.</p>
+    </div>
+    <div class="fold"><details class="ex"><summary><svg class="ic"><use href="#i-bulb"/></svg> تمرين 1.8 — الحذف والعلامة <span class="ex-lbl">أظهر الحل</span></summary>
+        <p><b>السؤال:</b> جدول M=10: الخانة 0 فيها 40، 1 فيها 11، 2 فيها 41. حذفت 11. أين تضع العلامة، وماذا يحدث لو أفرغت الخانة؟</p>
+        <p><b>الحل:</b> الخانة 1 تُعلَّم <span class="mono" dir="ltr">AV</span>. لو أُفرغت، لَتوقف بحث 41 (خانته 1) عندها ظانًّا أن السلسلة انتهت فأعاد «غير موجود» رغم وجوده في الخانة 2.</p>
+      </details></div>
+  </div>
+</section>
+
+<!-- ================= 1.9 ================= -->
+<section class="sec reveal" id="s19">
+  <div class="num"><b>1.9</b><span>تربيعي</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشرائح 22 · 23 · 24</span></div>
+    <h2>الحل الثالث: الفحص التربيعي — اقفز 1 ثم 4 ثم 9</h2>
+    <div data-slide="22">
+      <div class="quote">
+        <span class="term">Quadratic probing</span>
+        <p>“Still open addressing (one key per slot) — only the jump changes: slot = (h(k) + i²) mod M. Linear adds 1, 2, 3, … · quadratic adds 1, 4, 9, 16, …”</p>
+        <span class="src">Hash Tables, slide 17 · Cormen et al. (2009) §11.4</span>
+      </div>
+      <p>المفاتيح 12, 22, 32, 42 خانتها 2 في <span class="mono" dir="ltr">M = 10</span>. بالفصل الخطّي: 2, 3, 4, 5 (كتلة صلبة). بالتربيعي: <span class="mono" dir="ltr">2+0²=2</span> · <span class="mono" dir="ltr">2+1²=3</span> · <span class="mono" dir="ltr">2+2²=6</span> · <span class="mono" dir="ltr">2+3²=11 % 10 = 1</span> ← الجدول النهائي: <span class="mono" dir="ltr">1:42 · 2:12 · 3:22 · 6:32</span> — موزّع، بلا كتلة.</p>
+    </div>
+    <div data-slide="23">
+      <h3 style="margin-top:var(--s4)">مثال محسوب (الشريحة 18)</h3>
+      <div class="tw"><table>
+        <caption>المفاتيح 11, 13, 17, 21, 31, 41 · M = 10 · slot = (home + i²) % 10</caption>
+        <thead><tr><th class="ltr">key</th><th class="c">home</th><th class="ltr">tries</th><th class="c">slot</th><th class="c">probes</th></tr></thead>
+        <tbody>
+          <tr><td class="ltr">11</td><td class="c">1</td><td class="ltr">i=0: 1+0² = 1 free</td><td class="c">1</td><td class="c">1</td></tr>
+          <tr><td class="ltr">13</td><td class="c">3</td><td class="ltr">i=0: 3+0² = 3 free</td><td class="c">3</td><td class="c">1</td></tr>
+          <tr><td class="ltr">17</td><td class="c">7</td><td class="ltr">i=0: 7+0² = 7 free</td><td class="c">7</td><td class="c">1</td></tr>
+          <tr><td class="ltr">21</td><td class="c">1</td><td class="ltr">i=0 taken → i=1: 1+1 = 2 free</td><td class="c">2</td><td class="c">2</td></tr>
+          <tr><td class="ltr">31</td><td class="c">1</td><td class="ltr">i=0 taken → i=1 taken → i=2: 1+4 = 5 free</td><td class="c">5</td><td class="c">3</td></tr>
+          <tr><td class="ltr">41</td><td class="c">1</td><td class="ltr">i=0 taken → taken → taken → i=3: 1+9 = 10 % 10 = 0 free</td><td class="c">0</td><td class="c">4</td></tr>
+        </tbody>
+      </table></div>
+      <p>الجدول النهائي: <span class="mono" dir="ltr">0:41 · 1:11 · 2:21 · 3:13 · 5:31 · 7:17</span>. لاحظ: الفحص الخطّي كان سيضع 31 في 4 و41 في 5، أي كتلة واحدة 1–5. التربيعي فرّقها — لكنه دفع الثمن في مكان آخر:</p>
+      <div class="aside warn"><span class="k"><svg class="ic"><use href="#i-warn"/></svg> ملاحظة على الشريحة</span>
+        <p><b>قد تفوت خانات حرة.</b> مع <span class="mono" dir="ltr">M = 10</span> فإن <span class="mono" dir="ltr">i² % 10</span> لا يساوي إلا 0, 1, 4, 5, 6, 9؛ فمن خانة أصلية 1 لا يمكن الوصول إلا إلى 6 خانات من 10. القاعدة: <b>M أولي و λ ≤ 0.5</b> ← يُضمن إيجاد خانة حرة.</p></div>
+    </div>
+    <div data-slide="24">
+      <p><b>Secondary clustering:</b> التربيعي يقلّل التكدّس الأولي، لكن المفاتيح التي تشترك في الخانة الأصلية تتبع <b>تسلسل الفحص نفسه بالضبط</b> — وهو تكدّس من نوع ثانٍ، لا يُحلّ إلا بخطوة تعتمد على المفتاح نفسه: التجزئة المزدوجة.</p>
+    </div>
+    <div class="fold"><details class="ex"><summary><svg class="ic"><use href="#i-bulb"/></svg> تمرين 1.9 — لماذا M أولي؟ <span class="ex-lbl">أظهر الحل</span></summary>
+        <p><b>السؤال:</b> لماذا يُشترط أن يكون M أوليًا مع الفحص التربيعي؟</p>
+        <p><b>الحل:</b> لأن الدالة <span class="mono" dir="ltr">i² mod M</span> لا تغطّي كل الفهارس حين يكون M غير أولي، فتبقى خانات حرة unreachable ولو كان الجدول غير ممتلئ. مع M أولي وتحميل ≤ 0.5 يُضمن الوصول إلى خانة حرة.</p>
+      </details></div>
+  </div>
+</section>
+
+<!-- ================= 1.10 ================= -->
+<section class="sec reveal" id="s110">
+  <div class="num"><b>1.10</b><span>مزدوجة</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحتان 19 و 20</span></div>
+    <h2>الحل الرابع: التجزئة المزدوجة — المفتاح يختار خطوته</h2>
+    <div data-slide="15">
+      <div class="quote">
+        <span class="term">Double hashing</span>
+        <p>“slot = (h₁ + i · h₂) % M · h₁ = k % M · h₂ = 6 − k % 6. Start at h₁; if taken, jump h₂ slots; keep jumping by the SAME step until a free slot is found.”</p>
+        <span class="src">Hash Tables, slide 19 · Cormen et al. (2009) §11.4</span>
+      </div>
+      <p>هنا الخطوة ليست ثابتة (1 أو i²) بل تُحسب من المفتاح نفسه، فيتفرّق المفتاحان المتصادمان في مسارين مختلفين. الحالة: <span class="mono" dir="ltr">M = 11</span> وفيها 18 في الخانة 7 و44 في الخانة 0.</p>
+      <div class="tw"><table>
+        <caption>إدخال 29 ثم 62 — نفس الخانة الأصلية 7، خطوتان مختلفتان</caption>
+        <thead><tr><th class="ltr">key</th><th class="c">h₁</th><th class="c">h₂</th><th class="ltr">tries (i = attempt)</th><th class="c">slot</th></tr></thead>
+        <tbody>
+          <tr><td class="ltr">29</td><td class="c">7</td><td class="c">6−5 = 1</td><td class="ltr">i=0: 7 taken(18) → i=1: 8 free</td><td class="c">8</td></tr>
+          <tr><td class="ltr">62</td><td class="c">7</td><td class="c">6−2 = 4</td><td class="ltr">i=0: 7 taken → i=1: 11%11=0 taken(44) → i=2: 15%11=4 free</td><td class="c">4</td></tr>
+        </tbody>
+      </table></div>
+      <p>نتوقف عند <b>أول خانة حرة</b>. ولا ننسى <span class="mono" dir="ltr">% M</span>: <span class="mono" dir="ltr">7+4 = 11 → 0</span> و<span class="mono" dir="ltr">7+8 = 15 → 4</span>.</p>
+    </div>
+    <div data-slide="16">
+      <h3 style="margin-top:var(--s4)">المثال الكامل: ستة مفاتيح وعشرة فحوص</h3>
+      <div class="tw"><table>
+        <caption>18, 29, 35, 44, 57, 62 · M = 11 · h₂ = 6 − k % 6</caption>
+        <thead><tr><th class="ltr">key</th><th class="c">h₁</th><th class="c">h₂</th><th class="ltr">tries</th><th class="c">slot</th><th class="c">probes</th></tr></thead>
+        <tbody>
+          <tr><td class="ltr">18</td><td class="c">7</td><td class="c">6</td><td class="ltr">i=0: 7 free</td><td class="c">7</td><td class="c">1</td></tr>
+          <tr><td class="ltr">29</td><td class="c">7</td><td class="c">1</td><td class="ltr">7 taken(18) → 8 free</td><td class="c">8</td><td class="c">2</td></tr>
+          <tr><td class="ltr">35</td><td class="c">2</td><td class="c">1</td><td class="ltr">i=0: 2 free</td><td class="c">2</td><td class="c">1</td></tr>
+          <tr><td class="ltr">44</td><td class="c">0</td><td class="c">4</td><td class="ltr">i=0: 0 free</td><td class="c">0</td><td class="c">1</td></tr>
+          <tr><td class="ltr">57</td><td class="c">2</td><td class="c">3</td><td class="ltr">2 taken(35) → 5 free</td><td class="c">5</td><td class="c">2</td></tr>
+          <tr><td class="ltr">62</td><td class="c">7</td><td class="c">4</td><td class="ltr">7 taken → 0 taken(44) → 4 free</td><td class="c">4</td><td class="c">3</td></tr>
+        </tbody>
+      </table></div>
+      <p>الجدول النهائي: <span class="mono" dir="ltr">0:44 · 2:35 · 4:62 · 5:57 · 7:18 · 8:29</span>. المجموع: 6 مفاتيح، 10 فحوص. ولاحظ أن 29 و62 (نفس الخانة الأصلية 7) انتهيا إلى موضعين مختلفين — هذا هو الفرق الجوهري عن التربيعي.</p>
+      <div class="aside"><span class="k"><svg class="ic"><use href="#i-target"/></svg> لماذا هذا المثال؟</span>
+        <p>لأنه يكرّر الحالة الأصعب (خانة 7 محجوزة بـ 18) مرتين بخطوتين مختلفتين، فيُظهر أثر h₂ وحده على المسار — وهذا ما يُختبر في الأسئلة.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.11 ================= -->
+<section class="sec reveal" id="s111">
+  <div class="num"><b>1.11</b><span>الحِمل</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشرائح 21 و 22</span></div>
+    <h2>معامل الحِمل λ = n / M ومتى نكبّر</h2>
+    <div data-slide="25">
+      <div class="quote">
+        <span class="term">Load factor (also written α)</span>
+        <p>“λ = n / M — n keys stored, M slots. It just means ‘how full is the table’.”</p>
+        <span class="src">Hash Tables, slide 21</span>
+      </div>
+      <div class="tw"><table>
+        <caption>ثلاث حالات من الشريحة (M = 16)</caption>
+        <thead><tr><th class="c">λ</th><th>المثال</th><th>الحكم</th></tr></thead>
+        <tbody>
+          <tr><td class="c ltr">0.25</td><td>4 مفاتيح في 16 خانة</td><td>سريع، لكن مهدر للذاكرة</td></tr>
+          <tr><td class="c ltr">0.75</td><td>12 مفتاحًا في 16 خانة</td><td>النقطة المثلى (sweet spot)</td></tr>
+          <tr><td class="c ltr">1.5</td><td>24 مفتاحًا في 16 خانة</td><td>سلاسل من 2–3 ← يبدأ البطء</td></tr>
+        </tbody>
+      </table></div>
+      <p>λ مجرد «كم الجدول ممتلئ». وحين يتجاوز <b>0.75</b> (بالسلسلة) أو <b>0.5</b> (بالعنونة المفتوحة)، نضاعف عدد الخانات ونُعيد إدراج كل مفتاح.</p>
+    </div>
+    <div data-slide="26">
+      <h3 style="margin-top:var(--s4)">إعادة التجزئة خطوةً بخطوة</h3>
+      <p>جدول فيه <span class="mono" dir="ltr">M = 5</span> والمفاتيح <span class="mono" dir="ltr">7, 12, 23, 9</span>: <span class="mono" dir="ltr">λ = 4/5 = 0.8 &gt; 0.75</span> ← نكبّر. المقاس الجديد (كما في الشريحة) <span class="mono" dir="ltr">M = 2·5 + 1 = 11</span>، ثم نُعيد إدراج كل مفتاح بالمقاس الجديد لأن <span class="mono" dir="ltr">hash(key) % M</span> يتغير بتغير M.</p>
+      <div class="tw"><table>
+        <caption>كل مفتاح ينتقل (moved) — لا أحد يبقى مكانه بحكم المصادفة إلا لأن الحساب أنتجه</caption>
+        <thead><tr><th class="ltr">key</th><th class="c">old: k % 5</th><th class="c">new: k % 11</th><th>النتيجة</th></tr></thead>
+        <tbody>
+          <tr><td class="ltr">7</td><td class="c">2</td><td class="c">7</td><td>moved</td></tr>
+          <tr><td class="ltr">12</td><td class="c">2</td><td class="c">1</td><td>moved</td></tr>
+          <tr><td class="ltr">23</td><td class="c">3</td><td class="c">1</td><td>moved</td></tr>
+          <tr><td class="ltr">9</td><td class="c">4</td><td class="c">9</td><td>moved</td></tr>
+        </tbody>
+      </table></div>
+      <div class="code">
+        <div class="ch"><span class="codedots"><i></i><i></i><i></i></span><span class="ttl">_resize — slide 22</span><span class="sp"></span><button class="iconbtn only" type="button" data-copy aria-label="نسخ"><svg class="ic"><use href="#i-copy"/></svg></button></div>
+        <div class="cbody" data-src="p22"></div>
+      </div>
+      <script type="text/plain" id="src-p22">
+def _resize(self, new_M):
+    old = self._slots                 # keep the old chains
+    self._slots = [[] for _ in range(new_M)]
+    self._n = 0                       # put() counts again
+    for chain in old:                 # every old chain
+        for key, value in chain:
+            self.put(key, value)      # re-insert -> NEW slot
+# inside put(), after self._n += 1:
+if self._n / len(self._slots) > 0.75:
+    self._resize(2 * len(self._slots) + 1)</script>
+      <p><b>التكلفة:</b> إعادة الإدراج <span class="mono" dir="ltr">O(n)</span> لكنها تحدث نادرًا (كل مرة يتضاعف الجدول)، فيبقى متوسط تكلفة الإدخال <span class="mono" dir="ltr">O(1)</span> — تكلفة موزَّعة على العمليات (amortised).</p>
+      <div class="aside ok"><span class="k"><svg class="ic"><use href="#i-check"/></svg> إضافي (خارج الشرائح)</span>
+        <p>السؤال المتكرّر: «لماذا 0.75 للسلسلة و0.5 للعنونة؟» — تفسير إضافي لا يرد نصًّا على الشريحة: في السلسلة يستمر λ حتى 1 تقريبًا لأن التصادم يكلّف خطوة داخل قائمة قصيرة، أما العنونة المفتوحة فلا مكان ثانيًا، فأي تصادم يُطيل تسلسل الفحص ويسبب تكدّسًا، لذلك العتبة أنزل (0.5) لضمان الوصول إلى خانة حرة.</p></div>
+    </div>
+    <div id="host-pa2"></div>
+  </div>
+</section>
+
+<!-- ================= 1.12 ================= -->
+<section class="sec reveal" id="s112">
+  <div class="num"><b>1.12</b><span>التكلفة</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشرائح 23 · 24 · 25 · 26</span></div>
+    <h2>كم سرعة جدول التجزئة فعلًا؟</h2>
+    <div data-slide="27">
+      <div class="quote">
+        <span class="term">The honest answer</span>
+        <p>“O(1) assumes the keys are spread out. A bad hash function (or someone deliberately choosing colliding keys) can pile everything into one slot → O(n).”</p>
+        <span class="src">Hash Tables, slide 23 · CLO 2.2</span>
+      </div>
+      <div class="tw"><table>
+        <caption>مقارنة شاملة (الشريحة 23)</caption>
+        <thead><tr><th>العملية</th><th class="c">Hash (متوسط)</th><th class="c">Hash (أسوأ)</th><th class="c">Sorted array</th><th class="c">Linked list</th></tr></thead>
+        <tbody>
+          <tr><td>search / k in map</td><td class="c ltr">O(1)</td><td class="c ltr">O(n)</td><td class="c ltr">O(log n)</td><td class="c ltr">O(n)</td></tr>
+          <tr><td>insert</td><td class="c ltr">O(1)*</td><td class="c ltr">O(n)</td><td class="c ltr">O(n)</td><td class="c ltr">O(1) at head</td></tr>
+          <tr><td>delete</td><td class="c ltr">O(1)</td><td class="c ltr">O(n)</td><td class="c ltr">O(n)</td><td class="c ltr">O(n) to find</td></tr>
+          <tr><td>keys in order?</td><td class="c">no</td><td class="c">—</td><td class="c">yes</td><td class="c">no</td></tr>
+        </tbody>
+      </table></div>
+      <p>* <b>amortised</b>: التكلفة تتضمن إعادة التجزئة التي تحدث أحيانًا. و<b>متى لا تستخدم جدول تجزئة؟</b> إذا احتجت المفاتيح مرتّبة (استخدم شجرة)، أو كانت مفاتيحك قوائم/كائنات متغيرة، أو احتجت ضمان السرعة في كل مرة لا في المتوسط فقط.</p>
+      <p>بايثون تُعمّي (randomise) تجزئة النصوص لتصعيب الهجوم المتعمّد بتوليد مفاتيح متصادمة (PEP 456)، وهذا هو موضوع مرجع Klink &amp; Wälde في الشريحة 30.</p>
+    </div>
+
+    <div class="anim" data-anim="race" id="anim-race">
+      <div class="act-h">
+        <span class="act-k">Animation <b>1.12.1</b></span>
+        <h3>البحث الخطّي مقابل البحث بالتجزئة — سباق على 50 000 سجل</h3>
+      </div>
+      <div class="stage" style="min-height:200px">
+        <div class="racebars">
+          <div class="rl a"><span class="nm">hash</span><div class="track"><i class="fill" id="f-h"></i></div><span class="vn" id="v-h">0</span></div>
+          <div class="rl b"><span class="nm">scan</span><div class="track"><i class="fill" id="f-s"></i></div><span class="vn" id="v-s">0</span></div>
+        </div>
+        <p class="sm muted">التجزئة: حساب واحد ثم خانة واحدة (خطوة 1). المسح: حتى 50 000 مقارنة (يُعرض مختزلًا).</p>
+      </div>
+      <div class="controls">
+        <button class="btn" type="button" data-a="start"><svg class="ic"><use href="#i-play"/></svg> Start</button>
+        <button class="btn ghost" type="button" data-a="prev"><svg class="ic"><use href="#i-prev"/></svg> السابق</button>
+        <button class="btn ghost" type="button" data-a="next"><svg class="ic"><use href="#i-next"/></svg> التالي</button>
+        <button class="btn ghost" type="button" data-a="play"><svg class="ic"><use href="#i-play"/></svg> تشغيل</button>
+        <button class="btn ghost" type="button" data-a="pause"><svg class="ic"><use href="#i-pause"/></svg> إيقاف</button>
+        <button class="btn ghost" type="button" data-a="reset"><svg class="ic"><use href="#i-reset"/></svg> إعادة</button>
+        <button class="btn ghost" type="button" data-a="speed" aria-label="سرعة عادية" aria-pressed="false">2x speed</button>
+        <div class="segstrip" aria-label="شريط الخطوات"></div>
+        <span class="stepno">Step 0 of 4</span>
+      </div>
+      <p class="cap"><span class="why">لماذا</span><span class="txt">اضغط Start لمقارنة الخطوات المطلوبة في الحالتين.</span></p>
+    </div>
+
+    <div data-slide="28">
+      <h3 style="margin-top:var(--s4)">تملك جدولَي تجزئة أصلًا: dict و set</h3>
+      <div class="code">
+        <div class="ch"><span class="codedots"><i></i><i></i><i></i></span><span class="ttl">dict_set.py — slide 24</span><span class="sp"></span><button class="iconbtn only" type="button" data-copy aria-label="نسخ"><svg class="ic"><use href="#i-copy"/></svg></button></div>
+        <div class="cbody" data-src="p28"></div>
+      </div>
+      <script type="text/plain" id="src-p28">
+# dict: key -> value
+marks = {}
+marks['ali'] = 90        # insert   O(1)
+marks['ali']             # look up  O(1)
+'sara' in marks          # test     O(1)
+marks.get('sara', 0)     # default if absent
+
+# set: keys only, no duplicates
+seen = set()
+seen.add(5)              # O(1)
+5 in seen                # O(1)
+seen.add(5)              # still one 5
+len(seen)                # 1</script>
+      <p><b>تسريع كلاسيكي (من الأسبوع 3):</b> إيجاد المتكرّر في قائمة — حلقتان متداخلتان <span class="mono" dir="ltr">O(n²)</span>، أو حلقة واحدة مع <span class="mono" dir="ltr">set</span> لما رأيناه <span class="mono" dir="ltr">O(n)</span>. القواعد: المفاتيح يجب أن تكون قابلة للتجزئة (غير متغيرة) — <span class="mono" dir="ltr">str, int, tuple</span> لا <span class="mono" dir="ltr">list</span>؛ ترتيب التكرار هو ترتيب الإدراج (بايثون ≥ 3.7) لكن لا تعتمد عليه كترتيب مفروز؛ وللعدّ استخدم <span class="mono" dir="ltr">collections.Counter</span> فهو dict.</p>
+    </div>
+    <div data-slide="29">
+      <h3 style="margin-top:var(--s4)">تطبيق 1: عدّ تكرار الكلمات</h3>
+      <div class="code">
+        <div class="ch"><span class="codedots"><i></i><i></i><i></i></span><span class="ttl">word_counts.py — slide 25 · Lab 6 Task 2</span><span class="sp"></span><button class="iconbtn only" type="button" data-copy aria-label="نسخ"><svg class="ic"><use href="#i-copy"/></svg></button></div>
+        <div class="cbody" data-src="p29"></div>
+      </div>
+      <script type="text/plain" id="src-p29">
+def word_counts(text):
+    counts = {}                          # word -> count
+    for word in text.lower().split():    # each word
+        word = word.strip('.,!?')        # no punctuation
+        if word in counts:               # seen before?
+            counts[word] += 1            # yes: add one
+        else:
+            counts[word] = 1             # no: first time
+    return counts
+
+word_counts('the cat and the hat')
+# {'the': 2, 'cat': 1, 'and': 1, 'hat': 1}</script>
+      <div class="tw"><table>
+        <caption>تتبّع الجدول بعد كل كلمة</caption>
+        <thead><tr><th class="ltr">word</th><th class="ltr">counts</th></tr></thead>
+        <tbody>
+          <tr><td class="ltr">the</td><td class="ltr">{the:1}</td></tr>
+          <tr><td class="ltr">cat</td><td class="ltr">{the:1, cat:1}</td></tr>
+          <tr><td class="ltr">and</td><td class="ltr">{the:1, cat:1, and:1}</td></tr>
+          <tr><td class="ltr">the</td><td class="ltr">{the:2, cat:1, and:1}</td></tr>
+          <tr><td class="ltr">hat</td><td class="ltr">{the:2, cat:1, and:1, hat:1}</td></tr>
+        </tbody>
+      </table></div>
+      <p><b>التكلفة:</b> عملية <span class="mono" dir="ltr">O(1)</span> لكل كلمة ← <span class="mono" dir="ltr">O(n)</span> لكل النص؛ بقائمة أزواج كانت <span class="mono" dir="ltr">O(n²)</span>. أما أعلى 10 كلمات تكرارًا فتُرتَّب بـ <span class="mono" dir="ltr">O(m log m)</span> حيث m عدد الكلمات المختلفة.</p>
+    </div>
+    <div data-slide="30">
+      <h3 style="margin-top:var(--s4)">تطبيق 2: تجميع الجناس</h3>
+      <div class="code">
+        <div class="ch"><span class="codedots"><i></i><i></i><i></i></span><span class="ttl">group_anagrams.py — slide 26 · Lab 6 Task 3</span><span class="sp"></span><button class="iconbtn only" type="button" data-copy aria-label="نسخ"><svg class="ic"><use href="#i-copy"/></svg></button></div>
+        <div class="cbody" data-src="p30"></div>
+      </div>
+      <script type="text/plain" id="src-p30">
+def group_anagrams(words):
+    groups = {}                          # sorted letters -> words
+    for w in words:
+        key = ''.join(sorted(w))         # listen -> eilnst
+        if key not in groups:            # first word with
+            groups[key] = []             #   these letters
+        groups[key].append(w)            # add to its group
+    return list(groups.values())         # just the groups
+
+group_anagrams(['listen','silent','enlist','google'])
+# [['listen','silent','enlist'], ['google']]</script>
+      <div class="tw"><table>
+        <caption>الخريطة بعد الكلمات الأربع</caption>
+        <thead><tr><th class="ltr">key</th><th>value</th></tr></thead>
+        <tbody>
+          <tr><td class="ltr">'eilnst'</td><td>listen, silent, enlist</td></tr>
+          <tr><td class="ltr">'eggloo'</td><td>google</td></tr>
+        </tbody>
+      </table></div>
+      <p><b>التكلفة:</b> <span class="mono" dir="ltr">O(n · L log L)</span> لعدد n كلمة طولها L — ترتيب واحد لكل كلمة وعملية خريطة <span class="mono" dir="ltr">O(1)</span>. <b>الدرس التصميمي:</b> الذكاء في <b>اختيار المفتاح</b> بحيث تجتمع الأشياء التي نريدها معًا في الخانة نفسها. (مفتاح بديل: زوج يعدّ حروف a–z.)</p>
+      <div class="aside"><span class="k"><svg class="ic"><use href="#i-target"/></svg> لماذا هذا المثال؟</span>
+        <p>لأننا هنا نريد التصادم لا نتجنّبه: التجزئة السيّئة عيب في 1.5، لكنها <b>الهدف</b> في تجميع الجناس — وهذا يثبّت فهم «المفتاح هو القرار».</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.13 ================= -->
+<section class="sec reveal" id="s113">
+  <div class="num"><b>1.13</b><span>أخطاء</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 27</span></div>
+    <h2>أخطاء شائعة تُخصَم في Lab 6</h2>
+    <div data-slide="31">
+      <div class="tw"><table>
+        <caption>ستة أخطاء كما تسمّيها الشريحة</caption>
+        <thead><tr><th>الخطأ</th><th>لماذا يُخصم</th><th>الصواب</th></tr></thead>
+        <tbody>
+          <tr><td>استخدام قائمة كمفتاح</td><td class="ltr">TypeError: unhashable type</td><td>استخدم tuple أو نصًا</td></tr>
+          <tr><td>مسح كل الخانات في get()</td><td>يبطل الغرض: صارت O(n)</td><td>امسح <span class="mono" dir="ltr">_index(key)</span> فقط</td></tr>
+          <tr><td>نسيان التحديث عند تكرار المفتاح</td><td class="ltr">put('ali',95) يجب أن يستبدل 90</td><td>استبدل لا تُضِف زوجًا ثانيًا</td></tr>
+          <tr><td>نسخ الخانة i ← i عند التوسيع</td><td>الخانة تتغير بتغير M</td><td>أعد التجزئة لكل مفتاح</td></tr>
+          <tr><td>عدم التوسيع إطلاقًا</td><td>λ يكبر والسلاسل تطول</td><td>كبّر عند تجاوز العتبة</td></tr>
+          <tr><td>اعتبار ترتيب dict «مرتّبًا»</td><td>ترتيب الإدراج ≠ ترتيب المفاتيح</td><td>رتّب صراحةً</td></tr>
+        </tbody>
+      </table></div>
+      <div class="aside warn"><span class="k"><svg class="ic"><use href="#i-warn"/></svg> Bug Hunt — من الأخطاء نفسها</span>
+        <p><b>الكود:</b> <span class="mono" dir="ltr">def put(self,k,v): i=self._index(k); self._slots[i].append([k,v]); self._n+=1</span> — ما الخطأ؟ <b>لا يفحص التكرار</b>: إدخال 'ali' مرتين يعطي زوجين في السلسلة، ويصبح <span class="mono" dir="ltr">get('ali')</span> يعيد القيمة القديمة. الإصلاح: امسح السلسلة أولًا؛ إن وُجد المفتاح فحدّث قيمته وارجع دون زيادة <span class="mono" dir="ltr">_n</span>.</p></div>
+      <div class="fold"><details class="ex"><summary><svg class="ic"><use href="#i-bulb"/></svg> تمرين 1.13 — صنّف الخطأ <span class="ex-lbl">أظهر الحل</span></summary>
+        <p><b>السؤال:</b> طالب كتب <span class="mono" dir="ltr">self._slots = [[] for _ in range(new_M)]</span> ثم نسخ القوائم القديمة كما هي إلى أول خانات الجدول الجديد. ما اسم الخطأ في الشريحة؟</p>
+        <p><b>الحل:</b> «نسخ الخانة i ← i»: خانة المفتاح تُحسب بـ <span class="mono" dir="ltr">hash(k) % M</span>، وM تغيّر، فيجب إعادة إدراج كل زوج عبر <span class="mono" dir="ltr">put</span> بالجدول الجديد.</p>
+      </details></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.14 ================= -->
+<section class="sec reveal" id="s114">
+  <div class="num"><b>1.14</b><span>ملخص</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحتان 29 و 30</span></div>
+    <h2>ملخّص للحفظ + المراجع</h2>
+    <div data-slide="32">
+      <div class="tw"><table>
+        <caption>ورقة مراجعة (cheat sheet)</caption>
+        <thead><tr><th>المفهوم</th><th>الجوهر</th></tr></thead>
+        <tbody>
+          <tr><td>Hash table</td><td>مصفوفة + دالة تجزئة · <span class="mono" dir="ltr">slot = hash(key) % M</span> · <span class="mono" dir="ltr">O(1)</span> متوسطًا للبحث والإدراج والحذف</td></tr>
+          <tr><td>Hash function</td><td>سريعة، حتمية، توزّع · M أولي · بايثون: <span class="mono" dir="ltr">hash()</span> على مفاتيح غير متغيرة فقط</td></tr>
+          <tr><td>Collisions</td><td>سلسلة = قائمة قصيرة في الخانة (λ ≲ 1) · عنونة مفتوحة = مفتاح واحد لكل خانة، فحص +i أو +i² أو +i·h₂ (λ ≤ 0.5)</td></tr>
+          <tr><td>Load factor</td><td><span class="mono" dir="ltr">λ = n/M</span> · عند تجاوز العتبة: ضاعف الخانات وأعد الإدراج (المفاتيح تتحرك)</td></tr>
+        </tbody>
+      </table></div>
+      <div class="kv">
+        <span><b>n = 9, M = 7</b> ← λ ≈ 1.3</span>
+        <span><b>0.8 &gt; 0.75</b> ← resize</span>
+        <span><b>M = 5 → 11</b> بعد التوسيع</span>
+        <span><b>48</b> يحتاج 7 فحوص عند λ = 0.9</span>
+      </div>
+    </div>
+    <div data-slide="33">
+      <h3 style="margin-top:var(--s4)">المراجع (الشريحة 30)</h3>
+      <ul class="sm">
+        <li>Cormen, Leiserson, Rivest &amp; Stein (2009) <i>Introduction to Algorithms</i>, 3rd edn, MIT Press (ch. 11).</li>
+        <li>Goodrich, Tamassia &amp; Goldwasser (2013) <i>Data Structures and Algorithms in Python</i>, Wiley (ch. 10, §10.1–10.2) — المرجع الأساسي.</li>
+        <li>Knuth (1998) <i>TAOCP Vol. 3</i>, 2nd edn, Addison-Wesley (§6.4).</li>
+        <li>Klink &amp; Wälde (2011) ‘Efficient denial of service attacks on web application platforms’, 28C3.</li>
+        <li>Python Software Foundation (2026) <i>Built-in Types — dict, set</i>; <i>collections — Counter</i>.</li>
+        <li>Stinner &amp; Heimes (2013) PEP 456 — Secure and interchangeable hash algorithm.</li>
+        <li>Tarjan (1985) ‘Amortized computational complexity’, <i>SIAM J. Alg. Disc. Meth.</i> 6(2), 306–318.</li>
+      </ul>
+      <div class="aside ok"><span class="k"><svg class="ic"><use href="#i-check"/></svg> فحوص ذاتية محسوبة</span>
+        <p>تُحسب عند تحميل الصفحة من بيانات الوحدة ومقارنتها بأرقام الشرائح — لا أرقام مكتوبة بيديًا:</p></div>
+      <div id="selftests"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.15 ================= -->

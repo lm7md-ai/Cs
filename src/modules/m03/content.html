@@ -1,0 +1,514 @@
+<style id="m03-css">
+/* ضبط محلي لوحدة M03 — لا يمسّ CORE: إبقاء 11 خانة في سطر واحد */
+body[data-module="m03"] #anim-rehash .slotrow.newrow{gap:5px}
+body[data-module="m03"] #anim-rehash .slotrow.newrow .slot{min-width:56px;min-height:50px}
+body[data-module="m03"] #anim-rehash .slotrow.newrow .slot .inc{font-size:.88em}
+/* ترتيب المفاتيح في السلسلة يُقرأ من اليسار كترتيب الإدراج، مثل .mono */
+body[data-module="m03"] .slot .inc{direction:ltr;unicode-bidi:isolate;text-align:left}
+</style>
+
+<div class="topbar">
+  <div class="who">
+    <span class="tagm">CS2015</span>
+    <span class="mid">السلسلة ومعامل الحِمل · Chaining &amp; Load Factor</span>
+    <span class="sm muted">M03</span>
+  </div>
+  <div class="tools">
+    <button class="iconbtn only" id="fsMinus" type="button" aria-label="تصغير الخط">A&minus;</button>
+    <button class="iconbtn only" id="fsPlus" type="button" aria-label="تكبير الخط">A+</button>
+    <button class="iconbtn only" id="themeBtn" type="button" aria-label="تبديل الوضع"></button>
+    <a class="iconbtn only" href="#s37" aria-label="إلى الاختبار"><svg class="ic"><use href="#i-target"/></svg></a>
+  </div>
+</div>
+<div class="thumbra"><i id="scrollProg"></i></div>
+
+<div class="shell">
+<nav class="rail" aria-label="فهرس الوحدة">
+  <h2>الفهرس</h2>
+  <ol>
+    <li><a href="#s31"><span class="n">3.1</span>السلسلة</a></li>
+    <li><a href="#s32"><span class="n">3.2</span>تتبّع كامل</a></li>
+    <li><a href="#s33"><span class="n">3.3</span>التنفيذ + فخّان</a></li>
+    <li><a href="#s34"><span class="n">3.4</span>معامل الحِمل λ</a></li>
+    <li><a href="#s35"><span class="n">3.5</span>إعادة التجزئة</a></li>
+    <li><a href="#s36"><span class="n">3.6</span>تحدٍّ</a></li>
+    <li><a href="#s37"><span class="n">3.7</span>اختبار</a></li>
+  </ol>
+  <div class="prog">
+    <div class="sm muted" style="display:flex;justify-content:space-between;gap:8px"><span>إنجاز الأنشطة</span><span id="railProgTxt">0%</span></div>
+    <div class="bar" style="margin-top:6px"><i id="introProg"></i></div>
+  </div>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="kick">
+    <span class="tagm">Module 03 · Slides 12, 13, 14, 25, 26 of 33</span>
+    <span class="slidep">CS2015 · Hash Tables — Dr. Areej Alsini · Dr. Saeed Altalhi</span>
+  </div>
+  <h1>السلسلة: قائمة صغيرة في كل خانة — ومتى نكبّر الجدول</h1>
+  <p class="lede">خمس شرائح متباعدة في الترتيب لكنها سلسلة فكرة واحدة: الشريحة 12 تعرّف السلسلة، 13 تتتبّعها بالأرقام، 14 تنفّذها، ثم 25 تعرّف معامل الحِمل λ، و26 تُعيد التجزئة عند تجاوز العتبة. هذه الوحدة تربطها بترتيب الفهم لا بترتيب الملف.</p>
+  <div class="metaline">
+    <span>5 شرائح (12 · 13 · 14 · 25 · 26)</span><span>7 أقسام</span><span>1 Participation</span><span>2 Animation</span><span>1 Tool</span><span>1 Challenge</span><span>10 أسئلة اختبار</span>
+  </div>
+  <div class="progcard">
+    <span>تقدّمك في أنشطة الوحدة:</span>
+    <div class="bar"><i id="introProg2"></i></div>
+    <span class="mono" id="introProgTxt">0%</span>
+  </div>
+</header>
+
+<!-- ================= 3.1 ================= -->
+<section class="sec reveal" id="s31">
+  <div class="num"><b>3.1</b><span>السلسلة</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 12</span></div>
+    <h2>الحل الأول: كل خانة تحمل قائمة</h2>
+    <div data-slide="12">
+      <div class="quote">
+        <span class="term">Solution 1 — separate chaining</span>
+        <p>“Every slot keeps a list of ALL keys whose home slot it is. The list is the ‘chain’. insert(k, v): i = h(k); add (k, v) to chain i (replace if k is already there). get(k): i = h(k); scan chain i for k. delete(k): i = h(k); remove k from chain i.”</p>
+        <span class="src">Hash Tables, slide 12 · Goodrich et al. (2013) §10.2.2</span>
+      </div>
+      <p>الخانة لا تحمل مفتاحًا واحدًا بل <b>قائمة</b>. مفتاحان لهما الخانة نفسها لا يتنافسان: الثاني يُضاف إلى قائمة الأول. ولهذا فالتصادم في السلسلة <b>ليس خطأً</b>، بل حدث عادي يطيل السلسلة بمقدار عنصر.</p>
+      <div class="tw"><table>
+        <caption>العمليات الثلاث كما تصوغها الشريحة</caption>
+        <thead><tr><th>العملية</th><th>الخطوات</th><th>ما يُقرأ من التكلفة</th></tr></thead>
+        <tbody>
+          <tr><td>insert(k, v)</td><td><span class="mono" dir="ltr">i = h(k)</span> ثم أضف إلى سلسلة i — <b>واستبدل</b> إن كان المفتاح موجودًا</td><td>الذهاب للخانة <span class="mono" dir="ltr">O(1)</span>، والمسح بطول القائمة</td></tr>
+          <tr><td>get(k)</td><td><span class="mono" dir="ltr">i = h(k)</span> ثم امسح سلسلة i وحدها</td><td>نفس الشيء: لا مسح للجدول كله</td></tr>
+          <tr><td>delete(k)</td><td><span class="mono" dir="ltr">i = h(k)</span> ثم احذف k من سلسلة i</td><td>لا علامة AV هنا — القائمة تتحمّل الحذف</td></tr>
+        </tbody>
+      </table></div>
+      <p><b>التكلفة كما في الشريحة:</b> إيجاد الخانة <span class="mono" dir="ltr">O(1)</span>، والدخول في القائمة «بطول القائمة». ومع n مفتاحًا في M خانة يكون متوسط طول السلسلة ≈ <span class="mono" dir="ltr">n/M</span> — وهذا هو <b>معامل الحِمل λ</b>. أبقِ λ حول 1 أو أقل تبقَ السلاسل قصيرة والتكلفة <span class="mono" dir="ltr">O(1)</span> في المتوسط؛ والأسوأ (<b>كل</b> المفاتيح في سلسلة واحدة) <span class="mono" dir="ltr">O(n)</span> ولا يقع إلا بدالة تجزئة سيّئة.</p>
+      <div class="aside"><span class="k"><svg class="ic"><use href="#i-target"/></svg> لماذا هذا المثال؟</span>
+        <p>مثال الشريحة (<span class="mono" dir="ltr">'noor'</span> تصادم مع <span class="mono" dir="ltr">'ali'</span> في الخانة 1) يبيّن أن السلسلة تُبقي المفتاحين معًا في المكان الذي حسبه لهما h — فلا تحتاج إلى تغيير الخانة، وهو الفرق الجوهري عن العنونة المفتوحة.</p></div>
+      <div class="fold"><details class="ex"><summary><svg class="ic"><use href="#i-bulb"/></svg> تمرين 3.1 — لماذا لا نُغيّر الخانة؟ <span class="ex-lbl">أظهر الحل</span></summary>
+        <p><b>السؤال:</b> لماذا تقبل السلسلة التصادم بدلًا من البحث عن خانة أخرى كما في العنونة المفتوحة؟</p>
+        <p><b>الحل:</b> لأن البحث في السلسلة يبدأ دائمًا من <span class="mono" dir="ltr">i = h(k)</span> ثم يمشي على القائمة؛ فلا حاجة لأن يكون المفتاح في خانة «بديلة» يمكن أن تتغيّر مع كل إدخال. النتيجة: البحث والحذف لا يعتمدان على تاريخ الإدخال، لكن الثمن قائمة إضافية لكل خانة.</p>
+      </details></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3.2 ================= -->
+<section class="sec reveal" id="s32">
+  <div class="num"><b>3.2</b><span>تتبّع</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 13</span></div>
+    <h2>تتبّع كامل: 9 مفاتيح في 7 خانات</h2>
+    <div data-slide="13">
+      <p>المفاتيح <span class="mono" dir="ltr">1, 5, 7, 12, 20, 29, 9, 22, 33</span> و<span class="mono" dir="ltr">h(k) = k % 7</span>. الحساب:</p>
+      <div class="tw"><table>
+        <caption>الخانة الأصلية لكل مفتاح — كلمة «تصادم» في العمود الأخير تعني إضافة المفتاح إلى السلسلة</caption>
+        <thead><tr><th class="ltr">key</th><th class="ltr">k % 7</th><th>النتيجة</th></tr></thead>
+        <tbody>
+          <tr><td class="ltr">1</td><td class="ltr">1</td><td>slot 1 · أول عنصر</td></tr>
+          <tr><td class="ltr">5</td><td class="ltr">5</td><td>slot 5 · أول عنصر</td></tr>
+          <tr><td class="ltr">7</td><td class="ltr">0</td><td>slot 0 · أول عنصر</td></tr>
+          <tr><td class="ltr">12</td><td class="ltr">5</td><td>تصادم ← appended to chain 5</td></tr>
+          <tr><td class="ltr">20</td><td class="ltr">6</td><td>slot 6 · أول عنصر</td></tr>
+          <tr><td class="ltr">29</td><td class="ltr">1</td><td>تصادم ← chain 1</td></tr>
+          <tr><td class="ltr">9</td><td class="ltr">2</td><td>slot 2 · أول عنصر</td></tr>
+          <tr><td class="ltr">22</td><td class="ltr">1</td><td>تصادم ← chain 1</td></tr>
+          <tr><td class="ltr">33</td><td class="ltr">5</td><td>تصادم ← chain 5</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="tw" style="overflow-x:auto;padding-bottom:4px"><svg viewBox="0 0 640 150" style="width:100%;min-width:520px;max-width:640px;height:auto;display:block" role="img" aria-label="سبع خانات من اليمين إلى اليسار: الخانة 0 فيها 7، الخانة 1 فيها 1 ثم 29 ثم 22، الخانة 2 فيها 9، الخانتان 3 و4 فارغتان، الخانة 5 فيها 5 ثم 12 ثم 33، الخانة 6 فيها 20">
+        <g font-family="ui-monospace,Consolas,monospace" font-size="12">
+          <text x="592.0" y="14" text-anchor="middle" font-size="10" fill="var(--ink2,#5C5852)">0</text>
+          <rect x="556" y="22" width="72" height="26" rx="5" fill="none" stroke="var(--hair2,#D3CCBC)" stroke-width="1.5"/>
+          <path d="M592.0 48V58" stroke="var(--hair2,#D3CCBC)" stroke-width="1.5" fill="none"/>
+          <rect x="564" y="58" width="56" height="22" rx="5" fill="var(--accent-soft,#F0ECE3)" stroke="var(--accent,#2A6F68)" stroke-width="1.5"/>
+          <text x="592.0" y="73" text-anchor="middle" fill="var(--accent-ink,#1F5A54)">7</text>
+          <text x="504.0" y="14" text-anchor="middle" font-size="10" fill="var(--ink2,#5C5852)">1</text>
+          <rect x="468" y="22" width="72" height="26" rx="5" fill="none" stroke="var(--hair2,#D3CCBC)" stroke-width="1.5"/>
+          <path d="M504.0 48V58" stroke="var(--hair2,#D3CCBC)" stroke-width="1.5" fill="none"/>
+          <rect x="476" y="58" width="56" height="22" rx="5" fill="var(--accent-soft,#F0ECE3)" stroke="var(--accent,#2A6F68)" stroke-width="1.5"/>
+          <text x="504.0" y="73" text-anchor="middle" fill="var(--accent-ink,#1F5A54)">1</text>
+          <path d="M504.0 80V86" stroke="var(--hair2,#D3CCBC)" stroke-width="1.5" fill="none"/>
+          <rect x="476" y="86" width="56" height="22" rx="5" fill="var(--accent-soft,#F0ECE3)" stroke="var(--accent,#2A6F68)" stroke-width="1.5"/>
+          <text x="504.0" y="101" text-anchor="middle" fill="var(--accent-ink,#1F5A54)">29</text>
+          <path d="M504.0 108V114" stroke="var(--hair2,#D3CCBC)" stroke-width="1.5" fill="none"/>
+          <rect x="476" y="114" width="56" height="22" rx="5" fill="var(--accent-soft,#F0ECE3)" stroke="var(--accent,#2A6F68)" stroke-width="1.5"/>
+          <text x="504.0" y="129" text-anchor="middle" fill="var(--accent-ink,#1F5A54)">22</text>
+          <text x="416.0" y="14" text-anchor="middle" font-size="10" fill="var(--ink2,#5C5852)">2</text>
+          <rect x="380" y="22" width="72" height="26" rx="5" fill="none" stroke="var(--hair2,#D3CCBC)" stroke-width="1.5"/>
+          <path d="M416.0 48V58" stroke="var(--hair2,#D3CCBC)" stroke-width="1.5" fill="none"/>
+          <rect x="388" y="58" width="56" height="22" rx="5" fill="var(--accent-soft,#F0ECE3)" stroke="var(--accent,#2A6F68)" stroke-width="1.5"/>
+          <text x="416.0" y="73" text-anchor="middle" fill="var(--accent-ink,#1F5A54)">9</text>
+          <text x="328.0" y="14" text-anchor="middle" font-size="10" fill="var(--ink2,#5C5852)">3</text>
+          <rect x="292" y="22" width="72" height="26" rx="5" fill="none" stroke="var(--hair2,#D3CCBC)" stroke-width="1.5"/>
+          <text x="240.0" y="14" text-anchor="middle" font-size="10" fill="var(--ink2,#5C5852)">4</text>
+          <rect x="204" y="22" width="72" height="26" rx="5" fill="none" stroke="var(--hair2,#D3CCBC)" stroke-width="1.5"/>
+          <text x="152.0" y="14" text-anchor="middle" font-size="10" fill="var(--ink2,#5C5852)">5</text>
+          <rect x="116" y="22" width="72" height="26" rx="5" fill="none" stroke="var(--hair2,#D3CCBC)" stroke-width="1.5"/>
+          <path d="M152.0 48V58" stroke="var(--hair2,#D3CCBC)" stroke-width="1.5" fill="none"/>
+          <rect x="124" y="58" width="56" height="22" rx="5" fill="var(--accent-soft,#F0ECE3)" stroke="var(--accent,#2A6F68)" stroke-width="1.5"/>
+          <text x="152.0" y="73" text-anchor="middle" fill="var(--accent-ink,#1F5A54)">5</text>
+          <path d="M152.0 80V86" stroke="var(--hair2,#D3CCBC)" stroke-width="1.5" fill="none"/>
+          <rect x="124" y="86" width="56" height="22" rx="5" fill="var(--accent-soft,#F0ECE3)" stroke="var(--accent,#2A6F68)" stroke-width="1.5"/>
+          <text x="152.0" y="101" text-anchor="middle" fill="var(--accent-ink,#1F5A54)">12</text>
+          <path d="M152.0 108V114" stroke="var(--hair2,#D3CCBC)" stroke-width="1.5" fill="none"/>
+          <rect x="124" y="114" width="56" height="22" rx="5" fill="var(--accent-soft,#F0ECE3)" stroke="var(--accent,#2A6F68)" stroke-width="1.5"/>
+          <text x="152.0" y="129" text-anchor="middle" fill="var(--accent-ink,#1F5A54)">33</text>
+          <text x="64.0" y="14" text-anchor="middle" font-size="10" fill="var(--ink2,#5C5852)">6</text>
+          <rect x="28" y="22" width="72" height="26" rx="5" fill="none" stroke="var(--hair2,#D3CCBC)" stroke-width="1.5"/>
+          <path d="M64.0 48V58" stroke="var(--hair2,#D3CCBC)" stroke-width="1.5" fill="none"/>
+          <rect x="36" y="58" width="56" height="22" rx="5" fill="var(--accent-soft,#F0ECE3)" stroke="var(--accent,#2A6F68)" stroke-width="1.5"/>
+          <text x="64.0" y="73" text-anchor="middle" fill="var(--accent-ink,#1F5A54)">20</text>
+        </g>
+      </svg></div>
+      <div class="legend"><span><i style="background:#2A6F68"></i>عضو في سلسلة</span><span><i style="background:#D3CCBC"></i>الخانة (الرقم فوقها = رقمها)</span><span>الترتيب داخل السلسلة = ترتيب الإدخال، لا ترتيبًا رقميًا</span></div>
+
+      <p style="margin-top:var(--s2)"><b>القراءات المطلوبة من الشريحة:</b> <span class="mono" dir="ltr">n = 9</span> مفتاحًا · <span class="mono" dir="ltr">M = 7</span> خانة · <span class="mono" dir="ltr">λ = 9/7 ≈ 1.3</span> · أطول سلسلة = 3 · <span class="mono" dir="ltr">search(33)</span>: <span class="mono" dir="ltr">33 % 7 = 5</span> ← افحص 5 ثم 12 ثم 33 → <b>3 مقارنات</b> · <span class="mono" dir="ltr">search(4)</span>: <span class="mono" dir="ltr">4 % 7 = 4</span> ← الخانة فارغة → <b>غير موجود، 0 مقارنات</b>.</p>
+    </div>
+
+    <div class="anim" data-anim="chain" id="anim-chain">
+      <div class="act-h">
+        <span class="act-k">Animation <b>3.2.1</b></span>
+        <h3>كيف تنمو السلسلة: 5 ← 12 ← 33 في الخانة 5</h3>
+        <label class="pred"><input type="checkbox" class="predict"> وضع التوقّع</label>
+      </div>
+      <div class="stage" style="min-height:280px">
+        <div class="flow">
+          <div class="node" id="ch-key"><span class="lbl">key</span><span class="mono" id="ch-kv">5</span></div>
+          <svg class="arrowline" viewBox="0 0 60 12" role="img" aria-hidden="true"><path id="ch-a1" d="M58 6H16"/><path d="M24 2l-8 4 8 4"/></svg>
+          <div class="node" id="ch-h"><span class="lbl">key % 7</span><span class="countup" id="ch-cu">0</span></div>
+          <svg class="arrowline" viewBox="0 0 60 12" role="img" aria-hidden="true"><path id="ch-a2" d="M58 6H16"/><path d="M24 2l-8 4 8 4"/></svg>
+          <div class="node" id="ch-res"><span class="lbl">chain 5</span><span class="mono" id="ch-cv">—</span></div>
+        </div>
+        <div class="slotrow" style="margin-top:var(--s3)">
+          <div class="slot" id="k0"><i class="ix">0</i><span class="inc">7</span></div>
+          <div class="slot" id="k1"><i class="ix">1</i><span class="inc">1 · 29 · 22</span></div>
+          <div class="slot" id="k2"><i class="ix">2</i><span class="inc">9</span></div>
+          <div class="slot" id="k3"><i class="ix">3</i></div>
+          <div class="slot" id="k4"><i class="ix">4</i></div>
+          <div class="slot" id="k5"><i class="ix">5</i></div>
+          <div class="slot" id="k6"><i class="ix">6</i><span class="inc">20</span></div>
+        </div>
+        <div class="chip" data-chip="q5" data-home="ch-key" style="opacity:0"><span class="t">5</span></div>
+        <div class="chip" data-chip="q12" data-home="ch-key" data-dy="46" style="opacity:0"><span class="t">12</span></div>
+        <div class="chip" data-chip="q33" data-home="ch-key" data-dy="92" style="opacity:0"><span class="t">33</span></div>
+      </div>
+      <div class="controls">
+        <button class="btn" type="button" data-a="start"><svg class="ic"><use href="#i-play"/></svg> Start</button>
+        <button class="btn ghost" type="button" data-a="prev"><svg class="ic"><use href="#i-prev"/></svg> السابق</button>
+        <button class="btn ghost" type="button" data-a="next"><svg class="ic"><use href="#i-next"/></svg> التالي</button>
+        <button class="btn ghost" type="button" data-a="play"><svg class="ic"><use href="#i-play"/></svg> تشغيل</button>
+        <button class="btn ghost" type="button" data-a="pause"><svg class="ic"><use href="#i-pause"/></svg> إيقاف</button>
+        <button class="btn ghost" type="button" data-a="reset"><svg class="ic"><use href="#i-reset"/></svg> إعادة</button>
+        <button class="btn ghost" type="button" data-a="speed" aria-label="سرعة عادية" aria-pressed="false">2x speed</button>
+        <div class="segstrip" aria-label="شريط الخطوات"></div>
+        <span class="stepno">Step 0 of 8</span>
+      </div>
+      <div class="askbox" hidden>
+        <div class="askq"></div>
+        <div class="askopts opts"></div>
+        <div class="askfb"></div>
+      </div>
+      <p class="cap"><span class="why">لماذا</span><span class="txt">اضغط Start: ثلاث كلمات تريد الخانة 5 نفسها، وكل واحدة تُضاف إلى السلسلة.</span></p>
+      <div class="watch">
+        <div class="w"><span>key</span><b data-w="k">—</b></div>
+        <div class="w"><span>home</span><b data-w="h">—</b></div>
+        <div class="w"><span>chain 5</span><b data-w="c">—</b></div>
+        <div class="w"><span>طولها</span><b data-w="n">0</b></div>
+      </div>
+    </div>
+
+    <div class="aside warn"><span class="k"><svg class="ic"><use href="#i-warn"/></svg> ملاحظة على الشريحة</span>
+      <p>الشريحة تكتب <span class="mono" dir="ltr">search(4): 0 comparisons</span> بلا توضيح، وقد يُقرأ خطأً على أنه «بحث فاشل يحتاج محاولات». المقصود: <span class="mono" dir="ltr">4 % 7 = 4</span> والخانة 4 <b>فارغة</b>، فلم تُقارن أي قيمة: صفر مقارنة. ولو كانت الخانة مشغولة لكانت المقارنة واحدة على الأقل.</p></div>
+  </div>
+</section>
+
+<!-- ================= 3.3 ================= -->
+<section class="sec reveal" id="s33">
+  <div class="num"><b>3.3</b><span>التنفيذ</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 14 · + فخّان من الشريحة 31</span></div>
+    <h2>ChainHashMap — وكيف تُقرأ في خطوتين</h2>
+    <div data-slide="14">
+      <div class="quote">
+        <span class="term">A chaining hash map in Python — the core (Lab 6, Task 1)</span>
+        <p>“An array of lists; each list holds (key, value) pairs. Read it as two steps: 1. _index(key) → which slot. 2. A short for-loop over that slot only — never over the whole table.”</p>
+        <span class="src">Hash Tables, slide 14</span>
+      </div>
+      <div class="code">
+        <div class="ch"><span class="codedots"><i></i><i></i><i></i></span><span class="ttl">ChainHashMap — slide 14</span><span class="sp"></span><button class="iconbtn only" type="button" data-copy aria-label="نسخ"><svg class="ic"><use href="#i-copy"/></svg></button></div>
+        <div class="cbody" data-src="p14"></div>
+        <div class="cnotes" data-cn="p14"></div>
+      </div>
+      <script type="text/plain" id="src-p14">
+class ChainHashMap:
+    def __init__(self, M=11):                 # M = table size
+        self._slots = [[] for _ in range(M)]  # empty chains
+        self._n = 0                           # number of keys stored
+    def _index(self, key):                    # key -> home slot
+        return hash(key) % len(self._slots)
+    def put(self, key, value):                # insert or update
+        chain = self._slots[self._index(key)]
+        for pair in chain:                    # key already there?
+            if pair[0] == key:
+                pair[1] = value               #   update its value
+                return
+        chain.append([key, value])            # no: add a new pair
+        self._n += 1
+    def get(self, key):                       # look up a value
+        chain = self._slots[self._index(key)]
+        for k, v in chain:                    # scan this chain only
+            if k == key:
+                return v                      # found it
+        raise KeyError(key)                   # not in the table</script>
+      <script type="text/plain" id="cn-p14">
+1|تعريف الصنف: جدول تجزئة يحلّ التصادم بـ<b>السلسلة</b> — كل خانة قائمة.
+2|الباني: <span class="mono" dir="ltr">M=11</span> حجم ابتدائي. لاحظ أنه عدد أولي بسيط، لا قوة للعدد 2.
+3|<span class="mono" dir="ltr">self._slots</span> = قائمة من <span class="mono" dir="ltr">M</span> قوائم فارغة: كل خانة «سلسلة» تبدأ فارغة.
+4|<span class="mono" dir="ltr">_n</span> عدّاد المفاتيح المخزّنة — يلزم لحساب معامل الحِمل λ = n/M.
+5|<span class="mono" dir="ltr">_index</span> تحوّل المفتاح إلى رقم خانة.
+6|<span class="mono" dir="ltr">hash(key) % len(self._slots)</span> — الطول <b>الحالي</b> لا ثابت: بعد التوسيع تتغيّر كل الخانات تلقائيًا.
+7|<span class="mono" dir="ltr">put</span>: إدراج مفتاح جديد أو استبدال قيمة مفتاح موجود.
+8|نأخذ سلسلة الخانة المحسوبة <b>فقط</b> — لا نمسّ بقية الجدول.
+9|مسح السلسلة للبحث عن المفتاح نفسه، لأن المفتاح لا يُكرَّر في الجدول.
+10|مقارنة المفتاح المخزَّن بالمفتاح المطلوب.
+11|وُجد ← استبدال القيمة القديمة (تحديث لا إضافة).
+12|خروج مبكر: لا نضيف عنصرًا جديدًا ولا نزيد <span class="mono" dir="ltr">_n</span>.
+13|لم يوجد ← إضافة زوج جديد في <b>نهاية</b> السلسلة؛ هذا هو التصادم.
+14|زيادة العدّاد مرة واحدة لكل مفتاح جديد.
+15|<span class="mono" dir="ltr">get</span>: بحث عن قيمة مفتاح.
+16|نفس حساب الخانة — لهذا البحث والإدراج يتفقان على الموضع.
+17|نفكّ أزواج السلسلة: مسح <b>سلسلة واحدة</b> فقط. لو مسحنا كل الخانات لصار هذا فخّ Lab 6 الأول وتكلفته O(n).
+18|مقارنة المفتاح.
+19|وُجد ← إرجاع القيمة.
+20|بعد مسح السلسلة كاملة بلا نتيجة ← <span class="mono" dir="ltr">KeyError</span> وليس <span class="mono" dir="ltr">None</span>، على نمط قاموس بايثون.
+      </script>
+      <p>ستلاحظ أن <span class="mono" dir="ltr">put</span> تمسح السلسلة للتحقق من وجود المفتاح قبل الإضافة — وهذا ضروري للاستبدال، لكنه يعني أن <span class="mono" dir="ltr">put</span> نفسها تكلفتها طول السلسلة لا خانة واحدة. في المعمل تضيف: <span class="mono" dir="ltr">remove(key)</span> و<span class="mono" dir="ltr">__len__</span> و<span class="mono" dir="ltr">__contains__</span> و<span class="mono" dir="ltr">_resize()</span> عند تجاوز λ = 0.75، واختبارًا بألف مفتاح عشوائي.</p>
+
+      <h3 style="margin-top:var(--s4)">فخّان من Lab 6 يخصّان هذه الوحدة</h3>
+      <p class="sm muted">مأخوذان من قائمة الأخطاء في الشريحة 31 (خارج نطاق هذه الوحدة). <b>سيُعاد ذكرهما في M06</b> — التكرار مقصود لأنهما يخصّان الكود هنا ويخصّان قائمة الأخطاء هناك، وستُذكر هذه الإزدواجية صراحةً في M06 أيضًا.</p>
+      <div class="tw"><table>
+        <caption>الفخّان (من الشريحة 31) وعلاقتهما بالسلسلة وإعادة التجزئة</caption>
+        <thead><tr><th>الفخ</th><th>كيف يظهر في الكود</th><th>الأثر</th></tr></thead>
+        <tbody>
+          <tr><td>مسح كل الخانات في <span class="mono" dir="ltr">get()</span></td><td><span class="mono" dir="ltr">for chain in self._slots:</span> بدل <span class="mono" dir="ltr">for k, v in chain:</span></td><td>تتحوّل التكلفة إلى <span class="mono" dir="ltr">O(n)</span> ويبطل الغرض من التجزئة، ثم يفشل التفكيك لأن العنصر قائمة لا زوج</td></tr>
+          <tr><td>نسخ الخانة i ← i عند التوسيع</td><td>نقل القوائم القديمة كما هي إلى <span class="mono" dir="ltr">self._slots</span> الجديدة</td><td>الخانة تُحسب بـ <span class="mono" dir="ltr">hash(k) % M</span> وM تغيّر، فيصبح البحث لا يجد المفتاح — يجب إعادة الإدراج عبر <span class="mono" dir="ltr">put</span></td></tr>
+        </tbody>
+      </table></div>
+      <div class="aside"><span class="k"><svg class="ic"><use href="#i-target"/></svg> لماذا هذا المثال؟</span>
+        <p>الفخّان ليسا نظريين: الأول يقع عند نسخ <span class="mono" dir="ltr">get</span> من مثال قائمة عادية، والثاني يقع عند كتابة <span class="mono" dir="ltr">_resize</span> بطريقة «انسخ المصفوفة». وكلاهما يمرّ من الاختبارات الصغيرة ثم يفشل عند ألف مفتاح — ولهذا يطلب المعمل هذا الاختبار تحديدًا.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3.4 ================= -->
+<section class="sec reveal" id="s34">
+  <div class="num"><b>3.4</b><span>λ</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 25</span></div>
+    <h2>معامل الحِمل λ = n / M</h2>
+    <div data-slide="25">
+      <div class="quote">
+        <span class="term">The load factor λ (also written α) = n / M</span>
+        <p>“n = number of keys stored, M = number of slots.”</p>
+        <span class="src">Hash Tables, slide 25</span>
+      </div>
+      <p>λ ليس نسبة مئوية ولا مقياس أداء مباشرًا؛ هو <b>متوسط عدد المفاتيح في كل خانة</b>، وبالتالي متوسط طول السلسلة في السلسلة، ومؤشّر إشباع في العنونة المفتوحة.</p>
+      <div class="tw"><table>
+        <caption>ثلاث حالات من الشريحة (M = 16)</caption>
+        <thead><tr><th class="c">λ</th><th>المثال</th><th>متوسط طول السلسلة</th><th>الحكم</th></tr></thead>
+        <tbody>
+          <tr><td class="c ltr">0.25</td><td>4 مفاتيح في 16 خانة</td><td class="c ltr">0.25</td><td>سريع، لكن أكثر من نصف الجدول فارغ — إهدار ذاكرة</td></tr>
+          <tr><td class="c ltr">0.75</td><td>12 مفتاحًا في 16 خانة</td><td class="c ltr">0.75</td><td>النقطة المثلى (sweet spot)</td></tr>
+          <tr><td class="c ltr">1.5</td><td>24 مفتاحًا في 16 خانة</td><td class="c ltr">1.5</td><td>سلاسل من 2–3 ← يبدأ البطء</td></tr>
+        </tbody>
+      </table></div>
+      <p>القاعدة العملية من الشريحة: حين يتجاوز λ <b>0.75</b> (بالسلسلة) أو <b>0.5</b> (بالعنونة المفتوحة)، نضاعف عدد الخانات ونُعيد إدراج كل مفتاح.</p>
+
+      <div class="aside warn"><span class="k"><svg class="ic"><use href="#i-warn"/></svg> ملاحظة على الشريحة</span>
+        <p>الشريحة 12 تقول «Keep λ around <b>1</b> or less»، والشريحة 25 تجعل عتبة التوسيع <b>0.75</b>. لا تعارض فعلي: الأولى <b>وصف</b> للمنطقة المريحة، والثانية <b>قرار هندسي</b> يمنح هامشًا قبل أن تطول السلاسل. عند الإجابة اذكر أيهما تسأل عنه: «منطقة مريحة ≈ 1» أم «عتبة إعادة تجزئة = 0.75».</p></div>
+
+      <div class="aside ok"><span class="k"><svg class="ic"><use href="#i-plus"/></svg> إضافي (خارج الشرائح)</span>
+        <p>لماذا 0.9 للسلسلة و0.75 عتبةً، ولماذا 0.5 للعنونة المفتوحة؟ هذه <b>قراءة إضافية لا ترد نصًّا على الشرائح</b>: متوسط المحاولات في السلسلة يبقى قريبًا من <span class="mono" dir="ltr">1 + λ/2</span> فيسير ببطء حتى λ ≈ 0.9، أما العنونة المفتوحة فمتوسط المحاولات الناجحة ≈ <span class="mono" dir="ltr">(1 + 1/(1−λ))/2</span> وينفجر عند λ قريب من 1 — ولهذا عتبتها أنزل. عمليًا: 0.75 خيار متحفظ يخدم الحالتين، و0.9 لا يصلح إلا مع سلاسل وحُسن توزيع.</p></div>
+    </div>
+    <div id="host-pa1"></div>
+  </div>
+</section>
+
+<!-- ================= 3.5 ================= -->
+<section class="sec reveal" id="s35">
+  <div class="num"><b>3.5</b><span>إعادة</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">الشريحة 26</span></div>
+    <h2>إعادة التجزئة: من M = 5 إلى M = 11</h2>
+    <div data-slide="26">
+      <div class="quote">
+        <span class="term">Rehashing — doubling the table</span>
+        <p>“When λ passes 0.75: make a bigger table and re-insert every key, because hash(key) % M changes when M changes.”</p>
+        <span class="src">Hash Tables, slide 26</span>
+      </div>
+      <p>الجدول القديم: <span class="mono" dir="ltr">M = 5</span> والمفاتيح <span class="mono" dir="ltr">7, 12, 23, 9</span> ← <span class="mono" dir="ltr">λ = 4/5 = 0.8 &gt; 0.75</span> فنتوسّع. المقاس الجديد كما في الشريحة <span class="mono" dir="ltr">M = 2·5 + 1 = 11</span>، ثم نُعيد إدراج كل مفتاح بالمقاس الجديد لأن <span class="mono" dir="ltr">hash(key) % M</span> يتغيّر بتغيّر M. النتيجة <span class="mono" dir="ltr">λ = 4/11 ≈ 0.36</span>.</p>
+      <div class="tw"><table>
+        <caption>كل مفتاح يُحسب من جديد — والخانتان 1 و1 هما تصادم جديد</caption>
+        <thead><tr><th class="ltr">key</th><th class="c">old: k % 5</th><th class="c">new: k % 11</th><th>النتيجة</th></tr></thead>
+        <tbody>
+          <tr><td class="ltr">7</td><td class="c">2</td><td class="c">7</td><td>moved</td></tr>
+          <tr><td class="ltr">12</td><td class="c">2</td><td class="c">1</td><td>moved</td></tr>
+          <tr><td class="ltr">23</td><td class="c">3</td><td class="c">1</td><td>moved — ويصطدم مع 12 في الجدول الجديد</td></tr>
+          <tr><td class="ltr">9</td><td class="c">4</td><td class="c">9</td><td>moved</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="anim" data-anim="rehash" id="anim-rehash">
+      <div class="act-h">
+        <span class="act-k">Animation <b>3.5.1</b></span>
+        <h3>المفاتيح تنتقل من M = 5 إلى M = 11</h3>
+        <label class="pred"><input type="checkbox" class="predict"> وضع التوقّع</label>
+      </div>
+      <div class="stage" style="min-height:290px">
+        <p class="sm muted" style="margin:0 0 6px">الجدول القديم · M = 5 · λ = 0.8</p>
+        <div class="slotrow">
+          <div class="slot" id="o0"><i class="ix">0</i></div>
+          <div class="slot" id="o1"><i class="ix">1</i></div>
+          <div class="slot" id="o2"><i class="ix">2</i><span class="inc">7 · 12</span></div>
+          <div class="slot" id="o3"><i class="ix">3</i><span class="inc">23</span></div>
+          <div class="slot" id="o4"><i class="ix">4</i><span class="inc">9</span></div>
+        </div>
+        <p class="sm muted" style="margin:var(--s3) 0 6px">الجدول الجديد · M = 11 · الهدف λ ≈ 0.36</p>
+        <div class="slotrow newrow">
+          <div class="slot" id="n0"><i class="ix">0</i></div>
+          <div class="slot" id="n1"><i class="ix">1</i></div>
+          <div class="slot" id="n2"><i class="ix">2</i></div>
+          <div class="slot" id="n3"><i class="ix">3</i></div>
+          <div class="slot" id="n4"><i class="ix">4</i></div>
+          <div class="slot" id="n5"><i class="ix">5</i></div>
+          <div class="slot" id="n6"><i class="ix">6</i></div>
+          <div class="slot" id="n7"><i class="ix">7</i></div>
+          <div class="slot" id="n8"><i class="ix">8</i></div>
+          <div class="slot" id="n9"><i class="ix">9</i></div>
+          <div class="slot" id="n10"><i class="ix">10</i></div>
+        </div>
+        <div class="chip" data-chip="r7" data-home="o2" style="opacity:0"><span class="t">7</span></div>
+        <div class="chip" data-chip="r12" data-home="o2" style="opacity:0"><span class="t">12</span></div>
+        <div class="chip" data-chip="r23" data-home="o3" data-dy="46" style="opacity:0"><span class="t">23</span></div>
+        <div class="chip" data-chip="r9" data-home="o4" style="opacity:0"><span class="t">9</span></div>
+      </div>
+      <div class="controls">
+        <button class="btn" type="button" data-a="start"><svg class="ic"><use href="#i-play"/></svg> Start</button>
+        <button class="btn ghost" type="button" data-a="prev"><svg class="ic"><use href="#i-prev"/></svg> السابق</button>
+        <button class="btn ghost" type="button" data-a="next"><svg class="ic"><use href="#i-next"/></svg> التالي</button>
+        <button class="btn ghost" type="button" data-a="play"><svg class="ic"><use href="#i-play"/></svg> تشغيل</button>
+        <button class="btn ghost" type="button" data-a="pause"><svg class="ic"><use href="#i-pause"/></svg> إيقاف</button>
+        <button class="btn ghost" type="button" data-a="reset"><svg class="ic"><use href="#i-reset"/></svg> إعادة</button>
+        <button class="btn ghost" type="button" data-a="speed" aria-label="سرعة عادية" aria-pressed="false">2x speed</button>
+        <div class="segstrip" aria-label="شريط الخطوات"></div>
+        <span class="stepno">Step 0 of 8</span>
+      </div>
+      <div class="askbox" hidden>
+        <div class="askq"></div>
+        <div class="askopts opts"></div>
+        <div class="askfb"></div>
+      </div>
+      <p class="cap"><span class="why">لماذا</span><span class="txt">اضغط Start لتتابع إعادة الحساب مفتاحًا مفتاحًا — لاحظ أن 23 هبط في الخانة 1 أيضًا.</span></p>
+      <div class="watch">
+        <div class="w"><span>M</span><b data-w="m">5</b></div>
+        <div class="w"><span>λ</span><b data-w="l">0.80</b></div>
+        <div class="w"><span>key</span><b data-w="k">—</b></div>
+        <div class="w"><span>new slot</span><b data-w="s">—</b></div>
+      </div>
+    </div>
+
+    <div data-slide="26">
+      <div class="code">
+        <div class="ch"><span class="codedots"><i></i><i></i><i></i></span><span class="ttl">_resize — slide 26</span><span class="sp"></span><button class="iconbtn only" type="button" data-copy aria-label="نسخ"><svg class="ic"><use href="#i-copy"/></svg></button></div>
+        <div class="cbody" data-src="p26"></div>
+        <div class="cnotes" data-cn="p26"></div>
+      </div>
+      <script type="text/plain" id="src-p26">
+def _resize(self, new_M):
+    old = self._slots                 # keep the old chains
+    self._slots = [[] for _ in range(new_M)]
+    self._n = 0                       # put() counts again
+    for chain in old:                 # every old chain
+        for key, value in chain:
+            self.put(key, value)      # re-insert -> NEW slot
+# inside put(), after self._n += 1:
+if self._n / len(self._slots) > 0.75:
+    self._resize(2 * len(self._slots) + 1)</script>
+      <script type="text/plain" id="cn-p26">
+1|<span class="mono" dir="ltr">_resize</span> تغيّر حجم الجدول؛ تُنادى من <span class="mono" dir="ltr">put</span> لا من المستخدم.
+2|نحتفظ بالجدول القديم في متغيّر مؤقت — بدونه تُفقد المفاتيح نهائيًا.
+3|جدول جديد فارغ بالحجم الجديد.
+4|تصفير العدّاد لأن <span class="mono" dir="ltr">put()</span> ستزيده من جديد.
+5|على كل سلسلة قديمة.
+6|وعلى كل زوج داخلها — كل مفتاح موجود يُقرأ.
+7|<span class="mono" dir="ltr">put</span> تحسب الخانة بالحجم <b>الجديد</b> ← كل مفتاح ينتقل إلى موضعه الصحيح. هذا بالضبط ما يمنع فخّ «نسخ الخانة i ← i».
+8|تعليق يحدّد مكان الفحص داخل <span class="mono" dir="ltr">put</span>.
+9|العتبة 0.75: عندما يتجاوز الحمل ثلاث أرباع الجدول نوسّع.
+10|الحجم الجديد <span class="mono" dir="ltr">2M + 1</span>: فردي غالبًا وليس قوة للعدد 2، لتقليل انتظام البواقي.
+      </script>
+      <p><b>التكلفة:</b> إعادة الإدراج <span class="mono" dir="ltr">O(n)</span> لكنها تحدث نادرًا (كل مرة يتضاعف الجدول تقريبًا)، فيبقى متوسط تكلفة الإدخال <span class="mono" dir="ltr">O(1)</span> — تكلفة موزَّعة على العمليات (amortised).</p>
+      <div class="aside bad"><span class="k"><svg class="ic"><use href="#i-warn"/></svg> ملاحظة على الشريحة</span>
+        <p>الشريحة 25 تقول «double the number of slots» بينما الشريحة 26 تنفّذ <span class="mono" dir="ltr">2·M + 1</span>. الفرق مقصود عمليًا: <span class="mono" dir="ltr">2M</span> قد يبقى زوجيًا ويُضعف التوزيع، و<span class="mono" dir="ltr">2M+1</span> يقرّبنا من مقاس أولي. في الاختبار اذكر الصيغة التي تسأل عنها الشريحة: 11 من 5.</p></div>
+    </div>
+
+    <div id="host-gauge" data-num="3.5.2"></div>
+  </div>
+</section>
+
+<!-- ================= 3.6 ================= -->
+<section class="sec reveal" id="s36">
+  <div class="num"><b>3.6</b><span>تحدٍّ</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">نشاط تطبيقي · 5 مستويات · الشرائح 12–14 و25–26</span></div>
+    <h2>تحدّي: λ والسلسلة وإعادة التجزئة</h2>
+    <p>خمسة مستويات: حساب λ، قرار التوسيع، طول السلسلة بعد الإدخال، عدد مقارنات البحث، وخانة المفتاح في الجدول الجديد.</p>
+    <div id="challenge"></div>
+    <div class="aside"><span class="k"><svg class="ic"><use href="#i-info"/></svg> كيف يُحتسب الإنجاز</span>
+      <p>يُسجَّل النشاط مكتملًا عند اجتياز المستويات الخمسة، ويُحفظ في المتصفح.</p></div>
+  </div>
+</section>
+
+<!-- ================= 3.7 ================= -->
+<section class="sec reveal" id="s37">
+  <div class="num"><b>3.7</b><span>اختبار</span></div>
+  <div class="bd">
+    <div class="kick"><span class="slidep">10 أسئلة · تصحيح فوري</span></div>
+    <h2>الاختبار القصير</h2>
+    <p>أجب ثم اضغط <b>صحّح</b>. كل سؤال يشرح سببه بعد التصحيح، ونُسجّل المواضيع التي أخطأت فيها لتظهر في «مواضيعك الأضعف».</p>
+    <div id="quizList"></div>
+    <div class="scorebar">
+      <span>النتيجة: <span class="big" id="scoreVal">—</span> <span id="scoreMsg"></span></span>
+      <span class="acts" style="margin:0">
+        <button class="btn" type="button" id="gradeBtn">صحّح</button>
+        <button class="btn ghost" type="button" id="retryBtn">إعادة</button>
+        <button class="btn ghost" type="button" id="onlyWrong">راجع الأخطاء فقط</button>
+        <button class="btn ghost" type="button" id="showAll">كل الأسئلة</button>
+      </span>
+    </div>
+
+    <div id="weakBox" style="margin-top:var(--s4)">
+      <h3>مواضيعك الأضعف</h3>
+      <div id="weakBody"></div>
+      <button class="btn ghost" type="button" id="clearHist" style="margin-top:var(--s2)"><svg class="ic"><use href="#i-trash"/></svg> امسح السجل</button>
+      <p class="sm muted" style="margin-top:var(--s2)">يُحفظ آخر 10 محاولات في هذا المتصفح فقط (localStorage).</p>
+    </div>
+
+    <h3 style="margin-top:var(--s5)">فحوص ذاتية محسوبة</h3>
+    <p class="sm muted">تُحسب عند التحميل من بيانات الوحدة، وتُقارن بأرقام الشريحتين 13 و26:</p>
+    <div id="selftests"></div>
+
+    <h3 style="margin-top:var(--s5)">تحقق من فهمك</h3>
+    <p class="sm muted">علّم ما أنجزته فعلًا؛ الحالة تُحفظ محليًا.</p>
+    <div id="checkList"></div>
+
+    <div class="aside ok" style="margin-top:var(--s4)"><span class="k"><svg class="ic"><use href="#i-arrow"/></svg> التالي</span>
+      <p>الوحدة 04 تبدأ من الشريحة 15: <b>التجزئة المزدوجة</b> (h₂ والخطوة الخاصة بكل مفتاح).</p></div>
+  </div>
+</section>
+
+<footer class="sec" style="display:block;border-top:1px solid var(--hair);padding-top:var(--s3)">
+  <p class="sm muted">CS2015 · الوحدة 03 — السلسلة ومعامل الحِمل (الشرائح 12 · 13 · 14 · 25 · 26 من 33) · تغطية كاملة لكل شريحة في النطاق · بلا إنترنت.</p>
+</footer>
+</main>
+</div>
