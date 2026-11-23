@@ -1,0 +1,51 @@
+name: Deploy CS2015 site to GitHub Pages
+
+on:
+  push:
+    branches:
+      - arena/a52ba5aa-cs
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the current branch
+        uses: actions/checkout@v4
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Assemble the site
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site/final
+          cp index.html _site/index.html
+          cp final/module01_hash_basics.html _site/final/
+          cp final/module02_hash_functions.html _site/final/
+          cp final/module03_chaining_loadfactor.html _site/final/
+          cp final/module04_open_addressing.html _site/final/
+          touch _site/.nojekyll
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
